@@ -4,60 +4,236 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>計算機</title>
-    <link rel="manifest" href="data:application/manifest+json;utf8,{\"name\":\"計算機\",\"short_name\":\"計算機\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#17181c\",\"theme_color\":\"#17181c\"}">
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background-color: #17181c;
+            color: #fff;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+        }
+
         button, input {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             outline: none;
+            border: none;
             -webkit-tap-highlight-color: transparent;
             font-family: inherit;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-        body { background-color: #17181c; color: #fff; height: 100vh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
-        .calculator { width: 100%; height: 100%; max-width: 420px; padding: 24px; display: flex; flex-direction: column; position: relative; background: #17181c; }
-        
-        .top-icons { display: flex; justify-content: flex-end; align-items: center; height: 50px; margin-bottom: 10px; }
-        .secret-trigger { background: transparent; border: none; font-size: 32px; color: #8a8d9b; font-style: italic; font-family: serif; cursor: pointer; padding: 15px 20px; margin-right: -10px; z-index: 10; }
-        
-        .screen { flex: 1; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding-bottom: 20px; }
-        .history { font-size: 18px; color: #8a8d9b; min-height: 24px; text-align: right; }
-        .current { font-size: 48px; font-weight: 300; text-align: right; word-break: break-all; }
-        
-        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-bottom: 10px; }
-        .btn { aspect-ratio: 1; border-radius: 50%; border: none; background: #21232b; color: #fff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: none; }
-        .btn:active { transform: scale(0.92); background: #353844; }
-        .btn.func { background: #2e313c; color: #a5a9b8; }
-        .btn.operator { background: #ff9f0a; font-size: 30px; color: #fff; }
+        /* 計算機主體對齊 */
+        .calculator {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 100dvh;
+            padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            background: #17181c;
+        }
 
-        .algebra-panel { display: none; position: absolute; top: 70px; left: 24px; right: 24px; background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 16px; z-index: 5; }
+        /* 頂部隱藏按鈕區 */
+        .top-icons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 48px;
+            width: 100%;
+            z-index: 30;
+        }
+
+        .secret-trigger {
+            background: transparent;
+            font-size: 26px;
+            color: #8a8d9b;
+            font-style: italic;
+            font-family: Georgia, serif;
+            cursor: pointer;
+            padding: 10px 16px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        .secret-trigger:active {
+            opacity: 0.5;
+        }
+
+        /* 螢幕顯示區 */
+        .screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 12px 0;
+            width: 100%;
+        }
+
+        .history {
+            font-size: 18px;
+            color: #8a8d9b;
+            min-height: 26px;
+            text-align: right;
+            width: 100%;
+            word-break: break-all;
+        }
+
+        .current {
+            font-size: 52px;
+            font-weight: 300;
+            text-align: right;
+            color: #ffffff;
+            width: 100%;
+            line-height: 1.15;
+            word-break: break-all;
+            min-height: 60px;
+        }
+
+        /* 計算機鍵盤 */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #21232b;
+            color: #ffffff;
+            font-size: 26px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.12s ease, transform 0.08s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.92);
+            background: #353844;
+        }
+
+        .btn.func {
+            background: #2e313c;
+            color: #a5a9b8;
+        }
+
+        .btn.operator {
+            background: #ff9f0a;
+            font-size: 30px;
+            color: #ffffff;
+        }
+        .btn.operator:active {
+            background: #e08b08;
+        }
+
+        /* 代數解題面板 */
+        .algebra-panel {
+            display: none;
+            position: absolute;
+            top: calc(60px + env(safe-area-inset-top, 0px));
+            left: 20px;
+            right: 20px;
+            background: #21232b;
+            border: 1px solid #353844;
+            border-radius: 16px;
+            padding: 16px;
+            z-index: 40;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
         .algebra-panel h4 { color: #ff9f0a; margin-bottom: 8px; font-size: 15px; }
-        .algebra-input { width: 50px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px; margin: 0 4px; }
+        .algebra-input { width: 48px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px; margin: 0 4px; font-size: 14px; }
 
-        .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
-        .modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 320px; text-align: center; }
-        .modal-box h3 { font-size: 18px; margin-bottom: 12px; }
+        /* 全域彈窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: #21232b;
+            border: 1px solid #353844;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
         .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
-        .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 12px; }
+        .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
+        
         .modal-btn-group { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; font-size: 15px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; }
         .modal-btn.confirm { background: #ff9f0a; color: #fff; }
         .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
 
-        .chat-app { display: none; width: 100%; height: 100%; background: #0d0e12; flex-direction: row; position: relative; }
-        .sidebar { width: 220px; background: #14151a; border-right: 1px solid #21232b; display: flex; flex-direction: column; padding: 16px 10px; }
-        .sidebar h2 { font-size: 13px; color: #616472; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        
+        /* 聊天室應用 */
+        .chat-app {
+            display: none;
+            width: 100%;
+            height: 100dvh;
+            background: #0d0e12;
+            flex-direction: row;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #14151a;
+            border-right: 1px solid #21232b;
+            display: flex;
+            flex-direction: column;
+            padding: calc(16px + env(safe-area-inset-top, 0px)) 12px 16px 12px;
+        }
+        .sidebar h2 { font-size: 12px; color: #616472; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
         .my-profile { display: flex; align-items: center; gap: 10px; padding: 8px; background: #1c1d24; border-radius: 10px; margin-bottom: 16px; cursor: pointer; border: 1px dashed #353844; }
         .avatar-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 18px; }
 
         .channel-list, .member-list { list-style: none; margin-bottom: 16px; }
-        .channel-item, .member-item { padding: 12px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; color: #a5a9b8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-        .channel-item.active { background: #21232b; color: #fff; }
+        .channel-item, .member-item { padding: 10px 8px; border-radius: 8px; font-size: 14px; cursor: pointer; color: #a5a9b8; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+        .channel-item.active { background: #21232b; color: #fff; font-weight: 600; }
         .member-info { display: flex; align-items: center; gap: 8px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #444; }
         .dot.online { background: #34c759; box-shadow: 0 0 6px #34c759; }
@@ -68,20 +244,21 @@
         .msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 16px; background: #1c1d24; font-size: 15px; line-height: 1.4; align-self: flex-start; word-break: break-word; -webkit-user-select: text; user-select: text; }
         .msg-bubble.me { align-self: flex-end; background: #007aff; }
         .msg-meta { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        
-        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; background: #14151a; }
-        .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 20px; padding: 12px 16px; color: #fff; font-size: 15px; }
-        .send-btn { background: #ff9f0a; border: none; border-radius: 50%; width: 42px; height: 42px; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
+
+        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+        .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 20px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
+        .send-btn { background: #ff9f0a; border-radius: 50%; width: 42px; height: 42px; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
 
         .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .btn-danger { background: #ff3b30; color: #fff; padding: 8px 12px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+        .btn-danger { background: #ff3b30; color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <!-- 計算機介面 -->
     <div class="calculator" id="calculatorApp">
         <div class="top-icons">
-            <button class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
+            <button type="button" class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
         </div>
 
         <div class="algebra-panel" id="algebraPanel">
@@ -90,7 +267,7 @@
                 <input type="number" id="algA" class="algebra-input" value="1">x² + 
                 <input type="number" id="algB" class="algebra-input" value="-1">x + 
                 <input type="number" id="algC" class="algebra-input" value="-2">= 0
-                <button onclick="solveAlgebra()" style="background:#ff9f0a; border:none; color:#fff; padding:6px 10px; border-radius:6px; margin-left:10px;">求解</button>
+                <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:10px;">求解</button>
             </div>
             <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
         </div>
@@ -101,40 +278,41 @@
         </div>
 
         <div class="keypad">
-            <button class="btn func" onclick="clearCalc()">C</button>
-            <button class="btn func" onclick="backspace()">⌫</button>
-            <button class="btn func" onclick="appendPercent()">%</button>
-            <button class="btn operator" onclick="appendOperator('÷')">÷</button>
+            <button type="button" class="btn func" onclick="clearCalc()">C</button>
+            <button type="button" class="btn func" onclick="backspace()">⌫</button>
+            <button type="button" class="btn func" onclick="appendPercent()">%</button>
+            <button type="button" class="btn operator" onclick="appendOperator('÷')">÷</button>
 
-            <button class="btn" onclick="appendNumber('7')">7</button>
-            <button class="btn" onclick="appendNumber('8')">8</button>
-            <button class="btn" onclick="appendNumber('9')">9</button>
-            <button class="btn operator" onclick="appendOperator('×')">×</button>
+            <button type="button" class="btn" onclick="appendNumber('7')">7</button>
+            <button type="button" class="btn" onclick="appendNumber('8')">8</button>
+            <button type="button" class="btn" onclick="appendNumber('9')">9</button>
+            <button type="button" class="btn operator" onclick="appendOperator('×')">×</button>
 
-            <button class="btn" onclick="appendNumber('4')">4</button>
-            <button class="btn" onclick="appendNumber('5')">5</button>
-            <button class="btn" onclick="appendNumber('6')">6</button>
-            <button class="btn operator" onclick="appendOperator('－')">－</button>
+            <button type="button" class="btn" onclick="appendNumber('4')">4</button>
+            <button type="button" class="btn" onclick="appendNumber('5')">5</button>
+            <button type="button" class="btn" onclick="appendNumber('6')">6</button>
+            <button type="button" class="btn operator" onclick="appendOperator('－')">－</button>
 
-            <button class="btn" onclick="appendNumber('1')">1</button>
-            <button class="btn" onclick="appendNumber('2')">2</button>
-            <button class="btn" onclick="appendNumber('3')">3</button>
-            <button class="btn operator" onclick="appendOperator('＋')">＋</button>
+            <button type="button" class="btn" onclick="appendNumber('1')">1</button>
+            <button type="button" class="btn" onclick="appendNumber('2')">2</button>
+            <button type="button" class="btn" onclick="appendNumber('3')">3</button>
+            <button type="button" class="btn operator" onclick="appendOperator('＋')">＋</button>
 
-            <button class="btn func" onclick="toggleParentheses()">( )</button>
-            <button class="btn" onclick="appendNumber('0')">0</button>
-            <button class="btn" onclick="appendDecimal()">.</button>
-            <button class="btn operator" onclick="calculate()">＝</button>
+            <button type="button" class="btn func" onclick="toggleParentheses()">( )</button>
+            <button type="button" class="btn" onclick="appendNumber('0')">0</button>
+            <button type="button" class="btn" onclick="appendDecimal()">.</button>
+            <button type="button" class="btn operator" onclick="calculate()">＝</button>
         </div>
 
+        <!-- 驗證彈窗 -->
         <div class="modal-overlay" id="authModal">
             <div class="modal-box" id="stage1Box">
                 <h3>校園自主學習專案</h3>
                 <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
                 <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
                 <div class="modal-btn-group">
-                    <button class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
-                    <button class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
+                    <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
+                    <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
                 </div>
             </div>
 
@@ -144,13 +322,14 @@
                 <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
                 <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼">
                 <div class="modal-btn-group">
-                    <button class="modal-btn cancel" onclick="backToStage1()">上一步</button>
-                    <button class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
+                    <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
+                    <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 祕密聊天室介面 -->
     <div class="chat-app" id="chatApp">
         <div class="sidebar">
             <h2>個人設定</h2>
@@ -173,20 +352,21 @@
         <div class="chat-main">
             <div class="chat-header">
                 <span id="currentChannelTitle">頻道聊天室</span>
-                <button class="btn-danger" onclick="nuclearDestruct()">⚠️ 銷毀</button>
+                <button type="button" class="btn-danger" onclick="nuclearDestruct()">⚠️ 銷毀</button>
             </div>
             <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-area">
                 <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息...">
-                <button class="send-btn" onclick="sendMessage()">➤</button>
+                <button type="button" class="send-btn" onclick="sendMessage()">➤</button>
             </div>
         </div>
     </div>
 
+    <!-- 防追查鎖定屏 -->
     <div class="lock-mask" id="lockMask">
         <h3 style="margin-bottom:16px;">系統已鎖定</h3>
         <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:240px;" placeholder="輸入暗號解鎖">
-        <button class="modal-btn confirm" style="max-width:240px;" onclick="unlockScreen()">解鎖</button>
+        <button type="button" class="modal-btn confirm" style="max-width:240px;" onclick="unlockScreen()">解鎖</button>
     </div>
 
     <script>
@@ -198,82 +378,230 @@
         let currentUser = null;
         let activeChannel = { type: 'group', target: 'group_1234', title: '👥 1234 核心大群' };
         let allUsers = [];
-        let expression = '0', isNewCalc = false;
+        let expression = '0';
+        let historyText = '';
+        let isNewCalc = false;
 
-        window.onload = function() {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // 安全初始化 Supabase，避免網路阻擋導致全頁腳本停擺
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            } catch (err) {
+                console.warn("Supabase 初始化延遲或被阻擋:", err);
             }
-        };
+            updateDisplay();
+        });
 
-        function updateDisplay() { document.getElementById('current').innerText = expression; }
-        function appendNumber(num) { expression = (expression === '0' || isNewCalc) ? num : expression + num; isNewCalc = false; updateDisplay(); }
-        function appendOperator(op) { expression += op; isNewCalc = false; updateDisplay(); }
-        function clearCalc() { expression = '0'; updateDisplay(); }
-        function backspace() { expression = expression.length > 1 ? expression.slice(0,-1) : '0'; updateDisplay(); }
-        function appendPercent() { try { expression = String(parseFloat(expression) / 100); } catch(e){} updateDisplay(); }
-        function appendDecimal() { if (!expression.includes('.')) expression += '.'; updateDisplay(); }
-        function toggleParentheses() { expression += (expression.split('(').length > expression.split(')').length) ? ')' : '('; updateDisplay(); }
-        
+        // 計算機 UI 核心更新
+        function updateDisplay() {
+            const currentEl = document.getElementById('current');
+            const historyEl = document.getElementById('history');
+            if (currentEl) currentEl.innerText = expression;
+            if (historyEl) historyEl.innerText = historyText;
+        }
+
+        function appendNumber(num) {
+            if (expression === '0' || isNewCalc) {
+                expression = num;
+                isNewCalc = false;
+            } else {
+                expression += num;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            isNewCalc = false;
+            const lastChar = expression.slice(-1);
+            if (['＋', '－', '×', '÷'].includes(lastChar)) {
+                expression = expression.slice(0, -1) + op;
+            } else {
+                expression += op;
+            }
+            updateDisplay();
+        }
+
+        function clearCalc() {
+            expression = '0';
+            historyText = '';
+            isNewCalc = false;
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (isNewCalc) {
+                clearCalc();
+                return;
+            }
+            expression = expression.length > 1 ? expression.slice(0, -1) : '0';
+            updateDisplay();
+        }
+
+        function appendPercent() {
+            try {
+                let val = parseFloat(expression);
+                if (!isNaN(val)) {
+                    expression = String(val / 100);
+                    isNewCalc = true;
+                }
+            } catch(e) {}
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (isNewCalc) {
+                expression = '0.';
+                isNewCalc = false;
+                updateDisplay();
+                return;
+            }
+            const parts = expression.split(/[＋－×÷]/);
+            const lastPart = parts[parts.length - 1];
+            if (!lastPart.includes('.')) {
+                expression += '.';
+            }
+            updateDisplay();
+        }
+
+        function toggleParentheses() {
+            if (isNewCalc) {
+                expression = '(';
+                isNewCalc = false;
+                updateDisplay();
+                return;
+            }
+            const openCount = (expression.match(/\(/g) || []).length;
+            const closeCount = (expression.match(/\)/g) || []).length;
+            const lastChar = expression.slice(-1);
+
+            if (openCount > closeCount && !['＋', '－', '×', '÷', '('].includes(lastChar)) {
+                expression += ')';
+            } else {
+                if (expression === '0') expression = '(';
+                else expression += '(';
+            }
+            updateDisplay();
+        }
+
         function calculate() {
             try {
-                let expr = expression.replace(/＋/g,'+').replace(/－/g,'-').replace(/×/g,'*').replace(/÷/g,'/');
-                expression = String(eval(expr)); isNewCalc = true;
-            } catch(e) { expression = '錯誤'; }
+                historyText = expression + ' =';
+                let sanitized = expression
+                    .replace(/＋/g, '+')
+                    .replace(/－/g, '-')
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+                
+                let result = Function('"use strict"; return (' + sanitized + ')')();
+                if (result === undefined || isNaN(result)) {
+                    expression = '錯誤';
+                } else {
+                    expression = String(Number(result.toFixed(8)));
+                }
+                isNewCalc = true;
+            } catch(e) {
+                expression = '錯誤';
+                isNewCalc = true;
+            }
             updateDisplay();
         }
 
         function solveAlgebra() {
-            let a = parseFloat(document.getElementById('algA').value), b = parseFloat(document.getElementById('algB').value), c = parseFloat(document.getElementById('algC').value);
+            let a = parseFloat(document.getElementById('algA').value);
+            let b = parseFloat(document.getElementById('algB').value);
+            let c = parseFloat(document.getElementById('algC').value);
+            if (isNaN(a) || isNaN(b) || isNaN(c) || a === 0) {
+                document.getElementById('algebraAns').innerText = "請輸入有效的二次項係數";
+                return;
+            }
             let d = b*b - 4*a*c;
-            if (d < 0) document.getElementById('algebraAns').innerText = "無實數解";
-            else {
-                let x1 = (-b + Math.sqrt(d))/(2*a), x2 = (-b - Math.sqrt(d))/(2*a);
+            if (d < 0) {
+                document.getElementById('algebraAns').innerText = "無實數解";
+            } else {
+                let x1 = (-b + Math.sqrt(d)) / (2*a);
+                let x2 = (-b - Math.sqrt(d)) / (2*a);
                 document.getElementById('algebraAns').innerText = `解: x₁ = ${x1.toFixed(2)}, x₂ = ${x2.toFixed(2)}`;
             }
         }
 
-        function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        // 驗證彈窗與觸發機制
+        function openAuthModal() {
+            const modal = document.getElementById('authModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.getElementById('stage1Box').style.display = 'block';
+                document.getElementById('stage2Box').style.display = 'none';
+                document.getElementById('courseCodeInput').value = '';
+            }
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'none';
+        }
 
         function verifyCourseCode() {
             const input = document.getElementById('courseCodeInput').value.trim();
-            if (input.endsWith('-fake')) { closeAuthModal(); document.getElementById('algebraPanel').style.display = 'block'; }
-            else if (input === COURSE_CODE) { document.getElementById('stage1Box').style.display = 'none'; document.getElementById('stage2Box').style.display = 'block'; }
-            else { alert("課程驗證碼錯誤"); }
+            if (input.endsWith('-fake')) {
+                closeAuthModal();
+                document.getElementById('algebraPanel').style.display = 'block';
+            } else if (input === COURSE_CODE) {
+                document.getElementById('stage1Box').style.display = 'none';
+                document.getElementById('stage2Box').style.display = 'block';
+            } else {
+                alert("課程驗證碼錯誤");
+            }
         }
 
-        function backToStage1() { document.getElementById('stage2Box').style.display = 'none'; document.getElementById('stage1Box').style.display = 'block'; }
+        function backToStage1() {
+            document.getElementById('stage2Box').style.display = 'none';
+            document.getElementById('stage1Box').style.display = 'block';
+        }
 
         async function finalLogin() {
             const un = document.getElementById('usernameInput').value.trim();
             const pwd = document.getElementById('userPasswordInput').value.trim();
 
-            if (pwd.endsWith('-fake')) { closeAuthModal(); document.getElementById('algebraPanel').style.display = 'block'; return; }
-            
-            if (!supabase) {
-                alert("資料庫連線初始化中，請稍後再試");
+            if (pwd.endsWith('-fake')) {
+                closeAuthModal();
+                document.getElementById('algebraPanel').style.display = 'block';
                 return;
             }
 
-            const { data: user, error } = await supabase.from('users').select('*').eq('username', un).eq('password', pwd).single();
-            if (error || !user) { alert("帳號或密碼不正確"); return; }
-            if (user.security_status === 'compromised') { alert("帳號凍結"); return; }
+            if (!supabase) {
+                alert("資料庫連線失敗或被網路阻擋，請確認網路連線。");
+                return;
+            }
 
-            currentUser = user; closeAuthModal();
-            document.getElementById('calculatorApp').style.display = 'none';
-            document.getElementById('chatApp').style.display = 'flex';
-            updateProfileUI(); initChatSystem();
+            try {
+                const { data: user, error } = await supabase.from('users').select('*').eq('username', un).eq('password', pwd).single();
+                if (error || !user) { alert("帳號或密碼不正確"); return; }
+                if (user.security_status === 'compromised') { alert("帳號已被凍結"); return; }
+
+                currentUser = user;
+                closeAuthModal();
+                document.getElementById('calculatorApp').style.display = 'none';
+                document.getElementById('chatApp').style.display = 'flex';
+                updateProfileUI();
+                initChatSystem();
+            } catch(e) {
+                alert("登入過程發生異常：" + e.message);
+            }
         }
 
         function triggerAvatarUpload() { document.getElementById('avatarInput').click(); }
-        function getAvatarHtml(u) { return u.avatar_url ? `<img src="${u.avatar_url}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; vertical-align:middle;">` : u.avatar_emoji || '👤'; }
+        function getAvatarHtml(u) { return u.avatar_url ? `<img src="${u.avatar_url}" style="width:28px; height:28px; border-radius:50%; object-fit:cover; vertical-align:middle;">` : (u.avatar_emoji || '👤'); }
         
         function updateProfileUI() {
             document.getElementById('myNickname').innerText = currentUser.nickname || currentUser.username;
             const box = document.getElementById('myAvatarBox');
-            if (currentUser.avatar_url) box.innerHTML = `<img src="${currentUser.avatar_url}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            else box.innerText = currentUser.avatar_emoji || '👤';
+            if (currentUser.avatar_url) {
+                box.innerHTML = `<img src="${currentUser.avatar_url}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                box.innerText = currentUser.avatar_emoji || '👤';
+            }
         }
 
         function uploadCustomAvatar(event) {
@@ -295,20 +623,29 @@
         }
 
         async function initChatSystem() {
-            await fetchAllUsers(); renderChannels();
+            await fetchAllUsers();
+            renderChannels();
             setInterval(async () => {
-                await supabase.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
-                await fetchAllUsers(); loadMessages();
+                if (!currentUser) return;
+                try {
+                    await supabase.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
+                    await fetchAllUsers();
+                    loadMessages();
+                } catch(e){}
             }, 4000);
         }
 
         async function fetchAllUsers() {
+            if (!supabase) return;
             const { data } = await supabase.from('users').select('*');
-            allUsers = data || []; renderMemberList();
+            allUsers = data || [];
+            renderMemberList();
         }
 
         function renderMemberList() {
-            const memberList = document.getElementById('memberList'); memberList.innerHTML = ''; const now = new Date();
+            const memberList = document.getElementById('memberList');
+            memberList.innerHTML = '';
+            const now = new Date();
             allUsers.forEach(u => {
                 if (currentUser.username === 'user5' && u.username !== 'user1' && u.username !== 'user5') return;
                 const isOnline = (now - new Date(u.last_seen)) < 25000;
@@ -317,54 +654,97 @@
         }
 
         function renderChannels() {
-            const channelList = document.getElementById('channelList'); channelList.innerHTML = ''; let channels = [];
+            const channelList = document.getElementById('channelList');
+            channelList.innerHTML = '';
+            let channels = [];
             if (currentUser.username === 'user1') {
-                channels = [{ type: 'group', target: 'group_1234', title: '👥 1234 核心大群' }, { type: 'private', target: 'user2', title: '💬 組員 A' }, { type: 'private', target: 'user3', title: '💬 組員 B' }, { type: 'private', target: 'user4', title: '💬 組員 C' }, { type: 'private', target: 'user5', title: '💬 組員 D (單線)' }];
+                channels = [
+                    { type: 'group', target: 'group_1234', title: '👥 1234 核心大群' },
+                    { type: 'private', target: 'user2', title: '💬 組員 A' },
+                    { type: 'private', target: 'user3', title: '💬 組員 B' },
+                    { type: 'private', target: 'user4', title: '💬 組員 C' },
+                    { type: 'private', target: 'user5', title: '💬 組員 D (單線)' }
+                ];
             } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
                 channels = [{ type: 'group', target: 'group_1234', title: '👥 1234 核心大群' }];
-                ['user1', 'user2', 'user3', 'user4'].forEach(un => { if (un !== currentUser.username) { const targetUser = allUsers.find(u => u.username === un); channels.push({ type: 'private', target: un, title: `💬 ${targetUser ? targetUser.nickname : un}` }); } });
-            } else if (currentUser.username === 'user5') { channels = [{ type: 'private', target: 'user1', title: '💬 組長 (單線)' }]; }
+                ['user1', 'user2', 'user3', 'user4'].forEach(un => {
+                    if (un !== currentUser.username) {
+                        const targetUser = allUsers.find(u => u.username === un);
+                        channels.push({ type: 'private', target: un, title: `💬 ${targetUser ? targetUser.nickname : un}` });
+                    }
+                });
+            } else if (currentUser.username === 'user5') {
+                channels = [{ type: 'private', target: 'user1', title: '💬 組長 (單線)' }];
+            }
 
             channels.forEach(ch => {
-                const li = document.createElement('li'); li.className = `channel-item ${activeChannel.target === ch.target ? 'active':''}`; li.innerText = ch.title;
-                li.onclick = () => { activeChannel = ch; document.getElementById('currentChannelTitle').innerText = ch.title; renderChannels(); loadMessages(); };
+                const li = document.createElement('li');
+                li.className = `channel-item ${activeChannel.target === ch.target ? 'active':''}`;
+                li.innerText = ch.title;
+                li.onclick = () => {
+                    activeChannel = ch;
+                    document.getElementById('currentChannelTitle').innerText = ch.title;
+                    renderChannels();
+                    loadMessages();
+                };
                 channelList.appendChild(li);
             });
         }
 
         async function loadMessages() {
+            if (!supabase) return;
             let query = supabase.from('messages').select('*').order('created_at', { ascending: true });
-            if (activeChannel.type === 'group') query = query.eq('target_id', 'group_1234');
-            else query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
-            const { data: msgs } = await query; renderMessages(msgs || []);
+            if (activeChannel.type === 'group') {
+                query = query.eq('target_id', 'group_1234');
+            } else {
+                query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
+            }
+            const { data: msgs } = await query;
+            renderMessages(msgs || []);
         }
 
         function renderMessages(msgs) {
-            const container = document.getElementById('chatMessages'); container.innerHTML = '';
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = '';
             msgs.forEach(m => {
-                let content = m.content;
                 const isMe = m.sender === currentUser.username;
                 const senderObj = allUsers.find(u => u.username === m.sender);
                 const bubble = document.createElement('div');
                 bubble.className = `msg-bubble ${isMe ? 'me':''}`;
-                bubble.innerHTML = `<div class="msg-meta">${senderObj ? getAvatarHtml(senderObj) : '👤'} <span>${senderObj ? senderObj.nickname : m.sender}</span></div><div>${content}</div>`;
+                bubble.innerHTML = `<div class="msg-meta">${senderObj ? getAvatarHtml(senderObj) : '👤'} <span>${senderObj ? senderObj.nickname : m.sender}</span></div><div>${m.content}</div>`;
                 container.appendChild(bubble);
             });
             container.scrollTop = container.scrollHeight;
         }
 
         async function sendMessage() {
-            const input = document.getElementById('msgInput'); let txt = input.value.trim(); if (!txt) return;
+            const input = document.getElementById('msgInput');
+            let txt = input.value.trim();
+            if (!txt || !supabase) return;
             await supabase.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: txt });
-            input.value = ''; loadMessages();
+            input.value = '';
+            loadMessages();
         }
 
-        async function nuclearDestruct() { if (confirm("⚠️ 確定銷毀所有對話？")) { await supabase.from('messages').delete().neq('id', 0); loadMessages(); } }
+        async function nuclearDestruct() {
+            if (confirm("⚠️ 確定銷毀所有對話？")) {
+                if (supabase) await supabase.from('messages').delete().neq('id', 0);
+                loadMessages();
+            }
+        }
         
-        document.addEventListener('visibilitychange', () => { if (document.hidden && currentUser) { document.getElementById('lockMask').style.display = 'flex'; } });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && currentUser) {
+                document.getElementById('lockMask').style.display = 'flex';
+            }
+        });
+
         function unlockScreen() {
             const code = document.getElementById('unlockCodeInput').value.trim();
-            if (code === '7788' || (currentUser && code === currentUser.password)) { document.getElementById('lockMask').style.display = 'none'; document.getElementById('unlockCodeInput').value = ''; }
+            if (code === '7788' || (currentUser && code === currentUser.password)) {
+                document.getElementById('lockMask').style.display = 'none';
+                document.getElementById('unlockCodeInput').value = '';
+            }
         }
     </script>
 </body>
