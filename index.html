@@ -41,7 +41,6 @@
             font-family: inherit;
         }
 
-        /* 計算機主體對齊 */
         .calculator {
             width: 100%;
             max-width: 420px;
@@ -55,13 +54,13 @@
             background: #17181c;
         }
 
-        /* 頂部隱藏按鈕區 */
         .top-icons {
             display: flex;
             justify-content: flex-end;
             align-items: center;
             height: 48px;
             width: 100%;
+            position: relative;
             z-index: 30;
         }
 
@@ -72,19 +71,20 @@
             font-style: italic;
             font-family: Georgia, serif;
             cursor: pointer;
-            padding: 10px 16px;
-            min-width: 44px;
-            min-height: 44px;
+            padding: 12px 18px;
+            min-width: 48px;
+            min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
             touch-action: manipulation;
+            position: relative;
+            z-index: 35;
         }
         .secret-trigger:active {
             opacity: 0.5;
         }
 
-        /* 螢幕顯示區 */
         .screen {
             flex: 1;
             display: flex;
@@ -115,7 +115,6 @@
             min-height: 60px;
         }
 
-        /* 計算機鍵盤 */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -135,6 +134,7 @@
             justify-content: center;
             align-items: center;
             transition: background 0.12s ease, transform 0.08s ease;
+            touch-action: manipulation;
         }
 
         .btn:active {
@@ -156,7 +156,6 @@
             background: #e08b08;
         }
 
-        /* 代數解題面板 */
         .algebra-panel {
             display: none;
             position: absolute;
@@ -173,7 +172,6 @@
         .algebra-panel h4 { color: #ff9f0a; margin-bottom: 8px; font-size: 15px; }
         .algebra-input { width: 48px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px; margin: 0 4px; font-size: 14px; }
 
-        /* 全域彈窗 */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -208,7 +206,6 @@
         .modal-btn.confirm { background: #ff9f0a; color: #fff; }
         .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
 
-        /* 聊天室應用 */
         .chat-app {
             display: none;
             width: 100%;
@@ -374,7 +371,8 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
         const COURSE_CODE = "MATH101"; 
 
-        let supabase = null;
+        // 改用 dbClient 避免與 window.supabase 全域變數引發 SyntaxError
+        let dbClient = null;
         let currentUser = null;
         let activeChannel = { type: 'group', target: 'group_1234', title: '👥 1234 核心大群' };
         let allUsers = [];
@@ -382,19 +380,17 @@
         let historyText = '';
         let isNewCalc = false;
 
-        // 安全初始化 Supabase，避免網路阻擋導致全頁腳本停擺
-        window.addEventListener('DOMContentLoaded', () => {
+        function initSupabase() {
             try {
                 if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 }
             } catch (err) {
-                console.warn("Supabase 初始化延遲或被阻擋:", err);
+                console.warn("Supabase 初始化延遲:", err);
             }
-            updateDisplay();
-        });
+        }
 
-        // 計算機 UI 核心更新
+        // 畫面控制核心
         function updateDisplay() {
             const currentEl = document.getElementById('current');
             const historyEl = document.getElementById('history');
@@ -404,10 +400,10 @@
 
         function appendNumber(num) {
             if (expression === '0' || isNewCalc) {
-                expression = num;
+                expression = String(num);
                 isNewCalc = false;
             } else {
-                expression += num;
+                expression += String(num);
             }
             updateDisplay();
         }
@@ -526,7 +522,7 @@
             }
         }
 
-        // 驗證彈窗與觸發機制
+        // 隱藏驗證與彈窗
         function openAuthModal() {
             const modal = document.getElementById('authModal');
             if (modal) {
@@ -570,13 +566,15 @@
                 return;
             }
 
-            if (!supabase) {
+            if (!dbClient) initSupabase();
+
+            if (!dbClient) {
                 alert("資料庫連線失敗或被網路阻擋，請確認網路連線。");
                 return;
             }
 
             try {
-                const { data: user, error } = await supabase.from('users').select('*').eq('username', un).eq('password', pwd).single();
+                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).eq('password', pwd).single();
                 if (error || !user) { alert("帳號或密碼不正確"); return; }
                 if (user.security_status === 'compromised') { alert("帳號已被凍結"); return; }
 
@@ -614,8 +612,10 @@
                     const canvas = document.createElement('canvas'); canvas.width = 80; canvas.height = 80;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, 80, 80);
                     const base64Img = canvas.toDataURL('image/jpeg', 0.8);
-                    supabase.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
-                    .then(() => { currentUser.avatar_url = base64Img; updateProfileUI(); fetchAllUsers(); });
+                    if (dbClient) {
+                        dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
+                        .then(() => { currentUser.avatar_url = base64Img; updateProfileUI(); fetchAllUsers(); });
+                    }
                 };
                 img.src = e.target.result;
             };
@@ -626,9 +626,9 @@
             await fetchAllUsers();
             renderChannels();
             setInterval(async () => {
-                if (!currentUser) return;
+                if (!currentUser || !dbClient) return;
                 try {
-                    await supabase.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
+                    await dbClient.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
                     await fetchAllUsers();
                     loadMessages();
                 } catch(e){}
@@ -636,8 +636,8 @@
         }
 
         async function fetchAllUsers() {
-            if (!supabase) return;
-            const { data } = await supabase.from('users').select('*');
+            if (!dbClient) return;
+            const { data } = await dbClient.from('users').select('*');
             allUsers = data || [];
             renderMemberList();
         }
@@ -692,8 +692,8 @@
         }
 
         async function loadMessages() {
-            if (!supabase) return;
-            let query = supabase.from('messages').select('*').order('created_at', { ascending: true });
+            if (!dbClient) return;
+            let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
             if (activeChannel.type === 'group') {
                 query = query.eq('target_id', 'group_1234');
             } else {
@@ -720,19 +720,19 @@
         async function sendMessage() {
             const input = document.getElementById('msgInput');
             let txt = input.value.trim();
-            if (!txt || !supabase) return;
-            await supabase.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: txt });
+            if (!txt || !dbClient) return;
+            await dbClient.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: txt });
             input.value = '';
             loadMessages();
         }
 
         async function nuclearDestruct() {
             if (confirm("⚠️ 確定銷毀所有對話？")) {
-                if (supabase) await supabase.from('messages').delete().neq('id', 0);
+                if (dbClient) await dbClient.from('messages').delete().neq('id', 0);
                 loadMessages();
             }
         }
-        
+
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && currentUser) {
                 document.getElementById('lockMask').style.display = 'flex';
@@ -746,6 +746,10 @@
                 document.getElementById('unlockCodeInput').value = '';
             }
         }
+
+        // 頁面加載完成後立即初始化
+        initSupabase();
+        updateDisplay();
     </script>
 </body>
 </html>
