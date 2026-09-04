@@ -2,38 +2,733 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>計算機</title>
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background-color: #17181c;
+            color: #fff;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #app-container {
-            width: 360px;
-            height: 640px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-            position: relative;
+            touch-action: manipulation;
+            overscroll-behavior: none;
         }
 
-        /* --- 計算機介面 --- */
-        #calculator-view {
+        button, input {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            outline: none;
+            border: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: inherit;
+        }
+
+        /* === 計算機介面 === */
+        .calculator {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            max-height: 100dvh;
+            padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            background: #222;
+            justify-content: space-between;
+            position: relative;
+            background: #17181c;
         }
-        #calc-display {
+
+        .top-icons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            height: 48px;
+            width: 100%;
+            position: relative;
+            z-index: 30;
+        }
+
+        .secret-trigger {
+            background: transparent;
+            font-size: 26px;
+            color: #8a8d9b;
+            font-style: italic;
+            font-family: Georgia, serif;
+            cursor: pointer;
+            padding: 12px 18px;
+            min-width: 48px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 35;
+        }
+        .secret-trigger:active { opacity: 0.5; }
+
+        .screen {
             flex: 1;
-            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 12px 0;
+            width: 100%;
+        }
+
+        .history { font-size: 18px; color: #8a8d9b; min-height: 26px; text-align: right; width: 100%; word-break: break-all; }
+        .current { font-size: 52px; font-weight: 300; text-align: right; color: #ffffff; width: 100%; line-height: 1.15; word-break: break-all; min-height: 60px; }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%; aspect-ratio: 1; border-radius: 50%; background: #21232b; color: #ffffff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.12s ease, transform 0.08s ease;
+        }
+        .btn:active { transform: scale(0.92); background: #353844; }
+        .btn.func { background: #2e313c; color: #a5a9b8; }
+        .btn.operator { background: #ff9f0a; font-size: 30px; color: #ffffff; }
+        .btn.operator:active { background: #e08b08; }
+
+        .algebra-panel {
+            display: none; position: absolute; top: calc(60px + env(safe-area-inset-top, 0px)); left: 20px; right: 20px; background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 16px; z-index: 40; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .algebra-panel h4 { color: #ff9f0a; margin-bottom: 8px; font-size: 15px; }
+        .algebra-input { width: 48px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px; margin: 0 4px; font-size: 14px; }
+
+        /* === 驗證彈窗 === */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100;
+        }
+        .modal-box {
+            background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
+        .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
+        .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
+        .modal-btn-group { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; flex-shrink: 0; }
+        .modal-btn.confirm { background: #ff9f0a; color: #fff; }
+        .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
+
+        /* === 秘密聊天室 SPA 架構 === */
+        .chat-app {
+            display: none; width: 100%; height: 100dvh; background: #0d0e12; position: relative;
+        }
+
+        /* 視圖容器 */
+        .app-view {
+            position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12;
+        }
+        .app-view.active { display: flex; }
+
+        /* 共用頂部導航 */
+        .header-bar {
+            height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10;
+        }
+        .header-title { font-size: 17px; font-weight: 600; }
+        .icon-btn { background: transparent; color: #ff9f0a; font-size: 16px; cursor: pointer; padding: 8px; }
+
+        /* 頭像與狀態 (修復擠壓變形) */
+        .avatar-img {
+            width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 20px; background: #2e313c; transition: border 0.3s ease; box-sizing: border-box;
+        }
+        /* 在線綠框特效 */
+        .avatar-img.online { border: 2.5px solid #34c759; padding: 2px; box-shadow: 0 0 8px rgba(52, 199, 89, 0.4); }
+        .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
+
+        /* 視圖 1: 聊天列表 */
+        .channel-list { list-style: none; flex: 1; overflow-y: auto; padding: 12px; }
+        .channel-item { display: flex; align-items: center; padding: 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
+        .channel-item:active { background: #21232b; }
+        .channel-info { margin-left: 12px; flex: 1; }
+        .channel-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .channel-desc { font-size: 13px; color: #8a8d9b; }
+
+        /* 視圖 2: 聊天室 */
+        .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; }
+        .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
+        .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
+        .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; }
+        .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
+        
+        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 10px; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
+        .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
+        .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
+
+        /* 視圖 3: 個人設定頁 */
+        .profile-container { flex: 1; overflow-y: auto; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; }
+        .profile-input-group { width: 100%; max-width: 320px; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -8px; margin-left: 4px; }
+
+        /* 鎖定屏 */
+        .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
+        .btn-danger { background: #ff3b30; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- 計算機介面 -->
+    <div class="calculator" id="calculatorApp">
+        <div class="top-icons">
+            <button type="button" class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
+        </div>
+
+        <div class="algebra-panel" id="algebraPanel">
+            <h4>📐 一元二次方程式求解器</h4>
+            <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center;">
+                <input type="number" id="algA" class="algebra-input" value="1">x² + 
+                <input type="number" id="algB" class="algebra-input" value="-1">x + 
+                <input type="number" id="algC" class="algebra-input" value="-2">= 0
+                <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:10px;">求解</button>
+            </div>
+            <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
+        </div>
+
+        <div class="screen">
+            <div class="history" id="history"></div>
+            <div class="current" id="current">0</div>
+        </div>
+
+        <div class="keypad">
+            <button type="button" class="btn func" onclick="clearCalc()">C</button>
+            <button type="button" class="btn func" onclick="backspace()">⌫</button>
+            <button type="button" class="btn func" onclick="appendPercent()">%</button>
+            <button type="button" class="btn operator" onclick="appendOperator('÷')">÷</button>
+
+            <button type="button" class="btn" onclick="appendNumber('7')">7</button>
+            <button type="button" class="btn" onclick="appendNumber('8')">8</button>
+            <button type="button" class="btn" onclick="appendNumber('9')">9</button>
+            <button type="button" class="btn operator" onclick="appendOperator('×')">×</button>
+
+            <button type="button" class="btn" onclick="appendNumber('4')">4</button>
+            <button type="button" class="btn" onclick="appendNumber('5')">5</button>
+            <button type="button" class="btn" onclick="appendNumber('6')">6</button>
+            <button type="button" class="btn operator" onclick="appendOperator('－')">－</button>
+
+            <button type="button" class="btn" onclick="appendNumber('1')">1</button>
+            <button type="button" class="btn" onclick="appendNumber('2')">2</button>
+            <button type="button" class="btn" onclick="appendNumber('3')">3</button>
+            <button type="button" class="btn operator" onclick="appendOperator('＋')">＋</button>
+
+            <button type="button" class="btn func" onclick="toggleParentheses()">( )</button>
+            <button type="button" class="btn" onclick="appendNumber('0')">0</button>
+            <button type="button" class="btn" onclick="appendDecimal()">.</button>
+            <button type="button" class="btn operator" onclick="calculate()">＝</button>
+        </div>
+
+        <!-- 驗證彈窗 -->
+        <div class="modal-overlay" id="authModal">
+            <div class="modal-box" id="stage1Box">
+                <h3>校園自主學習專案</h3>
+                <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
+                <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
+                <div class="modal-btn-group">
+                    <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
+                    <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
+                </div>
+            </div>
+
+            <div class="modal-box" id="stage2Box" style="display: none;">
+                <h3>自主學習系統登入</h3>
+                <p>請輸入學號與密碼：</p>
+                <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
+                <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼">
+                <div class="modal-btn-group">
+                    <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
+                    <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 祕密通訊系統 (SPA架構) -->
+    <div class="chat-app" id="chatApp">
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadCustomAvatar(event)">
+
+        <!-- 視圖 1: 聊天列表 -->
+        <div class="app-view active" id="viewChatList">
+            <div class="header-bar">
+                <span class="header-title">💬 聊天室</span>
+                <div id="navProfileBtn" onclick="switchView('viewProfile')" style="cursor:pointer;">
+                    <!-- 頭像插入區 -->
+                </div>
+            </div>
+            <ul class="channel-list" id="channelList"></ul>
+        </div>
+
+        <!-- 視圖 2: 聊天室內部 -->
+        <div class="app-view" id="viewChatRoom">
+            <div class="header-bar">
+                <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
+                <span class="header-title" id="currentChannelTitle">頻道名稱</span>
+                <button type="button" class="btn-danger" onclick="nuclearDestruct()">⚠️</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息...">
+                <button type="button" class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+
+        <!-- 視圖 3: 個人檔案 -->
+        <div class="app-view" id="viewProfile">
+            <div class="header-bar">
+                <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
+                <span class="header-title">設定</span>
+                <div style="width: 60px;"></div> <!-- 排版佔位用 -->
+            </div>
+            <div class="profile-container">
+                <div id="profileAvatarBox" onclick="document.getElementById('avatarInput').click()" style="cursor:pointer; position:relative;">
+                    <!-- 檔案頭像插入區 -->
+                </div>
+                <div style="color:#ff9f0a; font-size:12px; margin-top:12px;">點擊照片更換頭貼</div>
+
+                <div class="profile-input-group">
+                    <div class="input-label">登入帳號 (不可更改)</div>
+                    <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;">
+                    
+                    <div class="input-label">顯示名稱</div>
+                    <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱">
+                    
+                    <div class="input-label">變更密碼 (留空則不更改)</div>
+                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新密碼">
+                    
+                    <button type="button" class="modal-btn confirm" style="width:100%; margin-top:12px;" onclick="saveProfile()">儲存設定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 防追查鎖定屏 -->
+    <div class="lock-mask" id="lockMask">
+        <h3 style="margin-bottom:16px;">系統已鎖定</h3>
+        <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:260px; width:100%; box-sizing:border-box;" placeholder="輸入暗號解鎖">
+        <button type="button" class="modal-btn confirm" style="max-width:260px; width:100%; flex-shrink:0; box-sizing:border-box;" onclick="unlockScreen()">解鎖</button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://vypcadthtduafammtlwz.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
+        const COURSE_CODE = "PLAYMATH"; 
+
+        const DEFAULT_NICKS = {
+            'user1': '小菜車',
+            'user2': '熊冠',
+            'user3': '邪王真眼',
+            'user4': '布丁',
+            'user5': '咪喵'
+        };
+
+        let dbClient = null;
+        let currentUser = null;
+        let activeChannel = null;
+        let allUsers = [];
+        let expression = '0';
+        let historyText = '';
+        let isNewCalc = false;
+
+        function initSupabase() {
+            try {
+                if (window.supabase && typeof window.supabase.createClient === 'function') {
+                    dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            } catch (err) { console.warn("Supabase 載入延遲", err); }
+        }
+
+        /* === 計算機邏輯 === */
+        function updateDisplay() {
+            document.getElementById('current').innerText = expression;
+            document.getElementById('history').innerText = historyText;
+        }
+
+        function appendNumber(num) {
+            if (isNewCalc) { expression = '0'; isNewCalc = false; }
+            
+            // 限制當前輸入的數字最多 15 位數，防止版面爆裂
+            const parts = expression.split(/[＋－×÷\(\)]/);
+            const currentPart = parts[parts.length - 1];
+            if (currentPart.replace(/[^0-9]/g, '').length >= 15) return; 
+
+            if (expression === '0') {
+                expression = String(num);
+            } else {
+                expression += String(num);
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            isNewCalc = false;
+            const lastChar = expression.slice(-1);
+            if (['＋', '－', '×', '÷'].includes(lastChar)) {
+                expression = expression.slice(0, -1) + op;
+            } else {
+                expression += op;
+            }
+            updateDisplay();
+        }
+
+        function clearCalc() { expression = '0'; historyText = ''; isNewCalc = false; updateDisplay(); }
+        
+        function backspace() {
+            if (isNewCalc) { clearCalc(); return; }
+            expression = expression.length > 1 ? expression.slice(0, -1) : '0';
+            updateDisplay();
+        }
+
+        function appendPercent() {
+            try {
+                let val = parseFloat(expression);
+                if (!isNaN(val)) { expression = String(val / 100); isNewCalc = true; }
+            } catch(e) {}
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            if (isNewCalc) { expression = '0.'; isNewCalc = false; updateDisplay(); return; }
+            const parts = expression.split(/[＋－×÷\(\)]/);
+            const lastPart = parts[parts.length - 1];
+            if (!lastPart.includes('.')) expression += '.';
+            updateDisplay();
+        }
+
+        function toggleParentheses() {
+            if (isNewCalc) { expression = '('; isNewCalc = false; updateDisplay(); return; }
+            const openCount = (expression.match(/\(/g) || []).length;
+            const closeCount = (expression.match(/\)/g) || []).length;
+            const lastChar = expression.slice(-1);
+
+            if (openCount > closeCount && !['＋', '－', '×', '÷', '('].includes(lastChar)) {
+                expression += ')';
+            } else {
+                if (expression === '0') expression = '(';
+                else expression += '(';
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                historyText = expression + ' =';
+                let sanitized = expression.replace(/＋/g, '+').replace(/－/g, '-').replace(/×/g, '*').replace(/÷/g, '/');
+                
+                // 括弧預設運算為乘法: 讓 "5(2)" 變成 "5*(2)"
+                sanitized = sanitized.replace(/(\d|\))(?=\()/g, '$1*').replace(/\)(?=\d)/g, ')*');
+                
+                let result = Function('"use strict"; return (' + sanitized + ')')();
+                if (result === undefined || isNaN(result)) expression = '錯誤';
+                else expression = String(Number(result.toFixed(8)));
+                isNewCalc = true;
+            } catch(e) {
+                expression = '錯誤';
+                isNewCalc = true;
+            }
+            updateDisplay();
+        }
+
+        function solveAlgebra() {
+            let a = parseFloat(document.getElementById('algA').value), b = parseFloat(document.getElementById('algB').value), c = parseFloat(document.getElementById('algC').value);
+            if (isNaN(a) || isNaN(b) || isNaN(c) || a === 0) { document.getElementById('algebraAns').innerText = "輸入無效"; return; }
+            let d = b*b - 4*a*c;
+            if (d < 0) document.getElementById('algebraAns').innerText = "無實數解";
+            else document.getElementById('algebraAns').innerText = `解: x₁ = ${((-b + Math.sqrt(d)) / (2*a)).toFixed(2)}, x₂ = ${((-b - Math.sqrt(d)) / (2*a)).toFixed(2)}`;
+        }
+
+        /* === 驗證與登入 === */
+        function openAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('stage1Box').style.display = 'block';
+            document.getElementById('stage2Box').style.display = 'none';
+            document.getElementById('courseCodeInput').value = '';
+        }
+        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        function backToStage1() { document.getElementById('stage2Box').style.display = 'none'; document.getElementById('stage1Box').style.display = 'block'; }
+
+        function verifyCourseCode() {
+            const input = document.getElementById('courseCodeInput').value.trim();
+            if (input.endsWith('-fake')) {
+                closeAuthModal();
+                document.getElementById('algebraPanel').style.display = 'block';
+            } else if (input === COURSE_CODE) {
+                document.getElementById('stage1Box').style.display = 'none';
+                document.getElementById('stage2Box').style.display = 'block';
+            } else { alert("課程驗證碼錯誤"); }
+        }
+
+        async function finalLogin() {
+            const un = document.getElementById('usernameInput').value.trim();
+            const pwd = document.getElementById('userPasswordInput').value.trim();
+
+            if (pwd.endsWith('-fake')) { closeAuthModal(); document.getElementById('algebraPanel').style.display = 'block'; return; }
+            if (!dbClient) initSupabase();
+            if (!dbClient) { alert("網路連線失敗，請稍後再試。"); return; }
+
+            try {
+                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).eq('password', pwd).single();
+                if (error || !user) { alert("帳號或密碼不正確"); return; }
+                if (user.security_status === 'compromised') { alert("帳號已被凍結"); return; }
+
+                currentUser = user;
+                closeAuthModal();
+                document.getElementById('calculatorApp').style.display = 'none';
+                document.getElementById('chatApp').style.display = 'block'; // 打開系統
+                
+                initChatSystem();
+                switchView('viewChatList');
+            } catch(e) { alert("登入異常：" + e.message); }
+        }
+
+        /* === 聊天與介面 SPA 邏輯 === */
+        function switchView(viewId) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            if (viewId === 'viewChatList') {
+                renderChannels(); 
+            } else if (viewId === 'viewProfile') {
+                document.getElementById('editUsername').value = currentUser.username;
+                document.getElementById('editNickname').value = getNickname(currentUser);
+                document.getElementById('editPassword').value = '';
+                renderProfileAvatar();
+            }
+        }
+
+        // 頭像渲染器（支援在線綠框）
+        function getAvatarHtml(u, sizeClass = '') {
+            if (!u) return `<div class="avatar-img ${sizeClass}">👤</div>`;
+            const isOnline = (new Date() - new Date(u.last_seen)) < 25000;
+            const borderClass = isOnline ? 'online' : '';
+            const emoji = u.avatar_emoji || '👤';
+            if (u.avatar_url) {
+                return `<img src="${u.avatar_url}" class="avatar-img ${borderClass} ${sizeClass}">`;
+            }
+            return `<div class="avatar-img ${borderClass} ${sizeClass}">${emoji}</div>`;
+        }
+
+        function getNickname(u) {
+            if (!u) return '未知';
+            return u.nickname || DEFAULT_NICKS[u.username] || u.username;
+        }
+
+        function renderProfileAvatar() {
+            document.getElementById('navProfileBtn').innerHTML = getAvatarHtml(currentUser, 'avatar-mini');
+            document.getElementById('profileAvatarBox').innerHTML = getAvatarHtml(currentUser);
+            // 讓設定頁面頭像大一點
+            const boxImg = document.querySelector('#profileAvatarBox .avatar-img');
+            if(boxImg) { boxImg.style.width = '80px'; boxImg.style.height = '80px'; boxImg.style.fontSize = '36px'; }
+        }
+
+        async function saveProfile() {
+            const newNick = document.getElementById('editNickname').value.trim();
+            const newPwd = document.getElementById('editPassword').value.trim();
+            let updates = { nickname: newNick };
+            if (newPwd) updates.password = newPwd;
+
+            if (dbClient) {
+                await dbClient.from('users').update(updates).eq('username', currentUser.username);
+                currentUser.nickname = newNick;
+                if (newPwd) currentUser.password = newPwd;
+                alert('設定已儲存！');
+                await fetchAllUsers();
+                renderProfileAvatar();
+                switchView('viewChatList');
+            }
+        }
+
+        function uploadCustomAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas'); canvas.width = 120; canvas.height = 120;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, 120, 120);
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.8);
+                    if (dbClient) {
+                        dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
+                        .then(() => { currentUser.avatar_url = base64Img; renderProfileAvatar(); fetchAllUsers(); });
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function initChatSystem() {
+            await fetchAllUsers();
+            renderProfileAvatar();
+            setInterval(async () => {
+                if (!currentUser || !dbClient) return;
+                try {
+                    await dbClient.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
+                    await fetchAllUsers();
+                    if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+                    if (document.getElementById('viewChatRoom').classList.contains('active')) loadMessages();
+                } catch(e){}
+            }, 4000);
+        }
+
+        async function fetchAllUsers() {
+            if (!dbClient) return;
+            const { data } = await dbClient.from('users').select('*');
+            allUsers = data || [];
+        }
+
+        function renderChannels() {
+            const channelList = document.getElementById('channelList');
+            channelList.innerHTML = '';
+            let channels = [];
+            
+            if (currentUser.username === 'user1') {
+                channels = [
+                    { type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' },
+                    { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}`, desc: '私訊組員' },
+                    { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}`, desc: '私訊組員' },
+                    { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}`, desc: '私訊組員' },
+                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))} (單線)`, desc: '特殊聯繫專線' }
+                ];
+            } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
+                channels = [{ type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' }];
+                ['user1', 'user2', 'user3', 'user4'].forEach(un => {
+                    if (un !== currentUser.username) {
+                        const tu = allUsers.find(u => u.username === un);
+                        channels.push({ type: 'private', target: un, title: `💬 ${getNickname(tu)}`, desc: '私訊' });
+                    }
+                });
+            } else if (currentUser.username === 'user5') {
+                const adminU = allUsers.find(u => u.username === 'user1');
+                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)} (單線)`, desc: '最高管理員' }];
+            }
+
+            channels.forEach(ch => {
+                const li = document.createElement('li');
+                li.className = 'channel-item';
+                
+                // 群組頭像或私訊對方頭像
+                let avatarHtml = `<div class="avatar-img">👥</div>`;
+                if (ch.type === 'private') {
+                    const targetUser = allUsers.find(u => u.username === ch.target);
+                    avatarHtml = getAvatarHtml(targetUser);
+                }
+
+                li.innerHTML = `
+                    ${avatarHtml}
+                    <div class="channel-info">
+                        <div class="channel-name">${ch.title}</div>
+                        <div class="channel-desc">${ch.desc}</div>
+                    </div>
+                `;
+                li.onclick = () => {
+                    activeChannel = ch;
+                    document.getElementById('currentChannelTitle').innerText = ch.title;
+                    switchView('viewChatRoom');
+                    loadMessages();
+                };
+                channelList.appendChild(li);
+            });
+        }
+
+        async function loadMessages() {
+            if (!dbClient || !activeChannel) return;
+            let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
+            if (activeChannel.type === 'group') {
+                query = query.eq('target_id', 'group_1234');
+            } else {
+                query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
+            }
+            const { data: msgs } = await query;
+            renderMessages(msgs || []);
+        }
+
+        function renderMessages(msgs) {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = '';
+            msgs.forEach(m => {
+                const isMe = m.sender === currentUser.username;
+                const senderObj = allUsers.find(u => u.username === m.sender);
+                
+                const wrap = document.createElement('div');
+                wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
+                
+                if(!isMe) {
+                    wrap.innerHTML = `
+                        <div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>
+                        <div class="msg-bubble">${m.content}</div>
+                    `;
+                } else {
+                    wrap.innerHTML = `<div class="msg-bubble">${m.content}</div>`;
+                }
+                container.appendChild(wrap);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('msgInput');
+            let txt = input.value.trim();
+            if (!txt || !dbClient || !activeChannel) return;
+            await dbClient.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: txt });
+            input.value = '';
+            loadMessages();
+        }
+
+        async function nuclearDestruct() {
+            if (confirm("⚠️ 確定銷毀這個頻道的對話？")) {
+                if (dbClient) {
+                    if (activeChannel.type === 'group') {
+                        await dbClient.from('messages').delete().eq('target_id', 'group_1234');
+                    } else {
+                        await dbClient.from('messages').delete().or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
+                    }
+                }
+                loadMessages();
+            }
+        }
+
+        /* === 防追查鎖定系統 === */
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && currentUser) {
+                document.getElementById('lockMask').style.display = 'flex';
+            }
+        });
+
+        function unlockScreen() {
+            const code = document.getElementById('unlockCodeInput').value.trim();
+            if (code === '7788' || (currentUser && code === currentUser.password)) {
+                document.getElementById('lockMask').style.display = 'none';
+                document.getElementById('unlockCodeInput').value = '';
+            }
+        }
+
+        initSupabase();
+        updateDisplay();
+    </script>
+</body>
+</html>
             color: white;
             font-size: 36px;
             text-align: right;
