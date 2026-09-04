@@ -1,626 +1,380 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>多功能應用程式</title>
-<style>
-  :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --danger: #ef4444;
-    --text-light: #f8fafc;
-    --text-muted: #94a3b8;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計算機</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #app-container {
+            width: 360px;
+            height: 640px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  
-  body {
-    background-color: var(--bg-primary);
-    color: var(--text-light);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
+        /* --- 計算機介面 --- */
+        #calculator-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #222;
+        }
+        #calc-display {
+            flex: 1;
+            background: #111;
+            color: white;
+            font-size: 36px;
+            text-align: right;
+            padding: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #444;
+        }
+        .calc-btn {
+            background: #333;
+            color: white;
+            font-size: 24px;
+            border: none;
+            padding: 22px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .calc-btn:active {
+            background: #555;
+        }
+        .calc-btn.op {
+            background: #f39c12;
+        }
+        .calc-btn.op:active {
+            background: #d68910;
+        }
+        .calc-btn.zero {
+            grid-column: span 2;
+        }
 
-  .app-container {
-    width: 100%;
-    max-width: 420px;
-    background: var(--bg-secondary);
-    border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-    position: relative;
-    min-height: 680px;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+        /* --- 載入中介面 (轉圈圈) --- */
+        #loading-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            color: #555;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-  /* Header Bar */
-  .header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    position: relative;
-    z-index: 10;
-  }
+        /* --- 聊天室介面 --- */
+        #chat-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: #fff;
+        }
+        .chat-header {
+            background: #3498db;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* ☢️ 圓形大圖示銷毀按鈕 */
+        #destroy-btn {
+            position: absolute;
+            right: 15px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #ff4d4d;
+            color: white;
+            font-size: 26px;
+            border: 2px solid #fff;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s, background 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+        #destroy-btn:active {
+            transform: scale(0.9);
+            background: #cc0000;
+        }
 
-  .nav-tabs {
-    display: flex;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 4px;
-    border-radius: 12px;
-  }
-
-  .tab-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .tab-btn.active {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  /* 大圓形銷毀按鈕 ☢️ */
-  .destruct-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #dc2626, #991b1b);
-    border: 2px solid #fca5a5;
-    color: #ffffff;
-    font-size: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
-    user-select: none;
-  }
-
-  .destruct-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
-  }
-
-  .destruct-btn:active {
-    transform: scale(0.95);
-  }
-
-  /* 解鎖畫面 */
-  .lock-screen {
-    position: absolute;
-    inset: 0;
-    background: var(--bg-primary);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .pin-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  .pin-sub {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 24px;
-  }
-
-  .pin-dots {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 30px;
-  }
-
-  .pin-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    transition: background 0.2s;
-  }
-
-  .pin-dot.filled {
-    background: var(--accent);
-  }
-
-  .pin-keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    width: 260px;
-  }
-
-  .key-btn {
-    aspect-ratio: 1;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-light);
-    font-size: 22px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .key-btn:active {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  /* 頁面切換 */
-  .view-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .page-view {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-  }
-
-  .page-view.active {
-    display: flex;
-  }
-
-  /* 計算機樣式 */
-  .calc-container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    justify-content: flex-end;
-  }
-
-  .calc-display {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 16px;
-    padding: 20px;
-    text-align: right;
-    margin-bottom: 20px;
-    word-break: break-all;
-  }
-
-  .calc-history {
-    font-size: 14px;
-    color: var(--text-muted);
-    min-height: 20px;
-    margin-bottom: 6px;
-  }
-
-  .calc-result {
-    font-size: 30px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #ffffff;
-  }
-
-  .calc-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .calc-btn {
-    padding: 18px 0;
-    border-radius: 16px;
-    border: none;
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .calc-btn:active {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .calc-btn.op {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-  }
-
-  .calc-btn.eq {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .calc-btn.clear {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
-  }
-
-  /* 聊天室與轉圈圈動畫 */
-  .chat-loading {
-    position: absolute;
-    inset: 0;
-    background: var(--bg-secondary);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    gap: 16px;
-  }
-
-  .spinner {
-    width: 44px;
-    height: 44px;
-    border: 4px solid rgba(255, 255, 255, 0.1);
-    border-left-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.9s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .loading-text {
-    font-size: 15px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-  }
-
-  .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 16px;
-  }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding-right: 4px;
-    margin-bottom: 12px;
-  }
-
-  .chat-bubble {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.4;
-  }
-
-  .chat-bubble.sent {
-    align-self: flex-end;
-    background: var(--accent);
-    color: white;
-    border-bottom-right-radius: 4px;
-  }
-
-  .chat-bubble.received {
-    align-self: flex-start;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-light);
-    border-bottom-left-radius: 4px;
-  }
-
-  .chat-input-area {
-    display: flex;
-    gap: 8px;
-  }
-
-  .chat-input {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 10px 14px;
-    color: white;
-    outline: none;
-    font-size: 14px;
-  }
-
-  .chat-send-btn {
-    background: var(--accent);
-    border: none;
-    color: white;
-    padding: 0 16px;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-</style>
+        #chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #e5ddd5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .msg {
+            max-width: 70%;
+            padding: 10px 14px;
+            border-radius: 15px;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+        .msg.self {
+            align-self: flex-end;
+            background: #dcf8c6;
+            border-bottom-right-radius: 4px;
+        }
+        .msg.other {
+            align-self: flex-start;
+            background: #fff;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            background: #f0f0f0;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            font-size: 15px;
+        }
+        .chat-input button {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0 18px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .chat-input button:active {
+            background: #2980b9;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-
-  <!-- 解鎖畫面 -->
-  <div id="lockScreen" class="lock-screen">
-    <div class="pin-title">請輸入解鎖短碼</div>
-    <div class="pin-sub">預設短碼：114514</div>
-    <div class="pin-dots">
-      <div class="pin-dot" id="dot0"></div>
-      <div class="pin-dot" id="dot1"></div>
-      <div class="pin-dot" id="dot2"></div>
-      <div class="pin-dot" id="dot3"></div>
-      <div class="pin-dot" id="dot4"></div>
-      <div class="pin-dot" id="dot5"></div>
-    </div>
-    <div class="pin-keypad">
-      <button class="key-btn" onclick="pressPin('1')">1</button>
-      <button class="key-btn" onclick="pressPin('2')">2</button>
-      <button class="key-btn" onclick="pressPin('3')">3</button>
-      <button class="key-btn" onclick="pressPin('4')">4</button>
-      <button class="key-btn" onclick="pressPin('5')">5</button>
-      <button class="key-btn" onclick="pressPin('6')">6</button>
-      <button class="key-btn" onclick="pressPin('7')">7</button>
-      <button class="key-btn" onclick="pressPin('8')">8</button>
-      <button class="key-btn" onclick="pressPin('9')">9</button>
-      <button class="key-btn" onclick="clearPin()">C</button>
-      <button class="key-btn" onclick="pressPin('0')">0</button>
-      <button class="key-btn" onclick="backspacePin()">⌫</button>
-    </div>
-  </div>
-
-  <!-- 頂部列 -->
-  <div class="header-bar">
-    <div class="nav-tabs">
-      <button class="tab-btn active" id="tabCalc" onclick="switchTab('calc')">計算機</button>
-      <button class="tab-btn" id="tabChat" onclick="switchTab('chat')">聊天室</button>
-    </div>
-    
-    <!-- 大號圓形銷毀按鈕（無提示，直接銷毀） -->
-    <button class="destruct-btn" onclick="selfDestruct()" title="銷毀">☢️</button>
-  </div>
-
-  <div class="view-content">
-    
-    <!-- 計算機頁面 -->
-    <div class="page-view active" id="calcView">
-      <div class="calc-container">
-        <div class="calc-display">
-          <div class="calc-history" id="calcHistory"></div>
-          <div class="calc-result" id="calcResult">0</div>
+<div id="app-container">
+    <!-- 計算機介面 -->
+    <div id="calculator-view">
+        <div id="calc-display">0</div>
+        <div class="calc-buttons">
+            <button class="calc-btn" onclick="clearCalc()">C</button>
+            <button class="calc-btn" onclick="appendCalc('(')">(</button>
+            <button class="calc-btn" onclick="appendCalc(')')">)</button>
+            <button class="calc-btn op" onclick="appendCalc('/')">÷</button>
+            
+            <button class="calc-btn" onclick="appendCalc('7')">7</button>
+            <button class="calc-btn" onclick="appendCalc('8')">8</button>
+            <button class="calc-btn" onclick="appendCalc('9')">9</button>
+            <button class="calc-btn op" onclick="appendCalc('*')">×</button>
+            
+            <button class="calc-btn" onclick="appendCalc('4')">4</button>
+            <button class="calc-btn" onclick="appendCalc('5')">5</button>
+            <button class="calc-btn" onclick="appendCalc('6')">6</button>
+            <button class="calc-btn op" onclick="appendCalc('-')">−</button>
+            
+            <button class="calc-btn" onclick="appendCalc('1')">1</button>
+            <button class="calc-btn" onclick="appendCalc('2')">2</button>
+            <button class="calc-btn" onclick="appendCalc('3')">3</button>
+            <button class="calc-btn op" onclick="appendCalc('+')">+</button>
+            
+            <button class="calc-btn zero" onclick="appendCalc('0')">0</button>
+            <button class="calc-btn" onclick="appendCalc('.')">.</button>
+            <button class="calc-btn op" onclick="calculate()">=</button>
         </div>
-        <div class="calc-grid">
-          <button class="calc-btn clear" onclick="calcClear()">C</button>
-          <button class="calc-btn op" onclick="calcInput('(')">(</button>
-          <button class="calc-btn op" onclick="calcInput(')')">)</button>
-          <button class="calc-btn op" onclick="calcInput('/')">÷</button>
-
-          <button class="calc-btn" onclick="calcInput('7')">7</button>
-          <button class="calc-btn" onclick="calcInput('8')">8</button>
-          <button class="calc-btn" onclick="calcInput('9')">9</button>
-          <button class="calc-btn op" onclick="calcInput('*')">×</button>
-
-          <button class="calc-btn" onclick="calcInput('4')">4</button>
-          <button class="calc-btn" onclick="calcInput('5')">5</button>
-          <button class="calc-btn" onclick="calcInput('6')">6</button>
-          <button class="calc-btn op" onclick="calcInput('-')">-</button>
-
-          <button class="calc-btn" onclick="calcInput('1')">1</button>
-          <button class="calc-btn" onclick="calcInput('2')">2</button>
-          <button class="calc-btn" onclick="calcInput('3')">3</button>
-          <button class="calc-btn op" onclick="calcInput('+')">+</button>
-
-          <button class="calc-btn" onclick="calcInput('0')">0</button>
-          <button class="calc-btn" onclick="calcInput('.')">.</button>
-          <button class="calc-btn clear" onclick="calcBackspace()">⌫</button>
-          <button class="calc-btn eq" onclick="calcEquals()">=</button>
-        </div>
-      </div>
     </div>
 
-    <!-- 聊天室頁面 -->
-    <div class="page-view" id="chatView">
-      <!-- 加載中與轉圈圈 -->
-      <div class="chat-loading" id="chatLoading">
+    <!-- 載入中介面 -->
+    <div id="loading-view">
         <div class="spinner"></div>
-        <div class="loading-text">加載中...</div>
-      </div>
-
-      <div class="chat-container">
-        <div class="chat-messages" id="chatMessages">
-          <div class="chat-bubble received">歡迎來到加密聊天室！</div>
-        </div>
-        <div class="chat-input-area">
-          <input type="text" class="chat-input" id="chatInput" placeholder="輸入訊息..." onkeydown="if(event.key==='Enter') sendMessage()">
-          <button class="chat-send-btn" onclick="sendMessage()">發送</button>
-        </div>
-      </div>
+        <p>加載中...</p>
     </div>
 
-  </div>
-
+    <!-- 聊天室介面 -->
+    <div id="chat-view">
+        <div class="chat-header">
+            秘密聊天室
+            <!-- 無提示銷毀按鈕 -->
+            <button id="destroy-btn" title="立即銷毀">☢️</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="msg-input" placeholder="輸入訊息...">
+            <button onclick="sendMessage()">傳送</button>
+        </div>
+    </div>
 </div>
 
 <script>
-  // 解鎖短碼改為 114514
-  const PASS_CODE = "114514";
-  let currentPin = "";
+    /* --- 計算機邏輯 --- */
+    let currentInput = "0";
+    const display = document.getElementById('calc-display');
 
-  function pressPin(num) {
-    if (currentPin.length < 6) {
-      currentPin += num;
-      updatePinDots();
-      if (currentPin.length === 6) {
-        setTimeout(checkPin, 100);
-      }
+    function updateDisplay(val) {
+        display.innerText = val;
     }
-  }
 
-  function clearPin() {
-    currentPin = "";
-    updatePinDots();
-  }
-
-  function backspacePin() {
-    currentPin = currentPin.slice(0, -1);
-    updatePinDots();
-  }
-
-  function updatePinDots() {
-    for (let i = 0; i < 6; i++) {
-      const dot = document.getElementById(`dot${i}`);
-      if (i < currentPin.length) {
-        dot.classList.add('filled');
-      } else {
-        dot.classList.remove('filled');
-      }
+    function appendCalc(val) {
+        if (currentInput === "0" && val !== ".") {
+            currentInput = val;
+        } else {
+            currentInput += val;
+        }
+        updateDisplay(currentInput);
+        checkSecretCode(currentInput);
     }
-  }
 
-  function checkPin() {
-    if (currentPin === PASS_CODE) {
-      document.getElementById('lockScreen').style.display = 'none';
-    } else {
-      alert("解鎖短碼錯誤！");
-      clearPin();
+    function clearCalc() {
+        currentInput = "0";
+        updateDisplay(currentInput);
     }
-  }
 
-  // 頁面切換與聊天室加載動畫
-  let chatLoaded = false;
-  function switchTab(tab) {
-    document.getElementById('tabCalc').classList.toggle('active', tab === 'calc');
-    document.getElementById('tabChat').classList.toggle('active', tab === 'chat');
-    document.getElementById('calcView').classList.toggle('active', tab === 'calc');
-    document.getElementById('chatView').classList.toggle('active', tab === 'chat');
-
-    if (tab === 'chat' && !chatLoaded) {
-      const loadingEl = document.getElementById('chatLoading');
-      loadingEl.style.display = 'flex';
-      setTimeout(() => {
-        loadingEl.style.display = 'none';
-        chatLoaded = true;
-      }, 1200); // 模擬加載 1.2 秒
+    function calculate() {
+        try {
+            // 計算結果
+            let result = eval(currentInput);
+            
+            // 檢查是否超過15位數 (轉換為字串後，去除小數點與負號，計算純數字長度)
+            let numStr = result.toString();
+            let digitCount = numStr.replace(/[^0-9]/g, '').length;
+            
+            if (digitCount > 15) {
+                // 超過 15 位數，以科學記號表示（保留10位小數以防版面過長）
+                result = result.toExponential(10);
+            }
+            
+            currentInput = result.toString();
+            updateDisplay(currentInput);
+            checkSecretCode(currentInput);
+        } catch (e) {
+            currentInput = "Error";
+            updateDisplay(currentInput);
+            setTimeout(clearCalc, 1200);
+        }
     }
-  }
 
-  // 計算機邏輯：超過15位數轉科學記號
-  let calcExpr = "";
-  
-  function calcInput(char) {
-    const resEl = document.getElementById('calcResult');
-    if (resEl.innerText === "0" || resEl.innerText === "Error") {
-      if (!isNaN(char) || char === '(' || char === '.') {
-        calcExpr = char;
-      } else {
-        calcExpr += char;
-      }
-    } else {
-      calcExpr += char;
+    /* --- 解鎖與切換邏輯 --- */
+    function checkSecretCode(val) {
+        // 短碼改為 114514
+        if (val === "114514") {
+            enterSecretChat();
+        }
     }
-    document.getElementById('calcResult').innerText = calcExpr;
-  }
 
-  function calcClear() {
-    calcExpr = "";
-    document.getElementById('calcHistory').innerText = "";
-    document.getElementById('calcResult').innerText = "0";
-  }
-
-  function calcBackspace() {
-    calcExpr = calcExpr.slice(0, -1);
-    document.getElementById('calcResult').innerText = calcExpr || "0";
-  }
-
-  function formatCalcResult(value) {
-    if (typeof value !== 'number' || isNaN(value)) return "Error";
-    if (!isFinite(value)) return "Infinity";
-
-    let str = value.toString();
-    // 取得純數字位數長度
-    let cleanDigits = str.replace(/[^0-9]/g, '');
-
-    // 超過 15 位數，或極大/極小數值，使用科學記號表示
-    if (cleanDigits.length > 15 || Math.abs(value) >= 1e15 || (Math.abs(value) < 1e-15 && value !== 0)) {
-      return value.toExponential(8);
+    function enterSecretChat() {
+        // 隱藏計算機，顯示載入動畫
+        document.getElementById('calculator-view').style.display = 'none';
+        document.getElementById('loading-view').style.display = 'flex';
+        
+        // 模擬載入時間 (2秒後顯示聊天室)
+        setTimeout(() => {
+            document.getElementById('loading-view').style.display = 'none';
+            document.getElementById('chat-view').style.display = 'flex';
+            loadMessages();
+        }, 2000);
     }
-    return str;
-  }
 
-  function calcEquals() {
-    try {
-      document.getElementById('calcHistory').innerText = calcExpr + " =";
-      let evalResult = Function('"use strict"; return (' + calcExpr + ')')();
-      let formatted = formatCalcResult(evalResult);
-      document.getElementById('calcResult').innerText = formatted;
-      calcExpr = formatted;
-    } catch (e) {
-      document.getElementById('calcResult').innerText = "Error";
-      calcExpr = "";
+    /* --- 聊天室邏輯 --- */
+    const msgContainer = document.getElementById('chat-messages');
+    const msgInput = document.getElementById('msg-input');
+
+    function loadMessages() {
+        msgContainer.innerHTML = '';
+        let msgs = JSON.parse(localStorage.getItem('secret_msgs') || '[]');
+        msgs.forEach(msg => {
+            addMessageToDOM(msg.text, msg.type);
+        });
+        scrollToBottom();
     }
-  }
 
-  // 聊天室傳送訊息
-  function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
+    function sendMessage() {
+        const text = msgInput.value.trim();
+        if (!text) return;
 
-    const chatMsgs = document.getElementById('chatMessages');
-    
-    const userBubble = document.createElement('div');
-    userBubble.className = 'chat-bubble sent';
-    userBubble.innerText = msg;
-    chatMsgs.appendChild(userBubble);
+        addMessageToDOM(text, 'self');
+        msgInput.value = '';
+        scrollToBottom();
 
-    input.value = "";
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+        // 寫入 LocalStorage
+        let msgs = JSON.parse(localStorage.getItem('secret_msgs') || '[]');
+        msgs.push({ text: text, type: 'self' });
+        localStorage.setItem('secret_msgs', JSON.stringify(msgs));
+    }
 
-    setTimeout(() => {
-      const botBubble = document.createElement('div');
-      botBubble.className = 'chat-bubble received';
-      botBubble.innerText = "已接收您的加密訊息。";
-      chatMsgs.appendChild(botBubble);
-      chatMsgs.scrollTop = chatMsgs.scrollHeight;
-    }, 800);
-  }
+    function addMessageToDOM(text, type) {
+        const div = document.createElement('div');
+        div.classList.add('msg', type);
+        div.innerText = text;
+        msgContainer.appendChild(div);
+    }
 
-  // 無提示銷毀按鈕功能（直接執行）
-  function selfDestruct() {
-    // 清空計算機與聊天紀錄
-    calcClear();
-    document.getElementById('chatMessages').innerHTML = '<div class="chat-bubble received">歡迎來到加密聊天室！</div>';
-    chatLoaded = false;
+    function scrollToBottom() {
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
 
-    // 立即重設並進入鎖定畫面
-    currentPin = "";
-    updatePinDots();
-    document.getElementById('lockScreen').style.display = 'flex';
-  }
+    // 支援 Enter 發送
+    msgInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    /* --- 銷毀邏輯 --- */
+    document.getElementById('destroy-btn').addEventListener('click', function() {
+        // 不需任何提示，直接清空數據與畫面
+        localStorage.removeItem('secret_msgs'); 
+        msgContainer.innerHTML = ''; 
+        
+        // 瞬間切換回計算機介面並重置
+        document.getElementById('chat-view').style.display = 'none';
+        document.getElementById('calculator-view').style.display = 'flex';
+        clearCalc();
+    });
 </script>
-
 </body>
 </html>
