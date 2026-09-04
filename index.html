@@ -375,7 +375,7 @@
     <script>
         const SUPABASE_URL = "https://vypcadthtduafammtlwz.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
-        const COURSE_CODE = "200011"; 
+        const COURSE_CODE = "PLAYMATH"; 
 
         const DEFAULT_NICKS = {
             'user1': '小菜車',
@@ -410,7 +410,6 @@
         function appendNumber(num) {
             if (isNewCalc) { expression = '0'; isNewCalc = false; }
             
-            // 限制當前輸入最多 15 位數
             const parts = expression.split(/[＋－×÷\(\)]/);
             const currentPart = parts[parts.length - 1];
             if (currentPart.replace(/[^0-9]/g, '').length >= 15) return; 
@@ -484,7 +483,6 @@
                     expression = '錯誤';
                 } else {
                     let resStr = result.toString();
-                    // 若結果超過 15 位數或數量級過大，自動轉換為科學記號
                     if (Math.abs(result) >= 1e15 || resStr.replace('-', '').replace('.', '').length > 15 || resStr.length > 15) {
                         expression = Number(result).toExponential(6);
                     } else {
@@ -703,7 +701,6 @@
             if (!dbClient || !activeChannel) return;
             const container = document.getElementById('chatMessages');
             
-            // 載入未完成前顯示加載中和轉圈圈動畫
             if (showLoading) {
                 container.innerHTML = `
                     <div class="loading-box">
@@ -755,7 +752,6 @@
             loadMessages(false);
         }
 
-        /* 銷毀功能：直接清理訊息，不跳彈窗提示 */
         async function nuclearDestruct() {
             if (dbClient && activeChannel) {
                 if (activeChannel.type === 'group') {
@@ -776,7 +772,7 @@
 
         function unlockScreen() {
             const code = document.getElementById('unlockCodeInput').value.trim();
-            if (code === '7788' || (currentUser && code === currentUser.password)) {
+            if (code === '200011' || (currentUser && code === currentUser.password)) {
                 document.getElementById('lockMask').style.display = 'none';
                 document.getElementById('unlockCodeInput').value = '';
             }
