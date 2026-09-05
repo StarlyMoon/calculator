@@ -769,7 +769,14 @@
 
             try {
                 const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
-                if (error || !user) { alert("帳號不正確"); return; }
+                
+                // 加入錯誤日誌以便除錯
+                if (error) { 
+                    console.error("Supabase 查詢錯誤:", error);
+                    alert("帳號不存在或資料庫錯誤 (詳見 Console)"); 
+                    return; 
+                }
+                if (!user) { alert("帳號不正確"); return; }
 
                 if (user.decoy_password && pwd === user.decoy_password) {
                     isDecoyMode = true;
