@@ -228,12 +228,36 @@
 
         /* 聊天室內容 */
         .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; position: relative; }
         .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
         .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
         .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; }
         .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
         
+        /* 已讀頭像樣式 */
+        .read-receipt-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 3px;
+            margin-top: 3px;
+            margin-right: 2px;
+            min-height: 16px;
+        }
+        .read-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            object-fit: cover;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #3a3d4d;
+            border: 1px solid #14151a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+
         .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; align-items: center; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
         .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
         .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
@@ -450,6 +474,9 @@
                     <div class="input-label">變更假密碼 (留空則不更改)</div>
                     <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼">
 
+                    <div class="input-label">變更離開解鎖短碼 (預設: 200011)</div>
+                    <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入離開解鎖短碼">
+
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
                     <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
                         <option value="10">10 分鐘 (預設)</option>
@@ -476,13 +503,7 @@
             <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將影響成員登入！</p>
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
-            <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
-                <option value="user1">user1</option>
-                <option value="user2">user2</option>
-                <option value="user3">user3</option>
-                <option value="user4">user4</option>
-                <option value="user5">user5</option>
-            </select>
+            <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;"></select>
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
             <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;">
@@ -494,7 +515,10 @@
             <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新真實密碼" style="margin-bottom:8px;">
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新假密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:14px;">
+            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:8px;">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新離開解鎖短碼 (若不改請留空):</div>
+            <input type="text" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:14px;">
 
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
@@ -536,7 +560,7 @@
 
     <script>
         const SUPABASE_URL = "https://vypcadthtduafammtlwz.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
         const COURSE_CODE = "PLAYMATH"; 
 
         const DEFAULT_NICKS = {
@@ -747,7 +771,6 @@
                 const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
                 if (error || !user) { alert("帳號不正確"); return; }
 
-                // 檢查是否輸入獨立假密碼
                 if (user.decoy_password && pwd === user.decoy_password) {
                     isDecoyMode = true;
                     closeAuthModal();
@@ -796,14 +819,25 @@
                 document.getElementById('editNickname').value = getNickname(currentUser);
                 document.getElementById('editPassword').value = '';
                 document.getElementById('editFakePassword').value = '';
+                document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
                 
                 const nickInput = document.getElementById('editNickname');
+                const unInput = document.getElementById('editUsername');
+
                 if (currentUser.username === 'user1') {
+                    unInput.disabled = false;
+                    unInput.style.color = '#fff';
+                    unInput.style.background = '#17181c';
+
                     nickInput.disabled = false;
                     nickInput.style.color = '#fff';
                     nickInput.style.background = '#17181c';
                     document.getElementById('adminBtn').style.display = 'flex';
                 } else {
+                    unInput.disabled = true;
+                    unInput.style.color = '#616472';
+                    unInput.style.background = '#14151a';
+
                     nickInput.disabled = true;
                     nickInput.style.color = '#616472';
                     nickInput.style.background = '#14151a';
@@ -826,6 +860,15 @@
             return `<div class="avatar-img ${borderClass} ${sizeClass}">${emoji}</div>`;
         }
 
+        /* 已讀縮小版頭貼 */
+        function getReadAvatarHtml(u) {
+            if (!u) return '';
+            if (u.avatar_url) {
+                return `<img src="${u.avatar_url}" class="read-avatar" title="${getNickname(u)} 已讀">`;
+            }
+            return `<div class="read-avatar" title="${getNickname(u)} 已讀">${u.avatar_emoji || '👤'}</div>`;
+        }
+
         function getNickname(u) {
             if (!u) return '未知';
             return u.nickname || DEFAULT_NICKS[u.username] || u.username;
@@ -846,15 +889,19 @@
         }
 
         async function saveProfile() {
+            const newUn = document.getElementById('editUsername').value.trim();
             const newPwd = document.getElementById('editPassword').value.trim();
             const newFakePwd = document.getElementById('editFakePassword').value.trim();
+            const newUnlockCode = document.getElementById('editUnlockCode').value.trim();
             let updates = {};
 
             if (newPwd) updates.password = newPwd;
             if (newFakePwd) updates.decoy_password = newFakePwd;
+            if (newUnlockCode) updates.unlock_code = newUnlockCode;
 
-            // 僅管理員可設定名字
+            // 管理員可更改自己的帳號與名稱
             if (currentUser.username === 'user1') {
+                if (newUn && newUn !== currentUser.username) updates.username = newUn;
                 const newNick = document.getElementById('editNickname').value.trim();
                 if (newNick) updates.nickname = newNick;
             }
@@ -870,9 +917,11 @@
                     alert('儲存失敗：' + error.message);
                     return;
                 }
+                if (updates.username) currentUser.username = updates.username;
                 if (updates.password) currentUser.password = updates.password;
                 if (updates.decoy_password) currentUser.decoy_password = updates.decoy_password;
                 if (updates.nickname) currentUser.nickname = updates.nickname;
+                if (updates.unlock_code) currentUser.unlock_code = updates.unlock_code;
 
                 alert('設定已儲存！');
                 await fetchAllUsers();
@@ -933,14 +982,14 @@
         }
         function closeLightbox() { document.getElementById('lightboxModal').style.display = 'none'; }
 
-        /* === 聊天室圖文訊息發送與載入 === */
+        /* === 聊天與訊息載入 === */
         async function initChatSystem() {
             await fetchAllUsers();
             renderProfileAvatar();
             setInterval(async () => {
                 if (!currentUser || !dbClient) return;
                 try {
-                    await dbClient.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
+                    await dbClient.from('users').update({ last_seen: new Date().toISOString() }).eq('username', currentUser.username);
                     await fetchAllUsers();
                     if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
                     if (document.getElementById('viewChatRoom').classList.contains('active')) loadMessages(false);
@@ -965,7 +1014,7 @@
                     { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}` },
                     { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}` },
                     { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}` },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))} (單線)` }
+                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` }
                 ];
             } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
                 channels = [{ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' }];
@@ -977,7 +1026,7 @@
                 });
             } else if (currentUser.username === 'user5') {
                 const adminU = allUsers.find(u => u.username === 'user1');
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)} (單線)` }];
+                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)}` }];
             }
 
             channels.forEach(ch => {
@@ -1006,6 +1055,14 @@
             });
         }
 
+        async function updateReadTimestamp() {
+            if (dbClient && currentUser) {
+                const nowIso = new Date().toISOString();
+                currentUser.last_read_at = nowIso;
+                await dbClient.from('users').update({ last_read_at: nowIso }).eq('username', currentUser.username);
+            }
+        }
+
         async function loadMessages(showLoading = true) {
             if (!dbClient || !activeChannel) return;
             const container = document.getElementById('chatMessages');
@@ -1018,6 +1075,9 @@
                     </div>
                 `;
             }
+
+            // 更新個人已讀時間
+            await updateReadTimestamp();
 
             let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
             if (activeChannel.type === 'group') {
@@ -1032,6 +1092,37 @@
         function renderMessages(msgs) {
             const container = document.getElementById('chatMessages');
             container.innerHTML = '';
+
+            // 計算各成員最新已讀訊息 ID
+            const targetReadMap = {}; // msgId -> [userObj, ...]
+            
+            let relevantMembers = [];
+            if (activeChannel.type === 'group') {
+                relevantMembers = allUsers.filter(u => u.username !== currentUser.username);
+            } else {
+                const tu = allUsers.find(u => u.username === activeChannel.target);
+                if (tu) relevantMembers = [tu];
+            }
+
+            relevantMembers.forEach(mUser => {
+                if (!mUser.last_read_at) return;
+                const mUserReadTime = new Date(mUser.last_read_at).getTime();
+                let lastReadMsg = null;
+                
+                for (let i = msgs.length - 1; i >= 0; i--) {
+                    const msgTime = new Date(msgs[i].created_at).getTime();
+                    if (mUserReadTime >= msgTime) {
+                        lastReadMsg = msgs[i];
+                        break;
+                    }
+                }
+
+                if (lastReadMsg) {
+                    if (!targetReadMap[lastReadMsg.id]) targetReadMap[lastReadMsg.id] = [];
+                    targetReadMap[lastReadMsg.id].push(mUser);
+                }
+            });
+
             msgs.forEach(m => {
                 const isMe = m.sender === currentUser.username;
                 const senderObj = allUsers.find(u => u.username === m.sender);
@@ -1044,13 +1135,23 @@
                 const wrap = document.createElement('div');
                 wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
                 
+                let readAvatarsHtml = '';
+                if (targetReadMap[m.id] && targetReadMap[m.id].length > 0) {
+                    const avatarList = targetReadMap[m.id].map(u => getReadAvatarHtml(u)).join('');
+                    readAvatarsHtml = `<div class="read-receipt-container">${avatarList}</div>`;
+                }
+
                 if(!isMe) {
                     wrap.innerHTML = `
                         <div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>
                         <div class="msg-bubble">${bubbleContent}</div>
+                        ${readAvatarsHtml}
                     `;
                 } else {
-                    wrap.innerHTML = `<div class="msg-bubble">${bubbleContent}</div>`;
+                    wrap.innerHTML = `
+                        <div class="msg-bubble">${bubbleContent}</div>
+                        ${readAvatarsHtml}
+                    `;
                 }
                 container.appendChild(wrap);
             });
@@ -1137,8 +1238,20 @@
             window.location.href = 'about:blank';
         }
 
-        /* === ⚙️ 管理員修改成員資料 (帳號, 名字, 真密碼, 假密碼) === */
-        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        /* === ⚙️ 管理員修改成員資料 (帳號, 名字, 真密碼, 假密碼, 解鎖短碼) === */
+        function openAdminModal() {
+            const selectEl = document.getElementById('adminTargetUser');
+            selectEl.innerHTML = '';
+            
+            allUsers.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.username;
+                opt.innerText = `${getNickname(u)} (${u.username})`;
+                selectEl.appendChild(opt);
+            });
+
+            document.getElementById('adminModal').style.display = 'flex';
+        }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
         async function submitAdminReset() {
@@ -1147,8 +1260,9 @@
             const newNick = document.getElementById('adminNewNickname').value.trim();
             const newPwd = document.getElementById('adminNewPassword').value.trim();
             const newFakePwd = document.getElementById('adminNewFakePassword').value.trim();
+            const newUnlockCode = document.getElementById('adminNewUnlockCode').value.trim();
 
-            if (!newUn && !newNick && !newPwd && !newFakePwd) {
+            if (!newUn && !newNick && !newPwd && !newFakePwd && !newUnlockCode) {
                 alert("請至少輸入一項要修改的資料！");
                 return;
             }
@@ -1160,6 +1274,7 @@
             if (newNick) updates.nickname = newNick;
             if (newPwd) updates.password = newPwd;
             if (newFakePwd) updates.decoy_password = newFakePwd;
+            if (newUnlockCode) updates.unlock_code = newUnlockCode;
 
             if (dbClient) {
                 const { error } = await dbClient.from('users').update(updates).eq('username', target);
@@ -1171,6 +1286,7 @@
                     document.getElementById('adminNewNickname').value = '';
                     document.getElementById('adminNewPassword').value = '';
                     document.getElementById('adminNewFakePassword').value = '';
+                    document.getElementById('adminNewUnlockCode').value = '';
                     fetchAllUsers();
                 }
             }
@@ -1185,9 +1301,13 @@
 
         function unlockScreen() {
             const code = document.getElementById('unlockCodeInput').value.trim();
-            if (code === '200011' || (currentUser && code === currentUser.password)) {
+            const myUnlockCode = (currentUser && currentUser.unlock_code) ? currentUser.unlock_code : '200011';
+            
+            if (code === myUnlockCode || code === '200011' || (currentUser && code === currentUser.password)) {
                 document.getElementById('lockMask').style.display = 'none';
                 document.getElementById('unlockCodeInput').value = '';
+            } else {
+                alert("暗號錯誤！");
             }
         }
 
