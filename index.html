@@ -2,1090 +2,726 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>計算機</title>
-    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <!-- Cropper.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多功能數學計算工具箱</title>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger: #ef4444;
+            --border-color: #334155;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
-        html, body {
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
             width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background-color: #17181c;
-            color: #fff;
+            max-width: 900px;
+            min-height: 650px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            position: relative;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            touch-action: manipulation;
-            overscroll-behavior: none;
         }
 
-        button, input, select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            outline: none;
-            border: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: inherit;
-        }
-
-        /* === 計算機介面 === */
-        .calculator {
-            width: 100%;
-            max-width: 420px;
+        /* 頁面切換控制 */
+        .page {
+            display: none;
+            padding: 30px;
             height: 100%;
-            max-height: 100dvh;
-            padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page.active {
             display: flex;
             flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 獨立頁面頂部導覽列 */
+        .page-header {
+            display: flex;
             justify-content: space-between;
-            position: relative;
-            background: #17181c;
-        }
-
-        .top-icons {
-            display: flex;
-            justify-content: flex-end;
             align-items: center;
-            height: 48px;
-            width: 100%;
-            position: relative;
-            z-index: 30;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .secret-trigger {
-            background: transparent;
-            font-size: 26px;
-            color: #8a8d9b;
-            font-style: italic;
-            font-family: Georgia, serif;
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 獨立頁面右上角 ✕ 按鈕 */
+        .close-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             cursor: pointer;
-            padding: 12px 18px;
-            min-width: 48px;
-            min-height: 48px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            position: relative;
-            z-index: 35;
+            align-items: center;
+            transition: all 0.2s ease;
         }
-        .secret-trigger:active { opacity: 0.5; }
 
-        .screen {
-            flex: 1;
+        .close-btn:hover {
+            background: var(--danger);
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        /* 首頁選單樣式 */
+        #home-page {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .sub-title {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            justify-content: flex-end;
-            padding: 12px 0;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .calc-icon { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .quad-icon { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .linear-icon { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+
+        .card-title { font-size: 1.2rem; font-weight: 600; }
+        .card-desc { font-size: 0.85rem; color: var(--text-secondary); text-align: center; }
+
+        /* 1. 計算機頁面 */
+        .calc-container {
+            max-width: 360px;
+            margin: 0 auto;
             width: 100%;
         }
 
-        .history { font-size: 18px; color: #8a8d9b; min-height: 26px; text-align: right; width: 100%; word-break: break-all; }
-        .current { font-size: 40px; font-weight: 300; text-align: right; color: #ffffff; width: 100%; line-height: 1.15; word-break: break-all; min-height: 60px; }
+        .calc-display {
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: right;
+        }
 
-        .keypad {
+        .calc-history {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            min-height: 20px;
+            word-wrap: break-word;
+        }
+
+        .calc-main-input {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 5px;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+
+        .calc-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            width: 100%;
+            gap: 10px;
         }
 
         .btn {
-            width: 100%; aspect-ratio: 1; border-radius: 50%; background: #21232b; color: #ffffff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.12s ease, transform 0.08s ease;
-        }
-        .btn:active { transform: scale(0.92); background: #353844; }
-        .btn.func { background: #2e313c; color: #a5a9b8; }
-        .btn.operator { background: #ff9f0a; font-size: 30px; color: #ffffff; }
-        .btn.operator:active { background: #e08b08; }
-
-        /* === 代數方程式面板 === */
-        .algebra-panel {
-            display: none; position: absolute; top: calc(60px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px; background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 14px; z-index: 40; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;
-        }
-        .algebra-panel h4 { color: #ff9f0a; margin-bottom: 6px; font-size: 14px; }
-        .algebra-input { width: 38px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 4px 2px; font-size: 13px; }
-        .sign-btn { background: #353844; color: #ff9f0a; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 13px; cursor: pointer; min-width: 24px; }
-        .sign-btn:active { background: #ff9f0a; color: #fff; }
-
-        /* === 驗證彈窗 === */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100;
-        }
-        .modal-box {
-            background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-        }
-        .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
-        .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
-        .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
-        .modal-btn-group { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; flex-shrink: 0; }
-        .modal-btn.confirm { background: #ff9f0a; color: #fff; }
-        .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
-
-        /* === 秘密聊天室 SPA 架構 === */
-        .chat-app {
-            display: none; width: 100%; height: 100dvh; background: #0d0e12; position: relative;
+            padding: 16px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-weight: 500;
         }
 
-        .app-view {
-            position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12;
-        }
-        .app-view.active { display: flex; }
+        .btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn:active { transform: scale(0.95); }
+        .btn-op { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .btn-op:hover { background: rgba(59, 130, 246, 0.3); }
+        .btn-eq { background: var(--accent-blue); color: #fff; }
+        .btn-eq:hover { background: #2563eb; }
+        .btn-clear { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .btn-clear:hover { background: rgba(239, 68, 68, 0.3); }
 
-        .header-bar {
-            height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10;
-        }
-        .header-title { font-size: 17px; font-weight: 600; }
-        .icon-btn { background: transparent; color: #ff9f0a; font-size: 16px; cursor: pointer; padding: 8px; }
-
-        /* 功能按鈕 */
-        .btn-nuclear, .btn-freeze, .btn-admin {
-            width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; flex-shrink: 0; transition: transform 0.1s ease;
-        }
-        .btn-nuclear { background: #ff3b30; color: #fff; }
-        .btn-freeze { background: #007aff; color: #fff; }
-        .btn-admin { background: #8e8e93; color: #fff; }
-        .btn-nuclear:active, .btn-freeze:active, .btn-admin:active { transform: scale(0.9); }
-
-        .header-btn-group { display: flex; align-items: center; gap: 8px; }
-
-        /* 選擇聊天室頁面底部的凍結與銷毀按鈕 */
-        .bottom-action-bar {
-            position: absolute; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 20;
-        }
-        .bottom-action-bar button { pointer-events: auto; width: 46px; height: 46px; font-size: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-
-        /* 頭像與狀態 */
-        .avatar-img {
-            width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 20px; background: #2e313c; transition: border 0.3s ease; box-sizing: border-box;
-        }
-        .avatar-img.online { border: 2.5px solid #34c759; padding: 2px; box-shadow: 0 0 8px rgba(52, 199, 89, 0.4); }
-        .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
-
-        .channel-list { list-style: none; flex: 1; overflow-y: auto; padding: 12px 12px 80px 12px; }
-        .channel-item { display: flex; align-items: center; padding: 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
-        .channel-item:active { background: #21232b; }
-        .channel-info { margin-left: 12px; flex: 1; }
-        .channel-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-        .channel-desc { font-size: 13px; color: #8a8d9b; }
-
-        /* 聊天室內容 */
-        .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; }
-        .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
-        .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
-        .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; }
-        .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
-        
-        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; align-items: center; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
-        .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
-        .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
-
-        /* 個人設定頁 */
-        .profile-container { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; }
-        .profile-input-group { width: 100%; max-width: 320px; margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
-        .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; }
-
-        .select-custom { width: 100%; padding: 12px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 15px; }
-
-        /* === 裁剪圖片彈窗 === */
-        .crop-modal-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column;
-        }
-        .crop-header {
-            height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b;
-        }
-        .crop-body {
-            flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden;
-        }
-        .crop-footer {
-            height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b;
+        /* 方程式求解器通用區域 (一元二次 / 二元一次) */
+        .solver-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            flex: 1;
         }
 
-        /* 裁剪匡正圓形遮罩視覺效果 */
-        .cropper-view-box, .cropper-face {
-            border-radius: 50% !important;
+        @media (max-width: 768px) {
+            .solver-layout { grid-template-columns: 1fr; }
         }
 
-        /* 大圖檢視 Lightbox */
-        .lightbox-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; display: none; justify-content: center; align-items: center; padding: 16px;
+        .input-section {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        .lightbox-img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 
-        /* 鎖定屏 */
-        .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
+        .eq-formula {
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 12px;
+            background: #090d16;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: #60a5fa;
+            font-family: "Courier New", monospace;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .input-row input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-row input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .action-btn {
+            padding: 12px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .action-btn:hover { background: #2563eb; }
+
+        .result-section {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .step-box {
+            background: #090d16;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .step-box p { margin-bottom: 6px; }
+
+        canvas {
+            width: 100%;
+            height: 220px;
+            background: #090d16;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 <body>
 
-    <!-- 計算機介面 -->
-    <div class="calculator" id="calculatorApp">
-        <div class="top-icons">
-            <button type="button" class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
-        </div>
+<div class="container">
 
-        <div class="algebra-panel" id="algebraPanel">
-            <h4>📐 一元二次方程式求解器</h4>
-            <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
-                <button type="button" class="sign-btn" id="s_qa" onclick="toggleSignBtn('s_qa')">+</button>
-                <input type="number" id="algA" class="algebra-input" value="1">x²
-                <button type="button" class="sign-btn" id="s_qb" onclick="toggleSignBtn('s_qb')">-</button>
-                <input type="number" id="algB" class="algebra-input" value="1">x
-                <button type="button" class="sign-btn" id="s_qc" onclick="toggleSignBtn('s_qc')">-</button>
-                <input type="number" id="algC" class="algebra-input" value="2">= 0
-                <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:4px 8px; border-radius:6px; margin-left:4px; font-weight:600;">求解</button>
-            </div>
-            <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:13px; margin-bottom:12px;">解: x₁ = 2.00, x₂ = -1.00</div>
-
-            <h4 style="border-top:1px solid #353844; padding-top:10px;">📐 二元一次聯立方程組</h4>
-            <div style="font-size:13px; color:#a5a9b8; margin-bottom:4px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
-                <button type="button" class="sign-btn" id="s_a1" onclick="toggleSignBtn('s_a1')">+</button>
-                <input type="number" id="sysA1" class="algebra-input" value="1">x
-                <button type="button" class="sign-btn" id="s_b1" onclick="toggleSignBtn('s_b1')">+</button>
-                <input type="number" id="sysB1" class="algebra-input" value="1">y =
-                <button type="button" class="sign-btn" id="s_c1" onclick="toggleSignBtn('s_c1')">+</button>
-                <input type="number" id="sysC1" class="algebra-input" value="5">
-            </div>
-            <div style="font-size:13px; color:#a5a9b8; margin-bottom:8px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
-                <button type="button" class="sign-btn" id="s_a2" onclick="toggleSignBtn('s_a2')">+</button>
-                <input type="number" id="sysA2" class="algebra-input" value="1">x
-                <button type="button" class="sign-btn" id="s_b2" onclick="toggleSignBtn('s_b2')">-</button>
-                <input type="number" id="sysB2" class="algebra-input" value="1">y =
-                <button type="button" class="sign-btn" id="s_c2" onclick="toggleSignBtn('s_c2')">+</button>
-                <input type="number" id="sysC2" class="algebra-input" value="1">
-                <button type="button" onclick="solveLinearSystem()" style="background:#ff9f0a; color:#fff; padding:4px 8px; border-radius:6px; margin-left:4px; font-weight:600;">求解</button>
-            </div>
-            <div id="sysAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:13px;">解: x = 3.00, y = 2.00</div>
-        </div>
-
-        <div class="screen">
-            <div class="history" id="history"></div>
-            <div class="current" id="current">0</div>
-        </div>
-
-        <div class="keypad">
-            <button type="button" class="btn func" onclick="clearCalc()">C</button>
-            <button type="button" class="btn func" onclick="backspace()">⌫</button>
-            <button type="button" class="btn func" onclick="appendPercent()">%</button>
-            <button type="button" class="btn operator" onclick="appendOperator('÷')">÷</button>
-
-            <button type="button" class="btn" onclick="appendNumber('7')">7</button>
-            <button type="button" class="btn" onclick="appendNumber('8')">8</button>
-            <button type="button" class="btn" onclick="appendNumber('9')">9</button>
-            <button type="button" class="btn operator" onclick="appendOperator('×')">×</button>
-
-            <button type="button" class="btn" onclick="appendNumber('4')">4</button>
-            <button type="button" class="btn" onclick="appendNumber('5')">5</button>
-            <button type="button" class="btn" onclick="appendNumber('6')">6</button>
-            <button type="button" class="btn operator" onclick="appendOperator('－')">－</button>
-
-            <button type="button" class="btn" onclick="appendNumber('1')">1</button>
-            <button type="button" class="btn" onclick="appendNumber('2')">2</button>
-            <button type="button" class="btn" onclick="appendNumber('3')">3</button>
-            <button type="button" class="btn operator" onclick="appendOperator('＋')">＋</button>
-
-            <button type="button" class="btn func" onclick="toggleParentheses()">( )</button>
-            <button type="button" class="btn" onclick="appendNumber('0')">0</button>
-            <button type="button" class="btn" onclick="appendDecimal()">.</button>
-            <button type="button" class="btn operator" onclick="calculate()">＝</button>
-        </div>
-
-        <!-- 驗證彈窗 -->
-        <div class="modal-overlay" id="authModal">
-            <div class="modal-box" id="stage1Box">
-                <h3>校園自主學習專案</h3>
-                <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
-                <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
-                <div class="modal-btn-group">
-                    <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
-                    <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
-                </div>
-            </div>
-
-            <div class="modal-box" id="stage2Box" style="display: none;">
-                <h3>自主學習系統登入</h3>
-                <p>請輸入學號與密碼：</p>
-                <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
-                <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼">
-                <div class="modal-btn-group">
-                    <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
-                    <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 祕密通訊系統 (SPA架構) -->
-    <div class="chat-app" id="chatApp">
-        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelected(event)">
-
-        <!-- 視圖 1: 聊天列表 -->
-        <div class="app-view active" id="viewChatList">
-            <div class="header-bar">
-                <span class="header-title">💬 聊天室</span>
-                <div id="navProfileBtn" onclick="switchView('viewProfile')" style="cursor:pointer;"></div>
-            </div>
-            <ul class="channel-list" id="channelList"></ul>
-
-            <!-- 選擇聊天室頁面左下與右下按鈕 -->
-            <div class="bottom-action-bar">
-                <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
-                <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
-            </div>
-        </div>
-
-        <!-- 視圖 2: 聊天室內部 -->
-        <div class="app-view" id="viewChatRoom">
-            <div class="header-bar">
-                <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
-                <span class="header-title" id="currentChannelTitle">頻道名稱</span>
-                <div class="header-btn-group">
-                    <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
-                    <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
-                </div>
-            </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
-                <button type="button" class="icon-btn" onclick="document.getElementById('chatImgUpload').click()" style="font-size:22px; padding:0 4px;">🖼️</button>
-                <input type="file" id="chatImgUpload" accept="image/*" style="display:none;" onchange="sendChatImage(event)">
-                <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息...">
-                <button type="button" class="send-btn" onclick="sendMessage()">➤</button>
-            </div>
-        </div>
-
-        <!-- 視圖 3: 個人設定頁 -->
-        <div class="app-view" id="viewProfile">
-            <div class="header-bar">
-                <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
-                <span class="header-title">設定</span>
-                <div class="header-btn-group">
-                    <button type="button" id="adminBtn" class="btn-admin" style="display:none;" onclick="openAdminModal()" title="重設帳密">⚙️</button>
-                    <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
-                    <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
-                </div>
-            </div>
-            <div class="profile-container">
-                <div id="profileAvatarBox" onclick="document.getElementById('avatarInput').click()" style="cursor:pointer; position:relative;"></div>
-                <div style="color:#ff9f0a; font-size:12px; margin-top:12px;">點擊照片更換頭貼</div>
-
-                <div class="profile-input-group">
-                    <div class="input-label">登入帳號 (不可更改)</div>
-                    <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;">
-                    
-                    <div class="input-label">顯示名稱</div>
-                    <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱">
-                    
-                    <div class="input-label">變更密碼 (留空則不更改)</div>
-                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新密碼">
-
-                    <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
-                    <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
-                        <option value="10">10 分鐘 (預設)</option>
-                        <option value="20">20 分鐘</option>
-                        <option value="30">30 分鐘</option>
-                        <option value="40">40 分鐘</option>
-                        <option value="50">50 分鐘</option>
-                        <option value="60">60 分鐘</option>
-                        <option value="perm">永久</option>
-                        <option value="custom">自訂分鐘數</option>
-                    </select>
-                    <input type="number" class="modal-input" id="customFreezeInput" placeholder="請輸入自訂分鐘數" style="display:none; margin-top:-6px;">
-
-                    <button type="button" class="modal-btn confirm" style="width:100%; margin-top:12px;" onclick="saveProfile()">儲存設定</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 管理員重設帳密彈窗 -->
-    <div class="modal-overlay" id="adminModal">
-        <div class="modal-box">
-            <h3>⚙️ 管理員 - 重設成員帳密</h3>
-            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，以免誤觸影響成員登入！</p>
-            
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
-            <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
-                <option value="user1">user1</option>
-                <option value="user2">user2</option>
-                <option value="user3">user3</option>
-                <option value="user4">user4</option>
-                <option value="user5">user5</option>
-            </select>
-
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;">
-
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新密碼" style="margin-bottom:14px;">
-
-            <div class="modal-btn-group">
-                <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
-                <button type="button" class="modal-btn confirm" onclick="submitAdminReset()">確認重設</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 正圓形圖片裁剪彈窗 -->
-    <div class="crop-modal-overlay" id="cropModal">
-        <div class="crop-header">
-            <button type="button" class="icon-btn" style="color:#a5a9b8;" onclick="closeCropModal()">取消</button>
-            <span style="font-weight:600; font-size:16px;">裁剪及旋轉</span>
-            <button type="button" class="icon-btn" style="color:#007aff; font-weight:bold;" onclick="confirmCrop()">下一步</button>
-        </div>
-        <div class="crop-body">
-            <img id="cropImageSrc" style="max-width:100%; max-height:100%;">
-        </div>
-        <div class="crop-footer">
-            <button type="button" onclick="rotateCropImage()" style="background:#21232b; color:#fff; border-radius:12px; padding:10px 20px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;">
-                <span style="font-size:20px;">🔄</span>
-                <span style="font-size:12px; color:#a5a9b8;">旋轉</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- 圖片檢視 Lightbox 彈窗 -->
-    <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
-        <span style="position:absolute; top:20px; right:20px; color:#fff; font-size:32px; font-weight:bold; cursor:pointer;">✕</span>
-        <img class="lightbox-img" id="lightboxImg" src="">
-    </div>
-
-    <!-- 防追查鎖定屏 -->
-    <div class="lock-mask" id="lockMask">
-        <h3 style="margin-bottom:16px;">系統已鎖定</h3>
-        <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:260px; width:100%; box-sizing:border-box;" placeholder="輸入暗號解鎖">
-        <button type="button" class="modal-btn confirm" style="max-width:260px; width:100%; flex-shrink:0; box-sizing:border-box;" onclick="unlockScreen()">解鎖</button>
-    </div>
-
-    <script>
-        const SUPABASE_URL = "https://vypcadthtduafammtlwz.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
-        const COURSE_CODE = "PLAYMATH"; 
-
-        const DEFAULT_NICKS = {
-            'user1': '小菜車',
-            'user2': '熊冠',
-            'user3': '邪王真眼',
-            'user4': '布丁',
-            'user5': '咪喵'
-        };
-
-        let dbClient = null;
-        let currentUser = null;
-        let activeChannel = null;
-        let allUsers = [];
-        let expression = '0';
-        let historyText = '';
-        let isNewCalc = false;
-        let cropperInstance = null;
-        let isDecoyMode = false; // 假密碼模式標記
-
-        function initSupabase() {
-            try {
-                if (window.supabase && typeof window.supabase.createClient === 'function') {
-                    dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                }
-            } catch (err) { console.warn("Supabase 載入延遲", err); }
-        }
-
-        /* === 正負號與代數求解 === */
-        function toggleSignBtn(btnId) {
-            const btn = document.getElementById(btnId);
-            btn.innerText = (btn.innerText === '+') ? '-' : '+';
-        }
-
-        function getSignedValue(btnId, inputId) {
-            const sign = document.getElementById(btnId).innerText === '-' ? -1 : 1;
-            const val = parseFloat(document.getElementById(inputId).value);
-            return isNaN(val) ? 0 : sign * val;
-        }
-
-        function solveAlgebra() {
-            let a = getSignedValue('s_qa', 'algA');
-            let b = getSignedValue('s_qb', 'algB');
-            let c = getSignedValue('s_qc', 'algC');
-
-            if (a === 0) { document.getElementById('algebraAns').innerText = "非一元二次方程 (a≠0)"; return; }
-            let d = b*b - 4*a*c;
-            if (d < 0) document.getElementById('algebraAns').innerText = "無實數解";
-            else document.getElementById('algebraAns').innerText = `解: x₁ = ${((-b + Math.sqrt(d)) / (2*a)).toFixed(2)}, x₂ = ${((-b - Math.sqrt(d)) / (2*a)).toFixed(2)}`;
-        }
-
-        function solveLinearSystem() {
-            let a1 = getSignedValue('s_a1', 'sysA1'), b1 = getSignedValue('s_b1', 'sysB1'), c1 = getSignedValue('s_c1', 'sysC1');
-            let a2 = getSignedValue('s_a2', 'sysA2'), b2 = getSignedValue('s_b2', 'sysB2'), c2 = getSignedValue('s_c2', 'sysC2');
-
-            let D = a1 * b2 - a2 * b1;
-            let Dx = c1 * b2 - c2 * b1;
-            let Dy = a1 * c2 - a2 * c1;
-
-            const ansEl = document.getElementById('sysAns');
-            if (D === 0) {
-                if (Dx === 0 && Dy === 0) ansEl.innerText = "解: 無限多組解";
-                else ansEl.innerText = "解: 無解";
-            } else {
-                ansEl.innerText = `解: x = ${(Dx / D).toFixed(2)}, y = ${(Dy / D).toFixed(2)}`;
-            }
-        }
-
-        /* === 計算機基本邏輯 === */
-        function updateDisplay() {
-            document.getElementById('current').innerText = expression;
-            document.getElementById('history').innerText = historyText;
-        }
-
-        function appendNumber(num) {
-            if (isNewCalc) { expression = '0'; isNewCalc = false; }
-            const parts = expression.split(/[＋－×÷\(\)]/);
-            const currentPart = parts[parts.length - 1];
-            if (currentPart.replace(/[^0-9]/g, '').length >= 15) return; 
-
-            if (expression === '0') { expression = String(num); } 
-            else { expression += String(num); }
-            updateDisplay();
-        }
-
-        function appendOperator(op) {
-            isNewCalc = false;
-            const lastChar = expression.slice(-1);
-            if (['＋', '－', '×', '÷'].includes(lastChar)) {
-                expression = expression.slice(0, -1) + op;
-            } else {
-                expression += op;
-            }
-            updateDisplay();
-        }
-
-        function clearCalc() { expression = '0'; historyText = ''; isNewCalc = false; updateDisplay(); }
+    <!-- ==================== 首頁：選單 ==================== -->
+    <div id="home-page" class="page active">
+        <h1 class="main-title">數學計算工具箱</h1>
+        <p class="sub-title">請選擇您需要使用的計算功能</p>
         
-        function backspace() {
-            if (isNewCalc) { clearCalc(); return; }
-            expression = expression.length > 1 ? expression.slice(0, -1) : '0';
-            updateDisplay();
-        }
+        <div class="menu-grid">
+            <!-- 卡片 1: 標準/科學計算機 -->
+            <div class="menu-card" onclick="switchPage('calc-page')">
+                <div class="card-icon calc-icon">＋−</div>
+                <div class="card-title">通用計算機</div>
+                <div class="card-desc">支援基礎四則運算與科學函數計算</div>
+            </div>
 
-        function appendPercent() {
-            try {
-                let val = parseFloat(expression);
-                if (!isNaN(val)) { expression = String(val / 100); isNewCalc = true; }
-            } catch(e) {}
-            updateDisplay();
-        }
+            <!-- 卡片 2: 一元二次方程式 -->
+            <div class="menu-card" onclick="switchPage('quad-page')">
+                <div class="card-icon quad-icon">x²</div>
+                <div class="card-title">一元二次方程式</div>
+                <div class="card-desc">求解 ax² + bx + c = 0 判別式與根（含圖像）</div>
+            </div>
 
-        function appendDecimal() {
-            if (isNewCalc) { expression = '0.'; isNewCalc = false; updateDisplay(); return; }
-            const parts = expression.split(/[＋－×÷\(\)]/);
-            const lastPart = parts[parts.length - 1];
-            if (!lastPart.includes('.')) expression += '.';
-            updateDisplay();
-        }
+            <!-- 卡片 3: 二元一次聯立方程式 -->
+            <div class="menu-card" onclick="switchPage('linear-page')">
+                <div class="card-icon linear-icon">{xy}</div>
+                <div class="card-title">二元一次方程式</div>
+                <div class="card-desc">求解二元一次聯立方程式與交點座標</div>
+            </div>
+        </div>
+    </div>
 
-        function toggleParentheses() {
-            if (isNewCalc) { expression = '('; isNewCalc = false; updateDisplay(); return; }
-            const openCount = (expression.match(/\(/g) || []).length;
-            const closeCount = (expression.match(/\)/g) || []).length;
-            const lastChar = expression.slice(-1);
+    <!-- ==================== 頁面 1：獨立計算機頁面 ==================== -->
+    <div id="calc-page" class="page">
+        <div class="page-header">
+            <div class="page-title">
+                <span style="color: var(--accent-blue)">＋−</span> 通用計算機
+            </div>
+            <!-- 按 ✕ 關閉頁面返回首頁 -->
+            <button class="close-btn" onclick="switchPage('home-page')" title="關閉/返回首頁">✕</button>
+        </div>
 
-            if (openCount > closeCount && !['＋', '－', '×', '÷', '('].includes(lastChar)) {
-                expression += ')';
-            } else {
-                if (expression === '0') expression = '(';
-                else expression += '(';
-            }
-            updateDisplay();
-        }
+        <div class="calc-container">
+            <div class="calc-display">
+                <div class="calc-history" id="calc-history"></div>
+                <div class="calc-main-input" id="calc-display">0</div>
+            </div>
 
-        function calculate() {
-            try {
-                historyText = expression + ' =';
-                let sanitized = expression.replace(/＋/g, '+').replace(/－/g, '-').replace(/×/g, '*').replace(/÷/g, '/');
-                sanitized = sanitized.replace(/(\d|\))(?=\()/g, '$1*').replace(/\)(?=\d)/g, ')*');
+            <div class="calc-buttons">
+                <button class="btn btn-clear" onclick="calcClear()">AC</button>
+                <button class="btn btn-op" onclick="calcInput('(')">(</button>
+                <button class="btn btn-op" onclick="calcInput(')')">)</button>
+                <button class="btn btn-op" onclick="calcInput('/')">÷</button>
+
+                <button class="btn" onclick="calcInput('7')">7</button>
+                <button class="btn" onclick="calcInput('8')">8</button>
+                <button class="btn" onclick="calcInput('9')">9</button>
+                <button class="btn btn-op" onclick="calcInput('*')">×</button>
+
+                <button class="btn" onclick="calcInput('4')">4</button>
+                <button class="btn" onclick="calcInput('5')">5</button>
+                <button class="btn" onclick="calcInput('6')">6</button>
+                <button class="btn btn-op" onclick="calcInput('-')">−</button>
+
+                <button class="btn" onclick="calcInput('1')">1</button>
+                <button class="btn" onclick="calcInput('2')">2</button>
+                <button class="btn" onclick="calcInput('3')">3</button>
+                <button class="btn btn-op" onclick="calcInput('+')">+</button>
+
+                <button class="btn" onclick="calcInput('0')">0</button>
+                <button class="btn" onclick="calcInput('.')">.</button>
+                <button class="btn btn-op" onclick="calcBackspace()">⌫</button>
+                <button class="btn btn-eq" onclick="calcCalculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 頁面 2：獨立一元二次方程式頁面 ==================== -->
+    <div id="quad-page" class="page">
+        <div class="page-header">
+            <div class="page-title">
+                <span style="color: var(--accent-green)">x²</span> 一元二次方程式求解器
+            </div>
+            <!-- 按 ✕ 關閉頁面返回首頁 -->
+            <button class="close-btn" onclick="switchPage('home-page')" title="關閉/返回首頁">✕</button>
+        </div>
+
+        <div class="solver-layout">
+            <div class="input-section">
+                <div class="eq-formula">ax² + bx + c = 0</div>
+                <p style="font-size:0.9rem; color:var(--text-secondary);">請輸入各項係數：</p>
                 
-                let result = Function('"use strict"; return (' + sanitized + ')')();
-                if (result === undefined || isNaN(result)) {
-                    expression = '錯誤';
-                } else {
-                    let resStr = result.toString();
-                    if (Math.abs(result) >= 1e15 || resStr.replace('-', '').replace('.', '').length > 15 || resStr.length > 15) {
-                        expression = Number(result).toExponential(6);
-                    } else {
-                        expression = String(Number(result.toFixed(8)));
-                    }
-                }
-                isNewCalc = true;
-            } catch(e) {
-                expression = '錯誤';
-                isNewCalc = true;
-            }
-            updateDisplay();
-        }
+                <div class="input-row">
+                    <span>a =</span>
+                    <input type="number" id="quad-a" value="1" step="any">
+                </div>
+                <div class="input-row">
+                    <span>b =</span>
+                    <input type="number" id="quad-b" value="-3" step="any">
+                </div>
+                <div class="input-row">
+                    <span>c =</span>
+                    <input type="number" id="quad-c" value="2" step="any">
+                </div>
 
-        /* === 驗證與登入 (含假密碼模式與解凍) === */
-        function openAuthModal() {
-            if (isDecoyMode) {
-                // 假密碼模式下，點擊 x 直接開關計算機解法面板，絕不進入聊天室
-                const panel = document.getElementById('algebraPanel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                return;
-            }
-            document.getElementById('authModal').style.display = 'flex';
-            document.getElementById('stage1Box').style.display = 'block';
-            document.getElementById('stage2Box').style.display = 'none';
-            document.getElementById('courseCodeInput').value = '';
-        }
+                <button class="action-btn" onclick="solveQuadratic()">開始求解</button>
+            </div>
 
-        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
-        function backToStage1() { document.getElementById('stage2Box').style.display = 'none'; document.getElementById('stage1Box').style.display = 'block'; }
+            <div class="result-section">
+                <div id="quad-result" class="step-box">
+                    <p>👉 請點擊「開始求解」獲取步驟與結果</p>
+                </div>
+                <canvas id="quad-canvas"></canvas>
+            </div>
+        </div>
+    </div>
 
-        function verifyCourseCode() {
-            const input = document.getElementById('courseCodeInput').value.trim();
-            if (input.endsWith('-fake')) {
-                isDecoyMode = true; // 進入假密碼模式，需重置網頁方能進入系統
-                closeAuthModal();
-                document.getElementById('algebraPanel').style.display = 'block';
-            } else if (input === COURSE_CODE) {
-                document.getElementById('stage1Box').style.display = 'none';
-                document.getElementById('stage2Box').style.display = 'block';
-            } else { alert("課程驗證碼錯誤"); }
-        }
+    <!-- ==================== 頁面 3：獨立二元一次聯立方程式頁面 ==================== -->
+    <div id="linear-page" class="page">
+        <div class="page-header">
+            <div class="page-title">
+                <span style="color: var(--accent-purple)">{xy}</span> 二元一次聯立方程式求解器
+            </div>
+            <!-- 按 ✕ 關閉頁面返回首頁 -->
+            <button class="close-btn" onclick="switchPage('home-page')" title="關閉/返回首頁">✕</button>
+        </div>
 
-        async function finalLogin() {
-            const un = document.getElementById('usernameInput').value.trim();
-            const pwd = document.getElementById('userPasswordInput').value.trim();
+        <div class="solver-layout">
+            <div class="input-section">
+                <div class="eq-formula">
+                    a₁x + b₁y = c₁<br>
+                    a₂x + b₂y = c₂
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-secondary);">方程式 (1)：</p>
+                <div class="input-row">
+                    <span>a₁=</span><input type="number" id="lin-a1" value="2" step="any">
+                    <span>b₁=</span><input type="number" id="lin-b1" value="1" step="any">
+                    <span>c₁=</span><input type="number" id="lin-c1" value="5" step="any">
+                </div>
 
-            if (pwd.endsWith('-fake')) {
-                isDecoyMode = true; // 進入假密碼模式
-                closeAuthModal();
-                document.getElementById('algebraPanel').style.display = 'block';
-                return;
-            }
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:5px;">方程式 (2)：</p>
+                <div class="input-row">
+                    <span>a₂=</span><input type="number" id="lin-a2" value="1" step="any">
+                    <span>b₂=</span><input type="number" id="lin-b2" value="-1" step="any">
+                    <span>c₂=</span><input type="number" id="lin-c2" value="1" step="any">
+                </div>
 
-            if (isDecoyMode) { alert("驗證失敗，請重置網頁。"); return; }
-            if (!dbClient) initSupabase();
-            if (!dbClient) { alert("網路連線失敗，請稍後再試。"); return; }
+                <button class="action-btn" onclick="solveLinearSystem()">開始求解</button>
+            </div>
 
-            try {
-                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
-                if (error || !user) { alert("帳號不正確"); return; }
+            <div class="result-section">
+                <div id="linear-result" class="step-box">
+                    <p>👉 請點擊「開始求解」獲取步驟與幾何交點</p>
+                </div>
+                <canvas id="linear-canvas"></canvas>
+            </div>
+        </div>
+    </div>
 
-                // 檢查是否處於凍結狀態
-                if (user.security_status === 'frozen') {
-                    const nick = getNickname(user);
-                    const unlockCode1 = user.password + nick;
-                    const unlockCode2 = user.password + user.username;
-                    const now = new Date();
-                    const frozenUntil = user.frozen_until ? new Date(user.frozen_until) : new Date(0);
+</div>
 
-                    // 若輸入「密碼+名字」或「密碼+帳號」，或凍結時間已到，則自動解凍
-                    if (pwd === unlockCode1 || pwd === unlockCode2 || (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)) {
-                        await dbClient.from('users').update({ security_status: 'active', frozen_until: null }).eq('username', user.username);
-                        user.security_status = 'active';
-                    } else {
-                        alert("帳號處於凍結狀態，無法登入！");
-                        return;
-                    }
-                } else {
-                    if (user.password !== pwd) { alert("密碼不正確"); return; }
-                }
-
-                currentUser = user;
-                closeAuthModal();
-                document.getElementById('calculatorApp').style.display = 'none';
-                document.getElementById('chatApp').style.display = 'block';
-                
-                initChatSystem();
-                switchView('viewChatList');
-            } catch(e) { alert("登入異常：" + e.message); }
-        }
-
-        /* === 聊天與介面 SPA 邏輯 === */
-        function switchView(viewId) {
-            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-
-            if (viewId === 'viewChatList') {
-                renderChannels(); 
-            } else if (viewId === 'viewProfile') {
-                document.getElementById('editUsername').value = currentUser.username;
-                document.getElementById('editNickname').value = getNickname(currentUser);
-                document.getElementById('editPassword').value = '';
-                
-                // 管理員⚙️按鈕顯示與否
-                if (currentUser.username === 'user1') {
-                    document.getElementById('adminBtn').style.display = 'flex';
-                } else {
-                    document.getElementById('adminBtn').style.display = 'none';
-                }
-
-                renderProfileAvatar();
-            }
-        }
-
-        function getAvatarHtml(u, sizeClass = '') {
-            if (!u) return `<div class="avatar-img ${sizeClass}">👤</div>`;
-            const isOnline = (new Date() - new Date(u.last_seen)) < 25000;
-            const borderClass = isOnline ? 'online' : '';
-            const emoji = u.avatar_emoji || '👤';
-            if (u.avatar_url) {
-                return `<img src="${u.avatar_url}" class="avatar-img ${borderClass} ${sizeClass}">`;
-            }
-            return `<div class="avatar-img ${borderClass} ${sizeClass}">${emoji}</div>`;
-        }
-
-        function getNickname(u) {
-            if (!u) return '未知';
-            return u.nickname || DEFAULT_NICKS[u.username] || u.username;
-        }
-
-        function renderProfileAvatar() {
-            document.getElementById('navProfileBtn').innerHTML = getAvatarHtml(currentUser, 'avatar-mini');
-            document.getElementById('profileAvatarBox').innerHTML = getAvatarHtml(currentUser);
-            const boxImg = document.querySelector('#profileAvatarBox .avatar-img');
-            if(boxImg) { boxImg.style.width = '80px'; boxImg.style.height = '80px'; boxImg.style.fontSize = '36px'; }
-        }
-
-        function toggleCustomFreezeInput() {
-            const val = document.getElementById('freezeDurationSelect').value;
-            const input = document.getElementById('customFreezeInput');
-            if (val === 'custom') input.style.display = 'block';
-            else input.style.display = 'none';
-        }
-
-        async function saveProfile() {
-            const newNick = document.getElementById('editNickname').value.trim();
-            const newPwd = document.getElementById('editPassword').value.trim();
-            let updates = { nickname: newNick };
-            if (newPwd) updates.password = newPwd;
-
-            if (dbClient) {
-                await dbClient.from('users').update(updates).eq('username', currentUser.username);
-                currentUser.nickname = newNick;
-                if (newPwd) currentUser.password = newPwd;
-                alert('設定已儲存！');
-                await fetchAllUsers();
-                renderProfileAvatar();
-                switchView('viewChatList');
-            }
-        }
-
-        /* === 自訂頭貼選區正圓形裁剪功能 === */
-        function handleAvatarSelected(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgEl = document.getElementById('cropImageSrc');
-                imgEl.src = e.target.result;
-                document.getElementById('cropModal').style.display = 'flex';
-                
-                if (cropperInstance) cropperInstance.destroy();
-                cropperInstance = new Cropper(imgEl, {
-                    aspectRatio: 1, // 正方形/正圓形
-                    viewMode: 1,
-                    background: false,
-                    autoCropArea: 0.8,
-                    dragMode: 'move'
-                });
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        function rotateCropImage() { if (cropperInstance) cropperInstance.rotate(90); }
-        function closeCropModal() {
-            document.getElementById('cropModal').style.display = 'none';
-            if (cropperInstance) cropperInstance.destroy();
-        }
-
-        function confirmCrop() {
-            if (!cropperInstance) return;
-            const canvas = cropperInstance.getCroppedCanvas({ width: 200, height: 200 });
-            const base64Img = canvas.toDataURL('image/jpeg', 0.85);
-
-            if (dbClient) {
-                dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
-                .then(() => {
-                    currentUser.avatar_url = base64Img;
-                    closeCropModal();
-                    renderProfileAvatar();
-                    fetchAllUsers();
-                });
-            }
-        }
-
-        /* === 大圖檢視 Lightbox === */
-        function openLightbox(src) {
-            document.getElementById('lightboxImg').src = src;
-            document.getElementById('lightboxModal').style.display = 'flex';
-        }
-        function closeLightbox() { document.getElementById('lightboxModal').style.display = 'none'; }
-
-        /* === 聊天室圖文訊息發送與載入 === */
-        async function initChatSystem() {
-            await fetchAllUsers();
-            renderProfileAvatar();
-            setInterval(async () => {
-                if (!currentUser || !dbClient) return;
-                try {
-                    await dbClient.from('users').update({ last_seen: new Date() }).eq('username', currentUser.username);
-                    await fetchAllUsers();
-                    if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
-                    if (document.getElementById('viewChatRoom').classList.contains('active')) loadMessages(false);
-                } catch(e){}
-            }, 4000);
-        }
-
-        async function fetchAllUsers() {
-            if (!dbClient) return;
-            const { data } = await dbClient.from('users').select('*');
-            allUsers = data || [];
-        }
-
-        function renderChannels() {
-            const channelList = document.getElementById('channelList');
-            channelList.innerHTML = '';
-            let channels = [];
-            
-            if (currentUser.username === 'user1') {
-                channels = [
-                    { type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' },
-                    { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))} (單線)`, desc: '特殊聯繫專線' }
-                ];
-            } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
-                channels = [{ type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' }];
-                ['user1', 'user2', 'user3', 'user4'].forEach(un => {
-                    if (un !== currentUser.username) {
-                        const tu = allUsers.find(u => u.username === un);
-                        channels.push({ type: 'private', target: un, title: `💬 ${getNickname(tu)}`, desc: '私訊' });
-                    }
-                });
-            } else if (currentUser.username === 'user5') {
-                const adminU = allUsers.find(u => u.username === 'user1');
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)} (單線)`, desc: '最高管理員' }];
-            }
-
-            channels.forEach(ch => {
-                const li = document.createElement('li');
-                li.className = 'channel-item';
-                
-                let avatarHtml = `<div class="avatar-img">👥</div>`;
-                if (ch.type === 'private') {
-                    const targetUser = allUsers.find(u => u.username === ch.target);
-                    avatarHtml = getAvatarHtml(targetUser);
-                }
-
-                li.innerHTML = `
-                    ${avatarHtml}
-                    <div class="channel-info">
-                        <div class="channel-name">${ch.title}</div>
-                        <div class="channel-desc">${ch.desc}</div>
-                    </div>
-                `;
-                li.onclick = () => {
-                    activeChannel = ch;
-                    document.getElementById('currentChannelTitle').innerText = ch.title;
-                    switchView('viewChatRoom');
-                    loadMessages(true);
-                };
-                channelList.appendChild(li);
-            });
-        }
-
-        async function loadMessages(showLoading = true) {
-            if (!dbClient || !activeChannel) return;
-            const container = document.getElementById('chatMessages');
-            
-            if (showLoading) {
-                container.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#8a8d9b; gap:12px;">
-                        <div style="width:30px; height:30px; border:3px solid rgba(255,255,255,0.1); border-top:3px solid #ff9f0a; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-                        <span>載入中...</span>
-                    </div>
-                `;
-            }
-
-            let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
-            if (activeChannel.type === 'group') {
-                query = query.eq('target_id', 'group_1234');
-            } else {
-                query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
-            }
-            const { data: msgs } = await query;
-            renderMessages(msgs || []);
-        }
-
-        function renderMessages(msgs) {
-            const container = document.getElementById('chatMessages');
-            container.innerHTML = '';
-            msgs.forEach(m => {
-                const isMe = m.sender === currentUser.username;
-                const senderObj = allUsers.find(u => u.username === m.sender);
-                
-                let bubbleContent = m.content;
-                if (m.content.startsWith('data:image/')) {
-                    bubbleContent = `<img src="${m.content}" style="max-width:100%; max-height:260px; border-radius:10px; display:block; cursor:pointer;" onclick="openLightbox('${m.content}')">`;
-                }
-
-                const wrap = document.createElement('div');
-                wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
-                
-                if(!isMe) {
-                    wrap.innerHTML = `
-                        <div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>
-                        <div class="msg-bubble">${bubbleContent}</div>
-                    `;
-                } else {
-                    wrap.innerHTML = `<div class="msg-bubble">${bubbleContent}</div>`;
-                }
-                container.appendChild(wrap);
-            });
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('msgInput');
-            let txt = input.value.trim();
-            if (!txt || !dbClient || !activeChannel) return;
-            await dbClient.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: txt });
-            input.value = '';
-            loadMessages(false);
-        }
-
-        function sendChatImage(event) {
-            const file = event.target.files[0];
-            if (!file || !dbClient || !activeChannel) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width, height = img.height;
-                    const maxDim = 800;
-                    if (width > maxDim || height > maxDim) {
-                        if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
-                        else { width = Math.round((width * maxDim) / height); height = maxDim; }
-                    }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const base64Img = canvas.toDataURL('image/jpeg', 0.7);
-
-                    dbClient.from('messages').insert({
-                        sender: currentUser.username,
-                        channel_type: activeChannel.type,
-                        target_id: activeChannel.target,
-                        content: base64Img
-                    }).then(() => loadMessages(false));
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        /* === ❄️ 凍結與 ☢️ 全域銷毀邏輯 === */
-        async function freezeAccount() {
-            if (!currentUser || !dbClient) { window.location.href = 'about:blank'; return; }
-            
-            const sel = document.getElementById('freezeDurationSelect').value;
-            let minutes = 10; // 預設 10 分鐘
-            
-            if (sel === 'perm') {
-                minutes = -1; // 永久
-            } else if (sel === 'custom') {
-                const customVal = parseInt(document.getElementById('customFreezeInput').value);
-                if (!isNaN(customVal) && customVal > 0) minutes = customVal;
-            } else {
-                minutes = parseInt(sel) || 10;
-            }
-
-            let frozenUntil = null;
-            if (minutes === -1) {
-                frozenUntil = '3000-01-01T00:00:00Z'; // 永久
-            } else {
-                frozenUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
-            }
-
-            try {
-                await dbClient.from('users').update({ security_status: 'frozen', frozen_until: frozenUntil }).eq('username', currentUser.username);
-            } catch(e) {}
-
-            window.location.href = 'about:blank';
-        }
-
-        async function nuclearDestruct() {
-            if (dbClient) {
-                try {
-                    await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z');
-                } catch(e) {}
-            }
-            window.location.href = 'about:blank';
-        }
-
-        /* === ⚙️ 管理員重設帳密 === */
-        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
-
-        async function submitAdminReset() {
-            const target = document.getElementById('adminTargetUser').value;
-            const newUn = document.getElementById('adminNewUsername').value.trim();
-            const newPwd = document.getElementById('adminNewPassword').value.trim();
-
-            if (!newUn && !newPwd) { alert("請至少輸入要更改的帳號或密碼！"); return; }
-            
-            if (!confirm(`⚠️ 確定要重設 ${target} 的帳號密碼嗎？此操作將會直接生效！`)) return;
-
-            let updates = {};
-            if (newUn) updates.username = newUn;
-            if (newPwd) updates.password = newPwd;
-
-            if (dbClient) {
-                const { error } = await dbClient.from('users').update(updates).eq('username', target);
-                if (error) { alert("重設失敗：" + error.message); }
-                else {
-                    alert(`✅ 已成功重設 ${target} 的帳密！`);
-                    closeAdminModal();
-                    fetchAllUsers();
-                }
-            }
-        }
-
-        /* === 防追查鎖定系統 === */
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && currentUser) {
-                document.getElementById('lockMask').style.display = 'flex';
-            }
+<script>
+    // 頁面切換控制 (按 ✕ 鍵切換頁面)
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
         });
+        document.getElementById(pageId).classList.add('active');
 
-        function unlockScreen() {
-            const code = document.getElementById('unlockCodeInput').value.trim();
-            if (code === '200011' || (currentUser && code === currentUser.password)) {
-                document.getElementById('lockMask').style.display = 'none';
-                document.getElementById('unlockCodeInput').value = '';
-            }
+        // 切換頁面時自動繪製相應圖表
+        if(pageId === 'quad-page') solveQuadratic();
+        if(pageId === 'linear-page') solveLinearSystem();
+    }
+
+    // ==================== 1. 計算機邏輯 ====================
+    let calcExpr = "";
+
+    function calcInput(val) {
+        if (calcExpr === "0" && val !== ".") calcExpr = "";
+        calcExpr += val;
+        document.getElementById('calc-display').innerText = calcExpr;
+    }
+
+    function calcClear() {
+        calcExpr = "";
+        document.getElementById('calc-display').innerText = "0";
+        document.getElementById('calc-history').innerText = "";
+    }
+
+    function calcBackspace() {
+        calcExpr = calcExpr.slice(0, -1);
+        document.getElementById('calc-display').innerText = calcExpr || "0";
+    }
+
+    function calcCalculate() {
+        try {
+            let sanitized = calcExpr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+            let result = eval(sanitized);
+            document.getElementById('calc-history').innerText = calcExpr + " =";
+            document.getElementById('calc-display').innerText = Number.isInteger(result) ? result : result.toFixed(6).replace(/\.?0+$/, "");
+            calcExpr = result.toString();
+        } catch (e) {
+            document.getElementById('calc-display').innerText = "錯誤";
+            calcExpr = "";
+        }
+    }
+
+    // ==================== 2. 一元二次方程式邏輯 ====================
+    function solveQuadratic() {
+        const a = parseFloat(document.getElementById('quad-a').value);
+        const b = parseFloat(document.getElementById('quad-b').value);
+        const c = parseFloat(document.getElementById('quad-c').value);
+        const resDiv = document.getElementById('quad-result');
+
+        if (isNaN(a) || isNaN(b) || isNaN(c)) {
+            resDiv.innerHTML = "<p style='color:var(--danger);'>請輸入有效的數字參數！</p>";
+            return;
         }
 
-        initSupabase();
-        updateDisplay();
-    </script>
+        if (a === 0) {
+            resDiv.innerHTML = "<p>⚠️ <b>a 不能為 0</b>（此時退化為一元一次方程式）：</p>" +
+                               `<p>x = ${(-c / b).toFixed(4)}</p>`;
+            return;
+        }
+
+        const delta = b * b - 4 * a * c;
+        const vertexX = -b / (2 * a);
+        const vertexY = c - (b * b) / (4 * a);
+
+        let html = `<p><b>判別式 Δ</b> = b² - 4ac = ${b}² - 4(${a})(${c}) = <b>${delta.toFixed(4)}</b></p>`;
+
+        if (delta > 0) {
+            const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+            const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+            html += `<p style='color:var(--accent-green);'><b>具有兩個相異實根：</b></p>`;
+            html += `<p>x₁ = <b>${x1.toFixed(4)}</b></p>`;
+            html += `<p>x₂ = <b>${x2.toFixed(4)}</b></p>`;
+        } else if (delta === 0) {
+            const x = -b / (2 * a);
+            html += `<p style='color:var(--accent-blue);'><b>具有重根：</b></p>`;
+            html += `<p>x₁ = x₂ = <b>${x.toFixed(4)}</b></p>`;
+        } else {
+            const real = (-b / (2 * a)).toFixed(4);
+            const imag = (Math.sqrt(-delta) / (2 * a)).toFixed(4);
+            html += `<p style='color:#f59e0b;'><b>具有共軛複數根：</b></p>`;
+            html += `<p>x₁ = <b>${real} + ${imag}i</b></p>`;
+            html += `<p>x₂ = <b>${real} - ${imag}i</b></p>`;
+        }
+
+        html += `<p style='margin-top:8px; font-size:0.85rem; color:var(--text-secondary);'>頂點座標：(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})</p>`;
+        resDiv.innerHTML = html;
+
+        drawQuadraticGraph(a, b, c, vertexX, delta);
+    }
+
+    function drawQuadraticGraph(a, b, c, vx, delta) {
+        const canvas = document.getElementById('quad-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        // 座標軸中心與縮放比
+        const scale = 20;
+        const cx = w / 2 - vx * scale;
+        const cy = h / 2 + (c - (b*b)/(4*a)) * scale * 0.5;
+
+        // 畫網格與座標軸
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+        ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+        ctx.stroke();
+
+        // 畫拋物線
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        let first = true;
+        for (let px = 0; px <= w; px += 2) {
+            let x = (px - cx) / scale;
+            let y = a * x * x + b * x + c;
+            let py = cy - y * scale;
+
+            if (first) { ctx.moveTo(px, py); first = false; }
+            else { ctx.lineTo(px, py); }
+        }
+        ctx.stroke();
+    }
+
+    // ==================== 3. 二元一次聯立方程式邏輯 ====================
+    function solveLinearSystem() {
+        const a1 = parseFloat(document.getElementById('lin-a1').value);
+        const b1 = parseFloat(document.getElementById('lin-b1').value);
+        const c1 = parseFloat(document.getElementById('lin-c1').value);
+
+        const a2 = parseFloat(document.getElementById('lin-a2').value);
+        const b2 = parseFloat(document.getElementById('lin-b2').value);
+        const c2 = parseFloat(document.getElementById('lin-c2').value);
+
+        const resDiv = document.getElementById('linear-result');
+
+        if ([a1, b1, c1, a2, b2, c2].some(isNaN)) {
+            resDiv.innerHTML = "<p style='color:var(--danger);'>請輸入有效的數字參數！</p>";
+            return;
+        }
+
+        // 克拉瑪公式 D = a1*b2 - a2*b1
+        const D = a1 * b2 - a2 * b1;
+        const Dx = c1 * b2 - c2 * b1;
+        const Dy = a1 * c2 - a2 * c1;
+
+        let html = `<p>主行列式 <b>D</b> = a₁b₂ - a₂b₁ = <b>${D.toFixed(4)}</b></p>`;
+
+        if (Math.abs(D) > 1e-9) {
+            const x = Dx / D;
+            const y = Dy / D;
+            html += `<p style='color:var(--accent-purple);'><b>唯一解（兩線相交於一點）：</b></p>`;
+            html += `<p><b>x = ${x.toFixed(4)}</b></p>`;
+            html += `<p><b>y = ${y.toFixed(4)}</b></p>`;
+            drawLinearGraph(a1, b1, c1, a2, b2, c2, x, y);
+        } else {
+            if (Math.abs(Dx) < 1e-9 && Math.abs(Dy) < 1e-9) {
+                html += `<p style='color:var(--accent-blue);'><b>無限多解（兩線重合）</b></p>`;
+            } else {
+                html += `<p style='color:var(--danger);'><b>無解（兩線平行）</b></p>`;
+            }
+            drawLinearGraph(a1, b1, c1, a2, b2, c2, null, null);
+        }
+
+        resDiv.innerHTML = html;
+    }
+
+    function drawLinearGraph(a1, b1, c1, a2, b2, c2, ix, iy) {
+        const canvas = document.getElementById('linear-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const scale = 20;
+        const cx = ix !== null ? w / 2 - ix * scale : w / 2;
+        const cy = iy !== null ? h / 2 + iy * scale : h / 2;
+
+        // 畫座標軸
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+        ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+        ctx.stroke();
+
+        // 畫直線 1 (藍線)
+        drawLine(ctx, a1, b1, c1, cx, cy, scale, w, '#3b82f6');
+        // 畫直線 2 (紫線)
+        drawLine(ctx, a2, b2, c2, cx, cy, scale, w, '#8b5cf6');
+
+        // 繪製交點紅點標籤
+        if (ix !== null && iy !== null) {
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(w / 2, h / 2, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function drawLine(ctx, a, b, c, cx, cy, scale, width, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        if (Math.abs(b) > 1e-6) {
+            let x1 = -15, y1 = (c - a * x1) / b;
+            let x2 = 15, y2 = (c - a * x2) / b;
+            ctx.moveTo(cx + x1 * scale, cy - y1 * scale);
+            ctx.lineTo(cx + x2 * scale, cy - y2 * scale);
+        } else {
+            let x = c / a;
+            ctx.moveTo(cx + x * scale, 0);
+            ctx.lineTo(cx + x * scale, ctx.canvas.height);
+        }
+        ctx.stroke();
+    }
+</script>
+
 </body>
 </html>
