@@ -6,6 +6,9 @@
     <title>計算機</title>
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- 載入裁剪工具 Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -111,11 +114,14 @@
         .btn.operator { background: #ff9f0a; font-size: 30px; color: #ffffff; }
         .btn.operator:active { background: #e08b08; }
 
+        /* === 一元二次方程式面板 === */
         .algebra-panel {
             display: none; position: absolute; top: calc(60px + env(safe-area-inset-top, 0px)); left: 20px; right: 20px; background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 16px; z-index: 40; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .algebra-panel h4 { color: #ff9f0a; margin-bottom: 8px; font-size: 15px; }
-        .algebra-input { width: 48px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px; margin: 0 4px; font-size: 14px; }
+        .algebra-input { width: 42px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 6px 2px; font-size: 14px; }
+        .sign-btn { background: #353844; color: #ff9f0a; font-weight: bold; border-radius: 6px; padding: 4px 6px; font-size: 12px; cursor: pointer; margin-right: 2px; }
+        .sign-btn:active { background: #ff9f0a; color: #fff; }
 
         /* === 驗證彈窗 === */
         .modal-overlay {
@@ -137,13 +143,11 @@
             display: none; width: 100%; height: 100dvh; background: #0d0e12; position: relative;
         }
 
-        /* 視圖容器 */
         .app-view {
             position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12;
         }
         .app-view.active { display: flex; }
 
-        /* 共用頂部導航 */
         .header-bar {
             height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10;
         }
@@ -173,11 +177,11 @@
         .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; }
         .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
         
-        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 10px; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
+        .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; align-items: center; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
         .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
         .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
 
-        /* 銷毀按鈕 (圓形、放大、無提示) */
+        /* 銷毀按鈕 (圓形、紅色) */
         .btn-nuclear {
             background: #ff3b30;
             color: #fff;
@@ -200,32 +204,31 @@
 
         /* 加載轉圈圈元件 */
         .loading-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #8a8d9b;
-            gap: 12px;
-            font-size: 14px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #8a8d9b; gap: 12px; font-size: 14px;
         }
         .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #ff9f0a;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 30px; height: 30px; border: 3px solid rgba(255, 255, 255, 0.1); border-top: 3px solid #ff9f0a; border-radius: 50%; animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 視圖 3: 個人設定頁 */
         .profile-container { flex: 1; overflow-y: auto; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; }
         .profile-input-group { width: 100%; max-width: 320px; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
         .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -8px; margin-left: 4px; }
+
+        /* === 裁剪圖片彈窗 === */
+        .crop-modal-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column;
+        }
+        .crop-header {
+            height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b;
+        }
+        .crop-body {
+            flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .crop-footer {
+            height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b;
+        }
 
         /* 鎖定屏 */
         .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
@@ -241,11 +244,14 @@
 
         <div class="algebra-panel" id="algebraPanel">
             <h4>📐 一元二次方程式求解器</h4>
-            <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center;">
+            <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                <button type="button" class="sign-btn" onclick="toggleSign('algA')">±</button>
                 <input type="number" id="algA" class="algebra-input" value="1">x² + 
+                <button type="button" class="sign-btn" onclick="toggleSign('algB')">±</button>
                 <input type="number" id="algB" class="algebra-input" value="-1">x + 
+                <button type="button" class="sign-btn" onclick="toggleSign('algC')">±</button>
                 <input type="number" id="algC" class="algebra-input" value="-2">= 0
-                <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:10px;">求解</button>
+                <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:4px; font-weight:600;">求解</button>
             </div>
             <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
         </div>
@@ -309,7 +315,7 @@
 
     <!-- 祕密通訊系統 (SPA架構) -->
     <div class="chat-app" id="chatApp">
-        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadCustomAvatar(event)">
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelected(event)">
 
         <!-- 視圖 1: 聊天列表 -->
         <div class="app-view active" id="viewChatList">
@@ -327,10 +333,12 @@
             <div class="header-bar">
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
                 <span class="header-title" id="currentChannelTitle">頻道名稱</span>
-                <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="銷毀">☢️</button>
+                <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
             </div>
             <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-area">
+                <button type="button" class="icon-btn" onclick="document.getElementById('chatImgUpload').click()" style="font-size:22px; padding:0 4px;">📷</button>
+                <input type="file" id="chatImgUpload" accept="image/*" style="display:none;" onchange="sendChatImage(event)">
                 <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息...">
                 <button type="button" class="send-btn" onclick="sendMessage()">➤</button>
             </div>
@@ -365,6 +373,24 @@
         </div>
     </div>
 
+    <!-- 正方形圖片裁剪彈窗 -->
+    <div class="crop-modal-overlay" id="cropModal">
+        <div class="crop-header">
+            <button type="button" class="icon-btn" style="color:#a5a9b8;" onclick="closeCropModal()">取消</button>
+            <span style="font-weight:600; font-size:16px;">裁剪及旋轉</span>
+            <button type="button" class="icon-btn" style="color:#007aff; font-weight:bold;" onclick="confirmCrop()">下一步</button>
+        </div>
+        <div class="crop-body">
+            <img id="cropImageSrc" style="max-width:100%; max-height:100%;">
+        </div>
+        <div class="crop-footer">
+            <button type="button" onclick="rotateCropImage()" style="background:#21232b; color:#fff; border-radius:12px; padding:10px 20px; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;">
+                <span style="font-size:20px;">🔄</span>
+                <span style="font-size:12px; color:#a5a9b8;">旋轉</span>
+            </button>
+        </div>
+    </div>
+
     <!-- 防追查鎖定屏 -->
     <div class="lock-mask" id="lockMask">
         <h3 style="margin-bottom:16px;">系統已鎖定</h3>
@@ -392,6 +418,7 @@
         let expression = '0';
         let historyText = '';
         let isNewCalc = false;
+        let cropperInstance = null;
 
         function initSupabase() {
             try {
@@ -401,7 +428,14 @@
             } catch (err) { console.warn("Supabase 載入延遲", err); }
         }
 
-        /* === 計算機邏輯 === */
+        /* === 計算機與一元二次邏輯 === */
+        function toggleSign(inputId) {
+            const input = document.getElementById(inputId);
+            let val = parseFloat(input.value);
+            if (isNaN(val)) val = 0;
+            input.value = -val;
+        }
+
         function updateDisplay() {
             document.getElementById('current').innerText = expression;
             document.getElementById('history').innerText = historyText;
@@ -409,16 +443,12 @@
 
         function appendNumber(num) {
             if (isNewCalc) { expression = '0'; isNewCalc = false; }
-            
             const parts = expression.split(/[＋－×÷\(\)]/);
             const currentPart = parts[parts.length - 1];
             if (currentPart.replace(/[^0-9]/g, '').length >= 15) return; 
 
-            if (expression === '0') {
-                expression = String(num);
-            } else {
-                expression += String(num);
-            }
+            if (expression === '0') { expression = String(num); } 
+            else { expression += String(num); }
             updateDisplay();
         }
 
@@ -604,26 +634,55 @@
             }
         }
 
-        function uploadCustomAvatar(event) {
+        /* === 自訂頭貼選區裁剪功能 (Cropper.js) === */
+        function handleAvatarSelected(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas'); canvas.width = 120; canvas.height = 120;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, 120, 120);
-                    const base64Img = canvas.toDataURL('image/jpeg', 0.8);
-                    if (dbClient) {
-                        dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
-                        .then(() => { currentUser.avatar_url = base64Img; renderProfileAvatar(); fetchAllUsers(); });
-                    }
-                };
-                img.src = e.target.result;
+                const imgEl = document.getElementById('cropImageSrc');
+                imgEl.src = e.target.result;
+                document.getElementById('cropModal').style.display = 'flex';
+                
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new Cropper(imgEl, {
+                    aspectRatio: 1, // 必為正方形
+                    viewMode: 1,
+                    background: false,
+                    autoCropArea: 0.8,
+                    dragMode: 'move'
+                });
             };
             reader.readAsDataURL(file);
+            event.target.value = '';
         }
 
+        function rotateCropImage() {
+            if (cropperInstance) cropperInstance.rotate(90);
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').style.display = 'none';
+            if (cropperInstance) cropperInstance.destroy();
+        }
+
+        function confirmCrop() {
+            if (!cropperInstance) return;
+            const canvas = cropperInstance.getCroppedCanvas({ width: 200, height: 200 });
+            const base64Img = canvas.toDataURL('image/jpeg', 0.85);
+
+            if (dbClient) {
+                dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
+                .then(() => {
+                    currentUser.avatar_url = base64Img;
+                    closeCropModal();
+                    renderProfileAvatar();
+                    fetchAllUsers();
+                });
+            }
+        }
+
+        /* === 聊天室圖文訊息發送與載入 === */
         async function initChatSystem() {
             await fetchAllUsers();
             renderProfileAvatar();
@@ -727,16 +786,21 @@
                 const isMe = m.sender === currentUser.username;
                 const senderObj = allUsers.find(u => u.username === m.sender);
                 
+                let bubbleContent = m.content;
+                if (m.content.startsWith('data:image/')) {
+                    bubbleContent = `<img src="${m.content}" style="max-width:100%; max-height:260px; border-radius:10px; display:block; cursor:pointer;" onclick="window.open('${m.content}')">`;
+                }
+
                 const wrap = document.createElement('div');
                 wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
                 
                 if(!isMe) {
                     wrap.innerHTML = `
                         <div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>
-                        <div class="msg-bubble">${m.content}</div>
+                        <div class="msg-bubble">${bubbleContent}</div>
                     `;
                 } else {
-                    wrap.innerHTML = `<div class="msg-bubble">${m.content}</div>`;
+                    wrap.innerHTML = `<div class="msg-bubble">${bubbleContent}</div>`;
                 }
                 container.appendChild(wrap);
             });
@@ -752,15 +816,50 @@
             loadMessages(false);
         }
 
+        function sendChatImage(event) {
+            const file = event.target.files[0];
+            if (!file || !dbClient || !activeChannel) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width, height = img.height;
+                    const maxDim = 800;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
+                        else { width = Math.round((width * maxDim) / height); height = maxDim; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.7);
+
+                    dbClient.from('messages').insert({
+                        sender: currentUser.username,
+                        channel_type: activeChannel.type,
+                        target_id: activeChannel.target,
+                        content: base64Img
+                    }).then(() => loadMessages(false));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        /* === ☢️ 全域銷毀所有對話並跳轉至 about:blank === */
         async function nuclearDestruct() {
-            if (dbClient && activeChannel) {
-                if (activeChannel.type === 'group') {
-                    await dbClient.from('messages').delete().eq('target_id', 'group_1234');
-                } else {
-                    await dbClient.from('messages').delete().or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
+            if (dbClient) {
+                try {
+                    // 刪除資料庫中 messages 資料表的所有訊息紀錄
+                    await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z');
+                } catch(e) {
+                    console.error("銷毀失敗:", e);
                 }
             }
-            loadMessages(false);
+            // 立刻將瀏覽器導向空白頁面
+            window.location.href = 'about:blank';
         }
 
         /* === 防追查鎖定系統 === */
