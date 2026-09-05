@@ -6,7 +6,6 @@
     <title>計算機</title>
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
@@ -299,7 +298,6 @@
 </head>
 <body>
 
-    <!-- 計算機頁面 -->
     <div class="calculator" id="calculatorApp">
         <div class="top-icons">
             <button type="button" class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
@@ -337,7 +335,6 @@
             <button type="button" class="btn operator" onclick="calculate()">＝</button>
         </div>
 
-        <!-- 驗證彈窗 -->
         <div class="modal-overlay" id="authModal">
             <div class="modal-box" id="stage1Box">
                 <h3>校園自主學習專案</h3>
@@ -351,8 +348,8 @@
 
             <div class="modal-box" id="stage2Box" style="display: none;">
                 <h3>自主學習系統登入</h3>
-                <p>請輸入學號與密碼：</p>
-                <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
+                <p>請輸入學號與密碼 (預設密碼: 1234)：</p>
+                <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號 (例: user1)">
                 <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼 / 假密碼">
                 <div class="modal-btn-group">
                     <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
@@ -362,7 +359,6 @@
         </div>
     </div>
 
-    <!-- 獨立代數計算頁面 -->
     <div class="algebra-page" id="algebraPage">
         <div class="algebra-header">
             <button type="button" class="icon-btn" onclick="showCalculatorPage()">❮ 計算機</button>
@@ -408,11 +404,9 @@
         </div>
     </div>
 
-    <!-- 祕密通訊系統 (SPA架構) -->
     <div class="chat-app" id="chatApp">
         <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelected(event)">
 
-        <!-- 視圖 1: 聊天列表 -->
         <div class="app-view active" id="viewChatList">
             <div class="header-bar">
                 <span class="header-title">💬 聊天室</span>
@@ -420,14 +414,12 @@
             </div>
             <ul class="channel-list" id="channelList"></ul>
 
-            <!-- 選擇聊天室頁面底部的凍結與銷毀按鈕 -->
             <div class="bottom-action-bar">
                 <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
                 <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
             </div>
         </div>
 
-        <!-- 視圖 2: 聊天室內部 -->
         <div class="app-view" id="viewChatRoom">
             <div class="header-bar">
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
@@ -446,7 +438,6 @@
             </div>
         </div>
 
-        <!-- 視圖 3: 個人設定頁 -->
         <div class="app-view" id="viewProfile">
             <div class="header-bar">
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
@@ -496,7 +487,6 @@
         </div>
     </div>
 
-    <!-- 管理員重設帳密與成員資料彈窗 -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-box">
             <h3>⚙️ 管理員 - 修改成員資料</h3>
@@ -527,7 +517,6 @@
         </div>
     </div>
 
-    <!-- 正圓形圖片裁剪彈窗 -->
     <div class="crop-modal-overlay" id="cropModal">
         <div class="crop-header">
             <button type="button" class="icon-btn" style="color:#a5a9b8;" onclick="closeCropModal()">取消</button>
@@ -545,13 +534,11 @@
         </div>
     </div>
 
-    <!-- 圖片檢視 Lightbox 彈窗 -->
     <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
         <span style="position:absolute; top:20px; right:20px; color:#fff; font-size:32px; font-weight:bold; cursor:pointer;">✕</span>
         <img class="lightbox-img" id="lightboxImg" src="">
     </div>
 
-    <!-- 防追查鎖定屏 -->
     <div class="lock-mask" id="lockMask">
         <h3 style="margin-bottom:16px;">系統已鎖定</h3>
         <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:260px; width:100%; box-sizing:border-box;" placeholder="輸入暗號解鎖">
@@ -732,7 +719,7 @@
             updateDisplay();
         }
 
-        /* === 驗證與登入 (支援獨立假密碼與解凍) === */
+        /* === 驗證與登入 (已修正 .maybeSingle 避免查無帳號時觸發錯誤) === */
         function openAuthModal() {
             if (isDecoyMode) {
                 if (document.getElementById('algebraPage').style.display === 'flex') {
@@ -768,15 +755,15 @@
             if (!dbClient) { alert("網路連線失敗，請稍後再試。"); return; }
 
             try {
-                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
+                // 修正：改用 maybeSingle，避免查無帳號時拋出錯誤
+                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).maybeSingle();
                 
-                // 加入錯誤日誌以便除錯
                 if (error) { 
                     console.error("Supabase 查詢錯誤:", error);
-                    alert("帳號不存在或資料庫錯誤 (詳見 Console)"); 
+                    alert("資料庫查詢失敗，請檢查 RLS 權限或網路連線"); 
                     return; 
                 }
-                if (!user) { alert("帳號不正確"); return; }
+                if (!user) { alert("帳號不正確或尚未建立"); return; }
 
                 if (user.decoy_password && pwd === user.decoy_password) {
                     isDecoyMode = true;
@@ -800,7 +787,7 @@
                         return;
                     }
                 } else {
-                    if (user.password !== pwd) { alert("密碼不正確"); return; }
+                    if (user.password !== pwd) { alert("密碼不正確 (預設密碼為 1234)"); return; }
                 }
 
                 currentUser = user;
@@ -867,7 +854,6 @@
             return `<div class="avatar-img ${borderClass} ${sizeClass}">${emoji}</div>`;
         }
 
-        /* 已讀縮小版頭貼 */
         function getReadAvatarHtml(u) {
             if (!u) return '';
             if (u.avatar_url) {
@@ -906,7 +892,6 @@
             if (newFakePwd) updates.decoy_password = newFakePwd;
             if (newUnlockCode) updates.unlock_code = newUnlockCode;
 
-            // 管理員可更改自己的帳號與名稱
             if (currentUser.username === 'user1') {
                 if (newUn && newUn !== currentUser.username) updates.username = newUn;
                 const newNick = document.getElementById('editNickname').value.trim();
@@ -1083,7 +1068,6 @@
                 `;
             }
 
-            // 更新個人已讀時間
             await updateReadTimestamp();
 
             let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
@@ -1100,9 +1084,7 @@
             const container = document.getElementById('chatMessages');
             container.innerHTML = '';
 
-            // 計算各成員最新已讀訊息 ID
-            const targetReadMap = {}; // msgId -> [userObj, ...]
-            
+            const targetReadMap = {};
             let relevantMembers = [];
             if (activeChannel.type === 'group') {
                 relevantMembers = allUsers.filter(u => u.username !== currentUser.username);
@@ -1245,7 +1227,7 @@
             window.location.href = 'about:blank';
         }
 
-        /* === ⚙️ 管理員修改成員資料 (帳號, 名字, 真密碼, 假密碼, 解鎖短碼) === */
+        /* === ⚙️ 管理員修改成員資料 === */
         function openAdminModal() {
             const selectEl = document.getElementById('adminTargetUser');
             selectEl.innerHTML = '';
