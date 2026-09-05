@@ -114,7 +114,7 @@
         .btn.operator { background: #ff9f0a; font-size: 30px; color: #ffffff; }
         .btn.operator:active { background: #e08b08; }
 
-        /* === 獨立代數計算頁面 (一元二次 + 二元一次) === */
+        /* === 獨立代數計算頁面 === */
         .algebra-page {
             width: 100%;
             max-width: 420px;
@@ -221,11 +221,10 @@
         .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
 
         .channel-list { list-style: none; flex: 1; overflow-y: auto; padding: 12px 12px 100px 12px; }
-        .channel-item { display: flex; align-items: center; padding: 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
+        .channel-item { display: flex; align-items: center; padding: 14px 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
         .channel-item:active { background: #21232b; }
         .channel-info { margin-left: 12px; flex: 1; }
-        .channel-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-        .channel-desc { font-size: 13px; color: #8a8d9b; }
+        .channel-name { font-size: 16px; font-weight: 600; color: #fff; }
 
         /* 聊天室內容 */
         .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -260,7 +259,6 @@
             height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b;
         }
 
-        /* 裁剪匡正圓形遮罩視覺效果 */
         .cropper-view-box, .cropper-face {
             border-radius: 50% !important;
         }
@@ -331,7 +329,7 @@
                 <h3>自主學習系統登入</h3>
                 <p>請輸入學號與密碼：</p>
                 <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
-                <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼">
+                <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼 / 假密碼">
                 <div class="modal-btn-group">
                     <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
                     <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
@@ -340,7 +338,7 @@
         </div>
     </div>
 
-    <!-- 獨立代數計算頁面 (一元二次 + 二元一次) -->
+    <!-- 獨立代數計算頁面 -->
     <div class="algebra-page" id="algebraPage">
         <div class="algebra-header">
             <button type="button" class="icon-btn" onclick="showCalculatorPage()">❮ 計算機</button>
@@ -430,7 +428,7 @@
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
                 <span class="header-title">設定</span>
                 <div class="header-btn-group">
-                    <button type="button" id="adminBtn" class="btn-admin" style="display:none;" onclick="openAdminModal()" title="重設帳密">⚙️</button>
+                    <button type="button" id="adminBtn" class="btn-admin" style="display:none;" onclick="openAdminModal()" title="管理成員資料">⚙️</button>
                     <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
                     <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
                 </div>
@@ -440,14 +438,17 @@
                 <div style="color:#ff9f0a; font-size:12px; margin-top:12px;">點擊照片更換頭貼</div>
 
                 <div class="profile-input-group">
-                    <div class="input-label">登入帳號 (不可更改)</div>
+                    <div class="input-label">登入帳號 (僅管理員可修改)</div>
                     <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;">
                     
-                    <div class="input-label">顯示名稱</div>
+                    <div class="input-label">顯示名稱 (僅管理員可修改)</div>
                     <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱">
                     
-                    <div class="input-label">變更密碼 (留空則不更改)</div>
-                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新密碼">
+                    <div class="input-label">變更真實密碼 (留空則不更改)</div>
+                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新真實密碼">
+
+                    <div class="input-label">變更假密碼 (留空則不更改)</div>
+                    <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼">
 
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
                     <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
@@ -468,11 +469,11 @@
         </div>
     </div>
 
-    <!-- 管理員重設帳密彈窗 -->
+    <!-- 管理員重設帳密與成員資料彈窗 -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-box">
-            <h3>⚙️ 管理員 - 重設成員帳密</h3>
-            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，以免誤觸影響成員登入！</p>
+            <h3>⚙️ 管理員 - 修改成員資料</h3>
+            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將影響成員登入！</p>
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
             <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
@@ -486,12 +487,18 @@
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
             <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;">
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新密碼" style="margin-bottom:14px;">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新顯示名稱 (若不改請留空):</div>
+            <input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入新顯示名稱" style="margin-bottom:8px;">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新真實密碼 (若不改請留空):</div>
+            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新真實密碼" style="margin-bottom:8px;">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新假密碼 (若不改請留空):</div>
+            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:14px;">
 
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
-                <button type="button" class="modal-btn confirm" onclick="submitAdminReset()">確認重設</button>
+                <button type="button" class="modal-btn confirm" onclick="submitAdminReset()">確認更新</button>
             </div>
         </div>
     </div>
@@ -701,7 +708,7 @@
             updateDisplay();
         }
 
-        /* === 驗證與登入 (含假密碼模式與解凍) === */
+        /* === 驗證與登入 (支援獨立假密碼與解凍) === */
         function openAuthModal() {
             if (isDecoyMode) {
                 if (document.getElementById('algebraPage').style.display === 'flex') {
@@ -722,11 +729,7 @@
 
         function verifyCourseCode() {
             const input = document.getElementById('courseCodeInput').value.trim();
-            if (input.endsWith('-fake')) {
-                isDecoyMode = true;
-                closeAuthModal();
-                showAlgebraPage();
-            } else if (input === COURSE_CODE) {
+            if (input === COURSE_CODE) {
                 document.getElementById('stage1Box').style.display = 'none';
                 document.getElementById('stage2Box').style.display = 'block';
             } else { alert("課程驗證碼錯誤"); }
@@ -736,13 +739,6 @@
             const un = document.getElementById('usernameInput').value.trim();
             const pwd = document.getElementById('userPasswordInput').value.trim();
 
-            if (pwd.endsWith('-fake')) {
-                isDecoyMode = true;
-                closeAuthModal();
-                showAlgebraPage();
-                return;
-            }
-
             if (isDecoyMode) { alert("驗證失敗，請重置網頁。"); return; }
             if (!dbClient) initSupabase();
             if (!dbClient) { alert("網路連線失敗，請稍後再試。"); return; }
@@ -750,6 +746,14 @@
             try {
                 const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
                 if (error || !user) { alert("帳號不正確"); return; }
+
+                // 檢查是否輸入獨立假密碼
+                if (user.decoy_password && pwd === user.decoy_password) {
+                    isDecoyMode = true;
+                    closeAuthModal();
+                    showAlgebraPage();
+                    return;
+                }
 
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
@@ -791,10 +795,18 @@
                 document.getElementById('editUsername').value = currentUser.username;
                 document.getElementById('editNickname').value = getNickname(currentUser);
                 document.getElementById('editPassword').value = '';
+                document.getElementById('editFakePassword').value = '';
                 
+                const nickInput = document.getElementById('editNickname');
                 if (currentUser.username === 'user1') {
+                    nickInput.disabled = false;
+                    nickInput.style.color = '#fff';
+                    nickInput.style.background = '#17181c';
                     document.getElementById('adminBtn').style.display = 'flex';
                 } else {
+                    nickInput.disabled = true;
+                    nickInput.style.color = '#616472';
+                    nickInput.style.background = '#14151a';
                     document.getElementById('adminBtn').style.display = 'none';
                 }
 
@@ -802,7 +814,6 @@
             }
         }
 
-        /* 修改後的頭像 HTML 生成器：使用者自己的頭像不套用綠邊框 */
         function getAvatarHtml(u, sizeClass = '') {
             if (!u) return `<div class="avatar-img ${sizeClass}">👤</div>`;
             const isSelf = currentUser && u.username === currentUser.username;
@@ -835,15 +846,34 @@
         }
 
         async function saveProfile() {
-            const newNick = document.getElementById('editNickname').value.trim();
             const newPwd = document.getElementById('editPassword').value.trim();
-            let updates = { nickname: newNick };
+            const newFakePwd = document.getElementById('editFakePassword').value.trim();
+            let updates = {};
+
             if (newPwd) updates.password = newPwd;
+            if (newFakePwd) updates.decoy_password = newFakePwd;
+
+            // 僅管理員可設定名字
+            if (currentUser.username === 'user1') {
+                const newNick = document.getElementById('editNickname').value.trim();
+                if (newNick) updates.nickname = newNick;
+            }
+
+            if (Object.keys(updates).length === 0) {
+                alert('沒有變更任何設定。');
+                return;
+            }
 
             if (dbClient) {
-                await dbClient.from('users').update(updates).eq('username', currentUser.username);
-                currentUser.nickname = newNick;
-                if (newPwd) currentUser.password = newPwd;
+                const { error } = await dbClient.from('users').update(updates).eq('username', currentUser.username);
+                if (error) {
+                    alert('儲存失敗：' + error.message);
+                    return;
+                }
+                if (updates.password) currentUser.password = updates.password;
+                if (updates.decoy_password) currentUser.decoy_password = updates.decoy_password;
+                if (updates.nickname) currentUser.nickname = updates.nickname;
+
                 alert('設定已儲存！');
                 await fetchAllUsers();
                 renderProfileAvatar();
@@ -931,23 +961,23 @@
             
             if (currentUser.username === 'user1') {
                 channels = [
-                    { type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' },
-                    { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}`, desc: '私訊組員' },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))} (單線)`, desc: '特殊聯繫專線' }
+                    { type: 'group', target: 'group_1234', title: '👥 學術研究討論會' },
+                    { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}` },
+                    { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}` },
+                    { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}` },
+                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))} (單線)` }
                 ];
             } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
-                channels = [{ type: 'group', target: 'group_1234', title: '👥 1234 核心大群', desc: '核心成員交流區' }];
+                channels = [{ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' }];
                 ['user1', 'user2', 'user3', 'user4'].forEach(un => {
                     if (un !== currentUser.username) {
                         const tu = allUsers.find(u => u.username === un);
-                        channels.push({ type: 'private', target: un, title: `💬 ${getNickname(tu)}`, desc: '私訊' });
+                        channels.push({ type: 'private', target: un, title: `💬 ${getNickname(tu)}` });
                     }
                 });
             } else if (currentUser.username === 'user5') {
                 const adminU = allUsers.find(u => u.username === 'user1');
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)} (單線)`, desc: '最高管理員' }];
+                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)} (單線)` }];
             }
 
             channels.forEach(ch => {
@@ -964,7 +994,6 @@
                     ${avatarHtml}
                     <div class="channel-info">
                         <div class="channel-name">${ch.title}</div>
-                        <div class="channel-desc">${ch.desc}</div>
                     </div>
                 `;
                 li.onclick = () => {
@@ -1108,29 +1137,40 @@
             window.location.href = 'about:blank';
         }
 
-        /* === ⚙️ 管理員重設帳密 === */
+        /* === ⚙️ 管理員修改成員資料 (帳號, 名字, 真密碼, 假密碼) === */
         function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
         async function submitAdminReset() {
             const target = document.getElementById('adminTargetUser').value;
             const newUn = document.getElementById('adminNewUsername').value.trim();
+            const newNick = document.getElementById('adminNewNickname').value.trim();
             const newPwd = document.getElementById('adminNewPassword').value.trim();
+            const newFakePwd = document.getElementById('adminNewFakePassword').value.trim();
 
-            if (!newUn && !newPwd) { alert("請至少輸入要更改的帳號或密碼！"); return; }
+            if (!newUn && !newNick && !newPwd && !newFakePwd) {
+                alert("請至少輸入一項要修改的資料！");
+                return;
+            }
             
-            if (!confirm(`⚠️ 確定要重設 ${target} 的帳號密碼嗎？此操作將會直接生效！`)) return;
+            if (!confirm(`⚠️ 確定要更新 ${target} 的資料嗎？此操作將會直接生效！`)) return;
 
             let updates = {};
             if (newUn) updates.username = newUn;
+            if (newNick) updates.nickname = newNick;
             if (newPwd) updates.password = newPwd;
+            if (newFakePwd) updates.decoy_password = newFakePwd;
 
             if (dbClient) {
                 const { error } = await dbClient.from('users').update(updates).eq('username', target);
-                if (error) { alert("重設失敗：" + error.message); }
+                if (error) { alert("更新失敗：" + error.message); }
                 else {
-                    alert(`✅ 已成功重設 ${target} 的帳密！`);
+                    alert(`✅ 已成功更新 ${target} 的資料！`);
                     closeAdminModal();
+                    document.getElementById('adminNewUsername').value = '';
+                    document.getElementById('adminNewNickname').value = '';
+                    document.getElementById('adminNewPassword').value = '';
+                    document.getElementById('adminNewFakePassword').value = '';
                     fetchAllUsers();
                 }
             }
