@@ -6,171 +6,42 @@
     <title>計算機</title>
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22short_name%22%3A%22%E8%A8%88%E7%AE%97%E6%A9%9F%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2317181c%22%2C%22theme_color%22%3A%22%2317181c%22%7D">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            background-color: #17181c;
-            color: #fff;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            touch-action: manipulation;
-            overscroll-behavior: none;
-        }
-
-        button, input, select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            outline: none;
-            border: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: inherit;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        html, body { width: 100%; height: 100%; height: 100dvh; background-color: #17181c; color: #fff; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; touch-action: manipulation; overscroll-behavior: none; }
+        button, input, select { -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none; border: none; -webkit-tap-highlight-color: transparent; font-family: inherit; }
 
         /* === 計算機頁面 === */
-        .calculator {
-            width: 100%;
-            max-width: 420px;
-            height: 100%;
-            max-height: 100dvh;
-            padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            background: #17181c;
-        }
-
-        .top-icons {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            height: 48px;
-            width: 100%;
-            position: relative;
-            z-index: 30;
-        }
-
-        .secret-trigger {
-            background: transparent;
-            font-size: 26px;
-            color: #8a8d9b;
-            font-style: italic;
-            font-family: Georgia, serif;
-            cursor: pointer;
-            padding: 12px 18px;
-            min-width: 48px;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 35;
-        }
+        .calculator { width: 100%; max-width: 420px; height: 100%; max-height: 100dvh; padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; background: #17181c; }
+        .top-icons { display: flex; justify-content: flex-end; align-items: center; height: 48px; width: 100%; position: relative; z-index: 30; }
+        .secret-trigger { background: transparent; font-size: 26px; color: #8a8d9b; font-style: italic; font-family: Georgia, serif; cursor: pointer; padding: 12px 18px; min-width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 35; }
         .secret-trigger:active { opacity: 0.5; }
-
-        .screen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: flex-end;
-            padding: 12px 0;
-            width: 100%;
-        }
-
+        .screen { flex: 1; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding: 12px 0; width: 100%; }
         .history { font-size: 18px; color: #8a8d9b; min-height: 26px; text-align: right; width: 100%; word-break: break-all; }
         .current { font-size: 40px; font-weight: 300; text-align: right; color: #ffffff; width: 100%; line-height: 1.15; word-break: break-all; min-height: 60px; }
-
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            width: 100%;
-        }
-
-        .btn {
-            width: 100%; aspect-ratio: 1; border-radius: 50%; background: #21232b; color: #ffffff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.12s ease, transform 0.08s ease;
-        }
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; }
+        .btn { width: 100%; aspect-ratio: 1; border-radius: 50%; background: #21232b; color: #ffffff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.12s ease, transform 0.08s ease; }
         .btn:active { transform: scale(0.92); background: #353844; }
         .btn.func { background: #2e313c; color: #a5a9b8; }
         .btn.operator { background: #ff9f0a; font-size: 30px; color: #ffffff; }
         .btn.operator:active { background: #e08b08; }
 
         /* === 獨立代數計算頁面 === */
-        .algebra-page {
-            width: 100%;
-            max-width: 420px;
-            height: 100%;
-            height: 100dvh;
-            background: #17181c;
-            display: none;
-            flex-direction: column;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .algebra-header {
-            height: calc(55px + env(safe-area-inset-top, 0px));
-            padding: env(safe-area-inset-top, 0px) 16px 0 16px;
-            border-bottom: 1px solid #21232b;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #14151a;
-            flex-shrink: 0;
-        }
-
-        .algebra-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .algebra-card {
-            background: #21232b;
-            border: 1px solid #353844;
-            border-radius: 16px;
-            padding: 16px;
-        }
-
-        .algebra-card h4 {
-            color: #ff9f0a;
-            margin-bottom: 12px;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
+        .algebra-page { width: 100%; max-width: 420px; height: 100%; height: 100dvh; background: #17181c; display: none; flex-direction: column; position: relative; box-sizing: border-box; }
+        .algebra-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; background: #14151a; flex-shrink: 0; }
+        .algebra-content { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+        .algebra-card { background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 16px; }
+        .algebra-card h4 { color: #ff9f0a; margin-bottom: 12px; font-size: 15px; font-weight: 600; }
         .algebra-input { width: 38px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 4px 2px; font-size: 13px; }
         .sign-btn { background: #353844; color: #ff9f0a; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 13px; cursor: pointer; min-width: 24px; }
         .sign-btn:active { background: #ff9f0a; color: #fff; }
 
         /* === 驗證彈窗 === */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100;
-        }
-        .modal-box {
-            background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
+        .modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
         .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
         .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
         .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
@@ -180,42 +51,27 @@
         .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
 
         /* === 祕密通訊系統 (SPA架構) === */
-        .chat-app {
-            display: none; width: 100%; height: 100dvh; background: #0d0e12; position: relative;
-        }
-
-        .app-view {
-            position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12;
-        }
+        .chat-app { display: none; width: 100%; max-width: 420px; height: 100dvh; background: #0d0e12; position: relative; margin: 0 auto; }
+        .app-view { position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12; }
         .app-view.active { display: flex; }
-
-        .header-bar {
-            height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10;
-        }
+        .header-bar { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10; }
         .header-title { font-size: 17px; font-weight: 600; }
         .icon-btn { background: transparent; color: #ff9f0a; font-size: 16px; cursor: pointer; padding: 8px; }
 
         /* 功能按鈕 */
-        .btn-nuclear, .btn-freeze, .btn-admin {
-            width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; flex-shrink: 0; transition: transform 0.1s ease;
-        }
+        .btn-nuclear, .btn-freeze, .btn-admin { width: 38px; height: 38px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; flex-shrink: 0; transition: transform 0.1s ease; }
         .btn-nuclear { background: #ff3b30; color: #fff; }
         .btn-freeze { background: #007aff; color: #fff; }
         .btn-admin { background: #8e8e93; color: #fff; }
         .btn-nuclear:active, .btn-freeze:active, .btn-admin:active { transform: scale(0.9); }
-
         .header-btn-group { display: flex; align-items: center; gap: 8px; }
 
         /* 選擇聊天室頁面底部的凍結與銷毀按鈕 */
-        .bottom-action-bar {
-            position: absolute; bottom: calc(36px + env(safe-area-inset-bottom, 0px)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 20;
-        }
+        .bottom-action-bar { position: absolute; bottom: calc(36px + env(safe-area-inset-bottom, 0px)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 20; }
         .bottom-action-bar button { pointer-events: auto; width: 56px; height: 56px; font-size: 28px; box-shadow: 0 6px 16px rgba(0,0,0,0.6); }
 
         /* 頭像與狀態 */
-        .avatar-img {
-            width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 20px; background: #2e313c; transition: border 0.3s ease; box-sizing: border-box;
-        }
+        .avatar-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 20px; background: #2e313c; transition: border 0.3s ease; box-sizing: border-box; }
         .avatar-img.online { border: 2.5px solid #34c759; padding: 2px; box-shadow: 0 0 8px rgba(52, 199, 89, 0.4); }
         .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
 
@@ -227,35 +83,15 @@
 
         /* 聊天室內容 */
         .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; position: relative; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; }
         .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
         .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
-        .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; }
+        .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; position: relative; }
         .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
         
-        /* 已讀頭像樣式 */
-        .read-receipt-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 3px;
-            margin-top: 3px;
-            margin-right: 2px;
-            min-height: 16px;
-        }
-        .read-avatar {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            object-fit: cover;
-            font-size: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #3a3d4d;
-            border: 1px solid #14151a;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
+        /* 已讀頭像 (Read Receipts) */
+        .read-receipts { display: flex; justify-content: flex-end; gap: 3px; margin-top: 3px; padding-right: 2px; }
+        .read-receipt-avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 8px; border: 1px solid #0d0e12; }
 
         .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; align-items: center; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
         .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
@@ -265,31 +101,17 @@
         .profile-container { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; }
         .profile-input-group { width: 100%; max-width: 320px; margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
         .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; }
-
         .select-custom { width: 100%; padding: 12px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 15px; }
 
         /* === 裁剪圖片彈窗 === */
-        .crop-modal-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column;
-        }
-        .crop-header {
-            height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b;
-        }
-        .crop-body {
-            flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden;
-        }
-        .crop-footer {
-            height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b;
-        }
-
-        .cropper-view-box, .cropper-face {
-            border-radius: 50% !important;
-        }
+        .crop-modal-overlay { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; }
+        .crop-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b; }
+        .crop-body { flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .crop-footer { height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b; }
+        .cropper-view-box, .cropper-face { border-radius: 50% !important; }
 
         /* 大圖檢視 Lightbox */
-        .lightbox-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; display: none; justify-content: center; align-items: center; padding: 16px;
-        }
+        .lightbox-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; display: none; justify-content: center; align-items: center; padding: 16px; }
         .lightbox-img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 
         /* 鎖定屏 */
@@ -298,67 +120,64 @@
 </head>
 <body>
 
+    <!-- 計算機頁面 -->
     <div class="calculator" id="calculatorApp">
         <div class="top-icons">
             <button type="button" class="secret-trigger" id="secretBtn" onclick="openAuthModal()">x</button>
         </div>
-
         <div class="screen">
             <div class="history" id="history"></div>
             <div class="current" id="current">0</div>
         </div>
-
         <div class="keypad">
             <button type="button" class="btn func" onclick="clearCalc()">C</button>
             <button type="button" class="btn func" onclick="backspace()">⌫</button>
             <button type="button" class="btn func" onclick="appendPercent()">%</button>
             <button type="button" class="btn operator" onclick="appendOperator('÷')">÷</button>
-
             <button type="button" class="btn" onclick="appendNumber('7')">7</button>
             <button type="button" class="btn" onclick="appendNumber('8')">8</button>
             <button type="button" class="btn" onclick="appendNumber('9')">9</button>
             <button type="button" class="btn operator" onclick="appendOperator('×')">×</button>
-
             <button type="button" class="btn" onclick="appendNumber('4')">4</button>
             <button type="button" class="btn" onclick="appendNumber('5')">5</button>
             <button type="button" class="btn" onclick="appendNumber('6')">6</button>
             <button type="button" class="btn operator" onclick="appendOperator('－')">－</button>
-
             <button type="button" class="btn" onclick="appendNumber('1')">1</button>
             <button type="button" class="btn" onclick="appendNumber('2')">2</button>
             <button type="button" class="btn" onclick="appendNumber('3')">3</button>
             <button type="button" class="btn operator" onclick="appendOperator('＋')">＋</button>
-
             <button type="button" class="btn func" onclick="toggleParentheses()">( )</button>
             <button type="button" class="btn" onclick="appendNumber('0')">0</button>
             <button type="button" class="btn" onclick="appendDecimal()">.</button>
             <button type="button" class="btn operator" onclick="calculate()">＝</button>
         </div>
+    </div>
 
-        <div class="modal-overlay" id="authModal">
-            <div class="modal-box" id="stage1Box">
-                <h3>校園自主學習專案</h3>
-                <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
-                <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
-                <div class="modal-btn-group">
-                    <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
-                    <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
-                </div>
+    <!-- 驗證彈窗 -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box" id="stage1Box">
+            <h3>校園自主學習專案</h3>
+            <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
+            <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
+            <div class="modal-btn-group">
+                <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
+                <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
             </div>
+        </div>
 
-            <div class="modal-box" id="stage2Box" style="display: none;">
-                <h3>自主學習系統登入</h3>
-                <p>請輸入學號與密碼 (預設密碼: 1234)：</p>
-                <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號 (例: user1)">
-                <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼 / 假密碼">
-                <div class="modal-btn-group">
-                    <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
-                    <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
-                </div>
+        <div class="modal-box" id="stage2Box" style="display: none;">
+            <h3>自主學習系統登入</h3>
+            <p>請輸入學號與密碼：</p>
+            <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
+            <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼 / 假密碼">
+            <div class="modal-btn-group">
+                <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
+                <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
             </div>
         </div>
     </div>
 
+    <!-- 獨立代數計算頁面 -->
     <div class="algebra-page" id="algebraPage">
         <div class="algebra-header">
             <button type="button" class="icon-btn" onclick="showCalculatorPage()">❮ 計算機</button>
@@ -379,47 +198,27 @@
                 </div>
                 <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
             </div>
-
-            <div class="algebra-card">
-                <h4>二元一次聯立方程組</h4>
-                <div style="font-size:13px; color:#a5a9b8; margin-bottom:6px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
-                    <button type="button" class="sign-btn" id="s_a1" onclick="toggleSignBtn('s_a1')">+</button>
-                    <input type="number" id="sysA1" class="algebra-input" value="1">x
-                    <button type="button" class="sign-btn" id="s_b1" onclick="toggleSignBtn('s_b1')">+</button>
-                    <input type="number" id="sysB1" class="algebra-input" value="1">y =
-                    <button type="button" class="sign-btn" id="s_c1" onclick="toggleSignBtn('s_c1')">+</button>
-                    <input type="number" id="sysC1" class="algebra-input" value="5">
-                </div>
-                <div style="font-size:13px; color:#a5a9b8; margin-bottom:8px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
-                    <button type="button" class="sign-btn" id="s_a2" onclick="toggleSignBtn('s_a2')">+</button>
-                    <input type="number" id="sysA2" class="algebra-input" value="1">x
-                    <button type="button" class="sign-btn" id="s_b2" onclick="toggleSignBtn('s_b2')">-</button>
-                    <input type="number" id="sysB2" class="algebra-input" value="1">y =
-                    <button type="button" class="sign-btn" id="s_c2" onclick="toggleSignBtn('s_c2')">+</button>
-                    <input type="number" id="sysC2" class="algebra-input" value="1">
-                    <button type="button" onclick="solveLinearSystem()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:4px; font-weight:600; cursor:pointer;">求解</button>
-                </div>
-                <div id="sysAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x = 3.00, y = 2.00</div>
-            </div>
         </div>
     </div>
 
+    <!-- 祕密通訊系統 (SPA架構) -->
     <div class="chat-app" id="chatApp">
         <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarSelected(event)">
 
+        <!-- 視圖 1: 聊天列表 -->
         <div class="app-view active" id="viewChatList">
             <div class="header-bar">
                 <span class="header-title">💬 聊天室</span>
                 <div id="navProfileBtn" onclick="switchView('viewProfile')" style="cursor:pointer;"></div>
             </div>
             <ul class="channel-list" id="channelList"></ul>
-
             <div class="bottom-action-bar">
                 <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
                 <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
             </div>
         </div>
 
+        <!-- 視圖 2: 聊天室內部 -->
         <div class="app-view" id="viewChatRoom">
             <div class="header-bar">
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
@@ -438,6 +237,7 @@
             </div>
         </div>
 
+        <!-- 視圖 3: 個人設定頁 -->
         <div class="app-view" id="viewProfile">
             <div class="header-bar">
                 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
@@ -465,8 +265,8 @@
                     <div class="input-label">變更假密碼 (留空則不更改)</div>
                     <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼">
 
-                    <div class="input-label">變更離開解鎖短碼 (預設: 200011)</div>
-                    <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入離開解鎖短碼">
+                    <div class="input-label">鎖定短碼 (離開解鎖用，預設: 200011)</div>
+                    <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼">
 
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
                     <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
@@ -474,7 +274,6 @@
                         <option value="20">20 分鐘</option>
                         <option value="30">30 分鐘</option>
                         <option value="40">40 分鐘</option>
-                        <option value="50">50 分鐘</option>
                         <option value="60">60 分鐘</option>
                         <option value="perm">永久</option>
                         <option value="custom">自訂分鐘數</option>
@@ -487,13 +286,16 @@
         </div>
     </div>
 
+    <!-- 管理員重設帳密與成員資料彈窗 -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-box">
             <h3>⚙️ 管理員 - 修改成員資料</h3>
             <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將影響成員登入！</p>
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
-            <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;"></select>
+            <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
+                <!-- 透過 JS 動態生成 (排除管理員自身) -->
+            </select>
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
             <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;">
@@ -506,8 +308,8 @@
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新假密碼 (若不改請留空):</div>
             <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:8px;">
-
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新離開解鎖短碼 (若不改請留空):</div>
+            
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解鎖短碼 (若不改請留空):</div>
             <input type="text" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:14px;">
 
             <div class="modal-btn-group">
@@ -517,6 +319,7 @@
         </div>
     </div>
 
+    <!-- 正圓形圖片裁剪彈窗 -->
     <div class="crop-modal-overlay" id="cropModal">
         <div class="crop-header">
             <button type="button" class="icon-btn" style="color:#a5a9b8;" onclick="closeCropModal()">取消</button>
@@ -534,11 +337,13 @@
         </div>
     </div>
 
+    <!-- 圖片檢視 Lightbox 彈窗 -->
     <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
         <span style="position:absolute; top:20px; right:20px; color:#fff; font-size:32px; font-weight:bold; cursor:pointer;">✕</span>
         <img class="lightbox-img" id="lightboxImg" src="">
     </div>
 
+    <!-- 防追查鎖定屏 -->
     <div class="lock-mask" id="lockMask">
         <h3 style="margin-bottom:16px;">系統已鎖定</h3>
         <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:260px; width:100%; box-sizing:border-box;" placeholder="輸入暗號解鎖">
@@ -546,17 +351,12 @@
     </div>
 
     <script>
+        // Supabase 連線設定
         const SUPABASE_URL = "https://vypcadthtduafammtlwz.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
         const COURSE_CODE = "PLAYMATH"; 
 
-        const DEFAULT_NICKS = {
-            'user1': '小菜車',
-            'user2': '熊冠',
-            'user3': '邪王真眼',
-            'user4': '布丁',
-            'user5': '咪喵'
-        };
+        const DEFAULT_NICKS = { 'user1': '小菜車', 'user2': '熊冠', 'user3': '邪王真眼', 'user4': '布丁', 'user5': '咪喵' };
 
         let dbClient = null;
         let currentUser = null;
@@ -576,171 +376,66 @@
             } catch (err) { console.warn("Supabase 載入延遲", err); }
         }
 
-        /* === 獨立代數頁面與計算機頁面切換 === */
-        function showAlgebraPage() {
-            document.getElementById('calculatorApp').style.display = 'none';
-            document.getElementById('algebraPage').style.display = 'flex';
-        }
-
-        function showCalculatorPage() {
-            document.getElementById('algebraPage').style.display = 'none';
-            document.getElementById('calculatorApp').style.display = 'flex';
-        }
-
-        /* === 正負號與代數求解 === */
-        function toggleSignBtn(btnId) {
-            const btn = document.getElementById(btnId);
-            btn.innerText = (btn.innerText === '+') ? '-' : '+';
-        }
-
-        function getSignedValue(btnId, inputId) {
-            const sign = document.getElementById(btnId).innerText === '-' ? -1 : 1;
-            const val = parseFloat(document.getElementById(inputId).value);
-            return isNaN(val) ? 0 : sign * val;
-        }
-
+        /* === 代數與計算機 === */
+        function showAlgebraPage() { document.getElementById('calculatorApp').style.display = 'none'; document.getElementById('algebraPage').style.display = 'flex'; }
+        function showCalculatorPage() { document.getElementById('algebraPage').style.display = 'none'; document.getElementById('calculatorApp').style.display = 'flex'; }
+        
+        function toggleSignBtn(btnId) { const btn = document.getElementById(btnId); btn.innerText = (btn.innerText === '+') ? '-' : '+'; }
+        function getSignedValue(btnId, inputId) { const sign = document.getElementById(btnId).innerText === '-' ? -1 : 1; const val = parseFloat(document.getElementById(inputId).value); return isNaN(val) ? 0 : sign * val; }
+        
         function solveAlgebra() {
-            let a = getSignedValue('s_qa', 'algA');
-            let b = getSignedValue('s_qb', 'algB');
-            let c = getSignedValue('s_qc', 'algC');
-
-            if (a === 0) { document.getElementById('algebraAns').innerText = "非一元二次方程 (a≠0)"; return; }
+            let a = getSignedValue('s_qa', 'algA'), b = getSignedValue('s_qb', 'algB'), c = getSignedValue('s_qc', 'algC');
+            if (a === 0) { document.getElementById('algebraAns').innerText = "非一元二次方程"; return; }
             let d = b*b - 4*a*c;
             if (d < 0) document.getElementById('algebraAns').innerText = "無實數解";
             else document.getElementById('algebraAns').innerText = `解: x₁ = ${((-b + Math.sqrt(d)) / (2*a)).toFixed(2)}, x₂ = ${((-b - Math.sqrt(d)) / (2*a)).toFixed(2)}`;
         }
 
-        function solveLinearSystem() {
-            let a1 = getSignedValue('s_a1', 'sysA1'), b1 = getSignedValue('s_b1', 'sysB1'), c1 = getSignedValue('s_c1', 'sysC1');
-            let a2 = getSignedValue('s_a2', 'sysA2'), b2 = getSignedValue('s_b2', 'sysB2'), c2 = getSignedValue('s_c2', 'sysC2');
-
-            let D = a1 * b2 - a2 * b1;
-            let Dx = c1 * b2 - c2 * b1;
-            let Dy = a1 * c2 - a2 * c1;
-
-            const ansEl = document.getElementById('sysAns');
-            if (D === 0) {
-                if (Dx === 0 && Dy === 0) ansEl.innerText = "解: 無限多組解";
-                else ansEl.innerText = "解: 無解";
-            } else {
-                ansEl.innerText = `解: x = ${(Dx / D).toFixed(2)}, y = ${(Dy / D).toFixed(2)}`;
-            }
-        }
-
-        /* === 計算機基本邏輯 === */
-        function updateDisplay() {
-            document.getElementById('current').innerText = expression;
-            document.getElementById('history').innerText = historyText;
-        }
-
+        function updateDisplay() { document.getElementById('current').innerText = expression; document.getElementById('history').innerText = historyText; }
         function appendNumber(num) {
             if (isNewCalc) { expression = '0'; isNewCalc = false; }
-            const parts = expression.split(/[＋－×÷\(\)]/);
-            const currentPart = parts[parts.length - 1];
-            if (currentPart.replace(/[^0-9]/g, '').length >= 15) return; 
-
-            if (expression === '0') { expression = String(num); } 
-            else { expression += String(num); }
+            if (expression === '0') expression = String(num); else expression += String(num);
             updateDisplay();
         }
-
         function appendOperator(op) {
             isNewCalc = false;
-            const lastChar = expression.slice(-1);
-            if (['＋', '－', '×', '÷'].includes(lastChar)) {
-                expression = expression.slice(0, -1) + op;
-            } else {
-                expression += op;
-            }
+            if (['＋', '－', '×', '÷'].includes(expression.slice(-1))) expression = expression.slice(0, -1) + op;
+            else expression += op;
             updateDisplay();
         }
-
         function clearCalc() { expression = '0'; historyText = ''; isNewCalc = false; updateDisplay(); }
-        
-        function backspace() {
-            if (isNewCalc) { clearCalc(); return; }
-            expression = expression.length > 1 ? expression.slice(0, -1) : '0';
-            updateDisplay();
-        }
-
-        function appendPercent() {
-            try {
-                let val = parseFloat(expression);
-                if (!isNaN(val)) { expression = String(val / 100); isNewCalc = true; }
-            } catch(e) {}
-            updateDisplay();
-        }
-
-        function appendDecimal() {
-            if (isNewCalc) { expression = '0.'; isNewCalc = false; updateDisplay(); return; }
-            const parts = expression.split(/[＋－×÷\(\)]/);
-            const lastPart = parts[parts.length - 1];
-            if (!lastPart.includes('.')) expression += '.';
-            updateDisplay();
-        }
-
+        function backspace() { if (isNewCalc) { clearCalc(); return; } expression = expression.length > 1 ? expression.slice(0, -1) : '0'; updateDisplay(); }
+        function appendPercent() { try { let val = parseFloat(expression); if (!isNaN(val)) { expression = String(val / 100); isNewCalc = true; } } catch(e){} updateDisplay(); }
+        function appendDecimal() { if (isNewCalc) { expression = '0.'; isNewCalc = false; } else if (!expression.includes('.')) expression += '.'; updateDisplay(); }
         function toggleParentheses() {
-            if (isNewCalc) { expression = '('; isNewCalc = false; updateDisplay(); return; }
-            const openCount = (expression.match(/\(/g) || []).length;
-            const closeCount = (expression.match(/\)/g) || []).length;
-            const lastChar = expression.slice(-1);
-
-            if (openCount > closeCount && !['＋', '－', '×', '÷', '('].includes(lastChar)) {
-                expression += ')';
-            } else {
-                if (expression === '0') expression = '(';
-                else expression += '(';
-            }
+            if (isNewCalc) { expression = '('; isNewCalc = false; }
+            else { const op = (expression.match(/\(/g)||[]).length, cl = (expression.match(/\)/g)||[]).length; expression += (op > cl && !['＋','－','×','÷','('].includes(expression.slice(-1))) ? ')' : '('; }
             updateDisplay();
         }
-
         function calculate() {
             try {
                 historyText = expression + ' =';
-                let sanitized = expression.replace(/＋/g, '+').replace(/－/g, '-').replace(/×/g, '*').replace(/÷/g, '/');
-                sanitized = sanitized.replace(/(\d|\))(?=\()/g, '$1*').replace(/\)(?=\d)/g, ')*');
-                
+                let sanitized = expression.replace(/＋/g, '+').replace(/－/g, '-').replace(/×/g, '*').replace(/÷/g, '/').replace(/(\d|\))(?=\()/g, '$1*').replace(/\)(?=\d)/g, ')*');
                 let result = Function('"use strict"; return (' + sanitized + ')')();
-                if (result === undefined || isNaN(result)) {
-                    expression = '錯誤';
-                } else {
-                    let resStr = result.toString();
-                    if (Math.abs(result) >= 1e15 || resStr.replace('-', '').replace('.', '').length > 15 || resStr.length > 15) {
-                        expression = Number(result).toExponential(6);
-                    } else {
-                        expression = String(Number(result.toFixed(8)));
-                    }
-                }
+                expression = (result === undefined || isNaN(result)) ? '錯誤' : String(Number(result.toFixed(8)));
                 isNewCalc = true;
-            } catch(e) {
-                expression = '錯誤';
-                isNewCalc = true;
-            }
+            } catch(e) { expression = '錯誤'; isNewCalc = true; }
             updateDisplay();
         }
 
-        /* === 驗證與登入 (已修正 .maybeSingle 避免查無帳號時觸發錯誤) === */
+        /* === 登入與精準報錯機制 === */
         function openAuthModal() {
-            if (isDecoyMode) {
-                if (document.getElementById('algebraPage').style.display === 'flex') {
-                    showCalculatorPage();
-                } else {
-                    showAlgebraPage();
-                }
-                return;
-            }
+            if (isDecoyMode) { document.getElementById('algebraPage').style.display === 'flex' ? showCalculatorPage() : showAlgebraPage(); return; }
             document.getElementById('authModal').style.display = 'flex';
             document.getElementById('stage1Box').style.display = 'block';
             document.getElementById('stage2Box').style.display = 'none';
             document.getElementById('courseCodeInput').value = '';
         }
-
         function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
         function backToStage1() { document.getElementById('stage2Box').style.display = 'none'; document.getElementById('stage1Box').style.display = 'block'; }
-
+        
         function verifyCourseCode() {
-            const input = document.getElementById('courseCodeInput').value.trim();
-            if (input === COURSE_CODE) {
+            if (document.getElementById('courseCodeInput').value.trim() === COURSE_CODE) {
                 document.getElementById('stage1Box').style.display = 'none';
                 document.getElementById('stage2Box').style.display = 'block';
             } else { alert("課程驗證碼錯誤"); }
@@ -752,56 +447,49 @@
 
             if (isDecoyMode) { alert("驗證失敗，請重置網頁。"); return; }
             if (!dbClient) initSupabase();
-            if (!dbClient) { alert("網路連線失敗，請稍後再試。"); return; }
+            if (!dbClient) { alert("無法連線至資料庫，請檢查網路連線。"); return; }
 
             try {
-                // 修正：改用 maybeSingle，避免查無帳號時拋出錯誤
-                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).maybeSingle();
+                const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
                 
-                if (error) { 
-                    console.error("Supabase 查詢錯誤:", error);
-                    alert("資料庫查詢失敗，請檢查 RLS 權限或網路連線"); 
-                    return; 
+                // RLS 或連線問題 精準報錯
+                if (error) {
+                    if (error.code === 'PGRST116') alert("帳號不存在或輸入錯誤！");
+                    else if (error.code === '401' || error.code === '403') alert(`資料庫權限遭拒(${error.code})，請確認是否已正確設定 Supabase RLS 政策允許 anon 讀取。`);
+                    else alert("登入發生未知錯誤：" + error.message);
+                    return;
                 }
-                if (!user) { alert("帳號不正確或尚未建立"); return; }
 
                 if (user.decoy_password && pwd === user.decoy_password) {
-                    isDecoyMode = true;
-                    closeAuthModal();
-                    showAlgebraPage();
-                    return;
+                    isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
                 }
 
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
-                    const unlockCode1 = user.password + nick;
-                    const unlockCode2 = user.password + user.username;
                     const now = new Date();
                     const frozenUntil = user.frozen_until ? new Date(user.frozen_until) : new Date(0);
-
-                    if (pwd === unlockCode1 || pwd === unlockCode2 || (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)) {
+                    
+                    if (pwd === (user.password + nick) || pwd === (user.password + user.username) || (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)) {
                         await dbClient.from('users').update({ security_status: 'active', frozen_until: null }).eq('username', user.username);
                         user.security_status = 'active';
                     } else {
-                        alert("帳號處於凍結狀態，無法登入！");
-                        return;
+                        alert("帳號處於凍結狀態，無法登入！"); return;
                     }
-                } else {
-                    if (user.password !== pwd) { alert("密碼不正確 (預設密碼為 1234)"); return; }
+                } else if (user.password !== pwd) { 
+                    alert("密碼不正確"); return; 
                 }
 
                 currentUser = user;
                 closeAuthModal();
                 document.getElementById('calculatorApp').style.display = 'none';
-                document.getElementById('algebraPage').style.display = 'none';
                 document.getElementById('chatApp').style.display = 'block';
                 
                 initChatSystem();
                 switchView('viewChatList');
-            } catch(e) { alert("登入異常：" + e.message); }
+            } catch(e) { alert("系統異常：" + e.message); }
         }
 
-        /* === 聊天與介面 SPA 邏輯 === */
+        /* === 視圖與資料呈現 === */
         function switchView(viewId) {
             document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -815,29 +503,18 @@
                 document.getElementById('editFakePassword').value = '';
                 document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
                 
-                const nickInput = document.getElementById('editNickname');
-                const unInput = document.getElementById('editUsername');
-
+                // 管理員可改自身帳號功能
+                const userInp = document.getElementById('editUsername');
+                const nickInp = document.getElementById('editNickname');
                 if (currentUser.username === 'user1') {
-                    unInput.disabled = false;
-                    unInput.style.color = '#fff';
-                    unInput.style.background = '#17181c';
-
-                    nickInput.disabled = false;
-                    nickInput.style.color = '#fff';
-                    nickInput.style.background = '#17181c';
+                    userInp.disabled = false; userInp.style.color = '#fff'; userInp.style.background = '#17181c';
+                    nickInp.disabled = false; nickInp.style.color = '#fff'; nickInp.style.background = '#17181c';
                     document.getElementById('adminBtn').style.display = 'flex';
                 } else {
-                    unInput.disabled = true;
-                    unInput.style.color = '#616472';
-                    unInput.style.background = '#14151a';
-
-                    nickInput.disabled = true;
-                    nickInput.style.color = '#616472';
-                    nickInput.style.background = '#14151a';
+                    userInp.disabled = true; userInp.style.color = '#616472'; userInp.style.background = '#14151a';
+                    nickInp.disabled = true; nickInp.style.color = '#616472'; nickInp.style.background = '#14151a';
                     document.getElementById('adminBtn').style.display = 'none';
                 }
-
                 renderProfileAvatar();
             }
         }
@@ -847,26 +524,12 @@
             const isSelf = currentUser && u.username === currentUser.username;
             const isOnline = !isSelf && (new Date() - new Date(u.last_seen)) < 25000;
             const borderClass = isOnline ? 'online' : '';
-            const emoji = u.avatar_emoji || '👤';
-            if (u.avatar_url) {
-                return `<img src="${u.avatar_url}" class="avatar-img ${borderClass} ${sizeClass}">`;
-            }
-            return `<div class="avatar-img ${borderClass} ${sizeClass}">${emoji}</div>`;
+            if (u.avatar_url) return `<img src="${u.avatar_url}" class="avatar-img ${borderClass} ${sizeClass}">`;
+            return `<div class="avatar-img ${borderClass} ${sizeClass}">${u.avatar_emoji || '👤'}</div>`;
         }
 
-        function getReadAvatarHtml(u) {
-            if (!u) return '';
-            if (u.avatar_url) {
-                return `<img src="${u.avatar_url}" class="read-avatar" title="${getNickname(u)} 已讀">`;
-            }
-            return `<div class="read-avatar" title="${getNickname(u)} 已讀">${u.avatar_emoji || '👤'}</div>`;
-        }
-
-        function getNickname(u) {
-            if (!u) return '未知';
-            return u.nickname || DEFAULT_NICKS[u.username] || u.username;
-        }
-
+        function getNickname(u) { return u ? (u.nickname || DEFAULT_NICKS[u.username] || u.username) : '未知'; }
+        
         function renderProfileAvatar() {
             document.getElementById('navProfileBtn').innerHTML = getAvatarHtml(currentUser, 'avatar-mini');
             document.getElementById('profileAvatarBox').innerHTML = getAvatarHtml(currentUser);
@@ -875,106 +538,41 @@
         }
 
         function toggleCustomFreezeInput() {
-            const val = document.getElementById('freezeDurationSelect').value;
-            const input = document.getElementById('customFreezeInput');
-            if (val === 'custom') input.style.display = 'block';
-            else input.style.display = 'none';
+            document.getElementById('customFreezeInput').style.display = document.getElementById('freezeDurationSelect').value === 'custom' ? 'block' : 'none';
         }
 
         async function saveProfile() {
-            const newUn = document.getElementById('editUsername').value.trim();
-            const newPwd = document.getElementById('editPassword').value.trim();
-            const newFakePwd = document.getElementById('editFakePassword').value.trim();
-            const newUnlockCode = document.getElementById('editUnlockCode').value.trim();
             let updates = {};
-
-            if (newPwd) updates.password = newPwd;
-            if (newFakePwd) updates.decoy_password = newFakePwd;
-            if (newUnlockCode) updates.unlock_code = newUnlockCode;
-
+            
+            // 管理員專屬：修改帳號與暱稱
             if (currentUser.username === 'user1') {
-                if (newUn && newUn !== currentUser.username) updates.username = newUn;
+                const newUn = document.getElementById('editUsername').value.trim();
                 const newNick = document.getElementById('editNickname').value.trim();
+                if (newUn && newUn !== currentUser.username) updates.username = newUn; // 注意: PK 變更需資料庫支援 cascade
                 if (newNick) updates.nickname = newNick;
             }
 
-            if (Object.keys(updates).length === 0) {
-                alert('沒有變更任何設定。');
-                return;
-            }
+            const newPwd = document.getElementById('editPassword').value.trim();
+            const newFakePwd = document.getElementById('editFakePassword').value.trim();
+            const newCode = document.getElementById('editUnlockCode').value.trim();
 
-            if (dbClient) {
-                const { error } = await dbClient.from('users').update(updates).eq('username', currentUser.username);
-                if (error) {
-                    alert('儲存失敗：' + error.message);
-                    return;
-                }
-                if (updates.username) currentUser.username = updates.username;
-                if (updates.password) currentUser.password = updates.password;
-                if (updates.decoy_password) currentUser.decoy_password = updates.decoy_password;
-                if (updates.nickname) currentUser.nickname = updates.nickname;
-                if (updates.unlock_code) currentUser.unlock_code = updates.unlock_code;
+            if (newPwd) updates.password = newPwd;
+            if (newFakePwd) updates.decoy_password = newFakePwd;
+            if (newCode && newCode !== currentUser.unlock_code) updates.unlock_code = newCode;
 
-                alert('設定已儲存！');
-                await fetchAllUsers();
-                renderProfileAvatar();
-                switchView('viewChatList');
-            }
+            if (Object.keys(updates).length === 0) { alert('沒有變更任何設定。'); return; }
+
+            const { error } = await dbClient.from('users').update(updates).eq('username', currentUser.username);
+            if (error) { alert('儲存失敗：' + error.message); return; }
+            
+            Object.assign(currentUser, updates); // 覆蓋本地快取狀態
+            alert('設定已儲存！');
+            await fetchAllUsers();
+            renderProfileAvatar();
+            switchView('viewChatList');
         }
 
-        /* === 自訂頭貼選區正圓形裁剪功能 === */
-        function handleAvatarSelected(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgEl = document.getElementById('cropImageSrc');
-                imgEl.src = e.target.result;
-                document.getElementById('cropModal').style.display = 'flex';
-                
-                if (cropperInstance) cropperInstance.destroy();
-                cropperInstance = new Cropper(imgEl, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    background: false,
-                    autoCropArea: 0.8,
-                    dragMode: 'move'
-                });
-            };
-            reader.readAsDataURL(file);
-            event.target.value = '';
-        }
-
-        function rotateCropImage() { if (cropperInstance) cropperInstance.rotate(90); }
-        function closeCropModal() {
-            document.getElementById('cropModal').style.display = 'none';
-            if (cropperInstance) cropperInstance.destroy();
-        }
-
-        function confirmCrop() {
-            if (!cropperInstance) return;
-            const canvas = cropperInstance.getCroppedCanvas({ width: 200, height: 200 });
-            const base64Img = canvas.toDataURL('image/jpeg', 0.85);
-
-            if (dbClient) {
-                dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username)
-                .then(() => {
-                    currentUser.avatar_url = base64Img;
-                    closeCropModal();
-                    renderProfileAvatar();
-                    fetchAllUsers();
-                });
-            }
-        }
-
-        /* === 大圖檢視 Lightbox === */
-        function openLightbox(src) {
-            document.getElementById('lightboxImg').src = src;
-            document.getElementById('lightboxModal').style.display = 'flex';
-        }
-        function closeLightbox() { document.getElementById('lightboxModal').style.display = 'none'; }
-
-        /* === 聊天與訊息載入 === */
+        /* === 聊天室邏輯 === */
         async function initChatSystem() {
             await fetchAllUsers();
             renderProfileAvatar();
@@ -991,8 +589,22 @@
 
         async function fetchAllUsers() {
             if (!dbClient) return;
-            const { data } = await dbClient.from('users').select('*');
-            allUsers = data || [];
+            const { data, error } = await dbClient.from('users').select('*');
+            if (!error) allUsers = data || [];
+        }
+
+        function getChannelId(ch) {
+            if (!ch) return null;
+            return ch.type === 'group' ? 'group_1234' : [currentUser.username, ch.target].sort().join('_');
+        }
+
+        async function updateMyReadStatus() {
+            if (!currentUser || !activeChannel) return;
+            const cid = getChannelId(activeChannel);
+            let lr = currentUser.last_read || {};
+            lr[cid] = new Date().toISOString();
+            currentUser.last_read = lr;
+            dbClient.from('users').update({ last_read: lr }).eq('username', currentUser.username).then();
         }
 
         function renderChannels() {
@@ -1006,145 +618,93 @@
                     { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}` },
                     { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}` },
                     { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}` },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` }
+                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` } // 移除了(單線)
                 ];
             } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
                 channels = [{ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' }];
                 ['user1', 'user2', 'user3', 'user4'].forEach(un => {
-                    if (un !== currentUser.username) {
-                        const tu = allUsers.find(u => u.username === un);
-                        channels.push({ type: 'private', target: un, title: `💬 ${getNickname(tu)}` });
-                    }
+                    if (un !== currentUser.username) channels.push({ type: 'private', target: un, title: `💬 ${getNickname(allUsers.find(u=>u.username===un))}` });
                 });
             } else if (currentUser.username === 'user5') {
-                const adminU = allUsers.find(u => u.username === 'user1');
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(adminU)}` }];
+                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user1'))}` }]; // 移除了(單線)
             }
 
             channels.forEach(ch => {
                 const li = document.createElement('li');
                 li.className = 'channel-item';
-                
-                let avatarHtml = `<div class="avatar-img">👥</div>`;
-                if (ch.type === 'private') {
-                    const targetUser = allUsers.find(u => u.username === ch.target);
-                    avatarHtml = getAvatarHtml(targetUser);
-                }
-
-                li.innerHTML = `
-                    ${avatarHtml}
-                    <div class="channel-info">
-                        <div class="channel-name">${ch.title}</div>
-                    </div>
-                `;
+                li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(allUsers.find(u=>u.username===ch.target)) : '<div class="avatar-img">👥</div>'}<div class="channel-info"><div class="channel-name">${ch.title}</div></div>`;
                 li.onclick = () => {
                     activeChannel = ch;
                     document.getElementById('currentChannelTitle').innerText = ch.title;
                     switchView('viewChatRoom');
+                    updateMyReadStatus();
                     loadMessages(true);
                 };
                 channelList.appendChild(li);
             });
         }
 
-        async function updateReadTimestamp() {
-            if (dbClient && currentUser) {
-                const nowIso = new Date().toISOString();
-                currentUser.last_read_at = nowIso;
-                await dbClient.from('users').update({ last_read_at: nowIso }).eq('username', currentUser.username);
-            }
-        }
-
         async function loadMessages(showLoading = true) {
             if (!dbClient || !activeChannel) return;
             const container = document.getElementById('chatMessages');
             
-            if (showLoading) {
-                container.innerHTML = `
-                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#8a8d9b; gap:12px;">
-                        <div style="width:30px; height:30px; border:3px solid rgba(255,255,255,0.1); border-top:3px solid #ff9f0a; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
-                        <span>載入中...</span>
-                    </div>
-                `;
-            }
-
-            await updateReadTimestamp();
+            if (showLoading) container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#8a8d9b; gap:12px;"><div style="width:30px; height:30px; border:3px solid rgba(255,255,255,0.1); border-top:3px solid #ff9f0a; border-radius:50%; animation:spin 0.8s linear infinite;"></div><span>載入中...</span></div>`;
 
             let query = dbClient.from('messages').select('*').order('created_at', { ascending: true });
-            if (activeChannel.type === 'group') {
-                query = query.eq('target_id', 'group_1234');
-            } else {
-                query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
-            }
-            const { data: msgs } = await query;
-            renderMessages(msgs || []);
-        }
+            if (activeChannel.type === 'group') query = query.eq('target_id', 'group_1234');
+            else query = query.or(`and(sender.eq.${currentUser.username},target_id.eq.${activeChannel.target}),and(sender.eq.${activeChannel.target},target_id.eq.${currentUser.username})`);
+            
+            const { data: msgs, error } = await query;
+            if (error) { console.error(error); return; }
 
-        function renderMessages(msgs) {
-            const container = document.getElementById('chatMessages');
-            container.innerHTML = '';
-
-            const targetReadMap = {};
-            let relevantMembers = [];
-            if (activeChannel.type === 'group') {
-                relevantMembers = allUsers.filter(u => u.username !== currentUser.username);
-            } else {
-                const tu = allUsers.find(u => u.username === activeChannel.target);
-                if (tu) relevantMembers = [tu];
-            }
-
-            relevantMembers.forEach(mUser => {
-                if (!mUser.last_read_at) return;
-                const mUserReadTime = new Date(mUser.last_read_at).getTime();
-                let lastReadMsg = null;
+            // 運算已讀狀態
+            const chId = getChannelId(activeChannel);
+            const latestReadMap = {};
+            
+            allUsers.forEach(u => {
+                if (u.username === currentUser.username) return;
+                if (activeChannel.type === 'private' && u.username !== activeChannel.target) return;
                 
-                for (let i = msgs.length - 1; i >= 0; i--) {
-                    const msgTime = new Date(msgs[i].created_at).getTime();
-                    if (mUserReadTime >= msgTime) {
-                        lastReadMsg = msgs[i];
-                        break;
+                const uReadTime = u.last_read?.[chId];
+                if (uReadTime) {
+                    let lastSeenMsgId = null;
+                    for (let i = msgs.length - 1; i >= 0; i--) {
+                        if (new Date(msgs[i].created_at) <= new Date(uReadTime)) {
+                            lastSeenMsgId = msgs[i].id;
+                            break;
+                        }
                     }
-                }
-
-                if (lastReadMsg) {
-                    if (!targetReadMap[lastReadMsg.id]) targetReadMap[lastReadMsg.id] = [];
-                    targetReadMap[lastReadMsg.id].push(mUser);
+                    if (lastSeenMsgId) {
+                        if (!latestReadMap[lastSeenMsgId]) latestReadMap[lastSeenMsgId] = [];
+                        latestReadMap[lastSeenMsgId].push(u);
+                    }
                 }
             });
 
+            container.innerHTML = '';
             msgs.forEach(m => {
                 const isMe = m.sender === currentUser.username;
                 const senderObj = allUsers.find(u => u.username === m.sender);
-                
-                let bubbleContent = m.content;
-                if (m.content.startsWith('data:image/')) {
-                    bubbleContent = `<img src="${m.content}" style="max-width:100%; max-height:260px; border-radius:10px; display:block; cursor:pointer;" onclick="openLightbox('${m.content}')">`;
-                }
+                let bubbleContent = m.content.startsWith('data:image/') ? `<img src="${m.content}" style="max-width:100%; max-height:260px; border-radius:10px; display:block; cursor:pointer;" onclick="openLightbox('${m.content}')">` : m.content;
 
                 const wrap = document.createElement('div');
                 wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
+                wrap.innerHTML = isMe ? `<div class="msg-bubble">${bubbleContent}</div>` : `<div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div><div class="msg-bubble">${bubbleContent}</div>`;
                 
-                let readAvatarsHtml = '';
-                if (targetReadMap[m.id] && targetReadMap[m.id].length > 0) {
-                    const avatarList = targetReadMap[m.id].map(u => getReadAvatarHtml(u)).join('');
-                    readAvatarsHtml = `<div class="read-receipt-container">${avatarList}</div>`;
+                // 加入已讀頭像
+                if (latestReadMap[m.id]) {
+                    const receiptsHtml = latestReadMap[m.id].map(u => {
+                        if (u.avatar_url) return `<img src="${u.avatar_url}" class="read-receipt-avatar">`;
+                        return `<div class="read-receipt-avatar">${u.avatar_emoji || '👤'}</div>`;
+                    }).join('');
+                    wrap.innerHTML += `<div class="read-receipts">${receiptsHtml}</div>`;
                 }
 
-                if(!isMe) {
-                    wrap.innerHTML = `
-                        <div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>
-                        <div class="msg-bubble">${bubbleContent}</div>
-                        ${readAvatarsHtml}
-                    `;
-                } else {
-                    wrap.innerHTML = `
-                        <div class="msg-bubble">${bubbleContent}</div>
-                        ${readAvatarsHtml}
-                    `;
-                }
                 container.appendChild(wrap);
             });
-            container.scrollTop = container.scrollHeight;
+            
+            if (showLoading || msgs.length > 0) container.scrollTop = container.scrollHeight;
+            updateMyReadStatus(); // 每當載入訊息即更新自己的已讀時間
         }
 
         async function sendMessage() {
@@ -1164,23 +724,12 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    let width = img.width, height = img.height;
-                    const maxDim = 800;
-                    if (width > maxDim || height > maxDim) {
-                        if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
-                        else { width = Math.round((width * maxDim) / height); height = maxDim; }
-                    }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const base64Img = canvas.toDataURL('image/jpeg', 0.7);
-
-                    dbClient.from('messages').insert({
-                        sender: currentUser.username,
-                        channel_type: activeChannel.type,
-                        target_id: activeChannel.target,
-                        content: base64Img
-                    }).then(() => loadMessages(false));
+                    let w = img.width, h = img.height;
+                    const max = 800;
+                    if (w > max || h > max) { if (w > h) { h = Math.round((h*max)/w); w = max; } else { w = Math.round((w*max)/h); h = max; } }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    dbClient.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: canvas.toDataURL('image/jpeg', 0.7) }).then(() => loadMessages(false));
                 };
                 img.src = e.target.result;
             };
@@ -1188,120 +737,101 @@
             event.target.value = '';
         }
 
-        /* === ❄️ 凍結與 ☢️ 全域銷毀邏輯 === */
+        /* === ❄️ 凍結與 ☢️ 全域銷毀 === */
         async function freezeAccount() {
             if (!currentUser || !dbClient) { window.location.href = 'about:blank'; return; }
-            
             const sel = document.getElementById('freezeDurationSelect').value;
-            let minutes = 10;
-            
-            if (sel === 'perm') {
-                minutes = -1;
-            } else if (sel === 'custom') {
-                const customVal = parseInt(document.getElementById('customFreezeInput').value);
-                if (!isNaN(customVal) && customVal > 0) minutes = customVal;
-            } else {
-                minutes = parseInt(sel) || 10;
-            }
-
-            let frozenUntil = null;
-            if (minutes === -1) {
-                frozenUntil = '3000-01-01T00:00:00Z';
-            } else {
-                frozenUntil = new Date(Date.now() + minutes * 60 * 1000).toISOString();
-            }
-
-            try {
-                await dbClient.from('users').update({ security_status: 'frozen', frozen_until: frozenUntil }).eq('username', currentUser.username);
-            } catch(e) {}
-
+            let minutes = (sel === 'perm') ? -1 : (sel === 'custom' ? parseInt(document.getElementById('customFreezeInput').value) : parseInt(sel));
+            if (isNaN(minutes)) minutes = 10;
+            const frozenUntil = (minutes === -1) ? '3000-01-01T00:00:00Z' : new Date(Date.now() + minutes * 60000).toISOString();
+            await dbClient.from('users').update({ security_status: 'frozen', frozen_until: frozenUntil }).eq('username', currentUser.username);
             window.location.href = 'about:blank';
         }
+        async function nuclearDestruct() { if (dbClient) await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z'); window.location.href = 'about:blank'; }
 
-        async function nuclearDestruct() {
-            if (dbClient) {
-                try {
-                    await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z');
-                } catch(e) {}
-            }
-            window.location.href = 'about:blank';
-        }
-
-        /* === ⚙️ 管理員修改成員資料 === */
+        /* === ⚙️ 管理員修改功能 === */
         function openAdminModal() {
-            const selectEl = document.getElementById('adminTargetUser');
-            selectEl.innerHTML = '';
-            
+            const sel = document.getElementById('adminTargetUser');
+            sel.innerHTML = '';
+            // 動態生成選單，顯示暱稱與帳號，並排除自己
             allUsers.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.username;
-                opt.innerText = `${getNickname(u)} (${u.username})`;
-                selectEl.appendChild(opt);
+                if (u.username !== currentUser.username) {
+                    const opt = document.createElement('option');
+                    opt.value = u.username;
+                    opt.textContent = `${getNickname(u)} (${u.username})`;
+                    sel.appendChild(opt);
+                }
             });
-
             document.getElementById('adminModal').style.display = 'flex';
         }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
         async function submitAdminReset() {
             const target = document.getElementById('adminTargetUser').value;
-            const newUn = document.getElementById('adminNewUsername').value.trim();
-            const newNick = document.getElementById('adminNewNickname').value.trim();
-            const newPwd = document.getElementById('adminNewPassword').value.trim();
-            const newFakePwd = document.getElementById('adminNewFakePassword').value.trim();
-            const newUnlockCode = document.getElementById('adminNewUnlockCode').value.trim();
+            const un = document.getElementById('adminNewUsername').value.trim();
+            const nk = document.getElementById('adminNewNickname').value.trim();
+            const pw = document.getElementById('adminNewPassword').value.trim();
+            const fp = document.getElementById('adminNewFakePassword').value.trim();
+            const uc = document.getElementById('adminNewUnlockCode').value.trim();
 
-            if (!newUn && !newNick && !newPwd && !newFakePwd && !newUnlockCode) {
-                alert("請至少輸入一項要修改的資料！");
-                return;
-            }
-            
-            if (!confirm(`⚠️ 確定要更新 ${target} 的資料嗎？此操作將會直接生效！`)) return;
+            if (!un && !nk && !pw && !fp && !uc) { alert("請至少輸入一項要修改的資料！"); return; }
+            if (!confirm(`⚠️ 確定要更新 ${target} 的資料嗎？`)) return;
 
             let updates = {};
-            if (newUn) updates.username = newUn;
-            if (newNick) updates.nickname = newNick;
-            if (newPwd) updates.password = newPwd;
-            if (newFakePwd) updates.decoy_password = newFakePwd;
-            if (newUnlockCode) updates.unlock_code = newUnlockCode;
+            if (un) updates.username = un;
+            if (nk) updates.nickname = nk;
+            if (pw) updates.password = pw;
+            if (fp) updates.decoy_password = fp;
+            if (uc) updates.unlock_code = uc;
 
-            if (dbClient) {
-                const { error } = await dbClient.from('users').update(updates).eq('username', target);
-                if (error) { alert("更新失敗：" + error.message); }
-                else {
-                    alert(`✅ 已成功更新 ${target} 的資料！`);
-                    closeAdminModal();
-                    document.getElementById('adminNewUsername').value = '';
-                    document.getElementById('adminNewNickname').value = '';
-                    document.getElementById('adminNewPassword').value = '';
-                    document.getElementById('adminNewFakePassword').value = '';
-                    document.getElementById('adminNewUnlockCode').value = '';
-                    fetchAllUsers();
-                }
+            const { error } = await dbClient.from('users').update(updates).eq('username', target);
+            if (error) { alert("更新失敗：" + error.message); }
+            else {
+                alert(`✅ 已成功更新資料！`);
+                closeAdminModal();
+                ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode'].forEach(id => document.getElementById(id).value = '');
+                fetchAllUsers();
             }
         }
+
+        /* === 裁剪及大圖檢視 === */
+        function handleAvatarSelected(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgEl = document.getElementById('cropImageSrc'); imgEl.src = e.target.result;
+                document.getElementById('cropModal').style.display = 'flex';
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new Cropper(imgEl, { aspectRatio: 1, viewMode: 1, background: false, autoCropArea: 0.8, dragMode: 'move' });
+            };
+            reader.readAsDataURL(file); event.target.value = '';
+        }
+        function rotateCropImage() { if (cropperInstance) cropperInstance.rotate(90); }
+        function closeCropModal() { document.getElementById('cropModal').style.display = 'none'; if (cropperInstance) cropperInstance.destroy(); }
+        function confirmCrop() {
+            if (!cropperInstance) return;
+            const base64Img = cropperInstance.getCroppedCanvas({ width: 200, height: 200 }).toDataURL('image/jpeg', 0.85);
+            dbClient.from('users').update({ avatar_url: base64Img }).eq('username', currentUser.username).then(() => {
+                currentUser.avatar_url = base64Img; closeCropModal(); renderProfileAvatar(); fetchAllUsers();
+            });
+        }
+        function openLightbox(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightboxModal').style.display = 'flex'; }
+        function closeLightbox() { document.getElementById('lightboxModal').style.display = 'none'; }
 
         /* === 防追查鎖定系統 === */
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && currentUser) {
-                document.getElementById('lockMask').style.display = 'flex';
-            }
-        });
-
+        document.addEventListener('visibilitychange', () => { if (document.hidden && currentUser) document.getElementById('lockMask').style.display = 'flex'; });
         function unlockScreen() {
             const code = document.getElementById('unlockCodeInput').value.trim();
-            const myUnlockCode = (currentUser && currentUser.unlock_code) ? currentUser.unlock_code : '200011';
+            const validCode = (currentUser && currentUser.unlock_code) ? currentUser.unlock_code : '200011';
             
-            if (code === myUnlockCode || code === '200011' || (currentUser && code === currentUser.password)) {
-                document.getElementById('lockMask').style.display = 'none';
-                document.getElementById('unlockCodeInput').value = '';
+            if (code === validCode || (currentUser && code === currentUser.password)) {
+                document.getElementById('lockMask').style.display = 'none'; document.getElementById('unlockCodeInput').value = '';
             } else {
-                alert("暗號錯誤！");
+                alert("解鎖碼錯誤");
             }
         }
 
-        initSupabase();
-        updateDisplay();
+        initSupabase(); updateDisplay();
     </script>
 </body>
 </html>
