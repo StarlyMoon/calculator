@@ -89,9 +89,9 @@
         .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; position: relative; }
         .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
         
-        /* 已讀頭像 (Read Receipts) */
-        .read-receipts { display: flex; justify-content: flex-end; gap: 3px; margin-top: 3px; padding-right: 2px; }
-        .read-receipt-avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 8px; border: 1px solid #0d0e12; }
+        /* 已讀頭像 (Read Receipts) - 加大版 */
+        .read-receipts { display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px; padding-right: 4px; }
+        .read-receipt-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 12px; border: 2px solid #0d0e12; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
         .chat-input-area { padding: 12px; border-top: 1px solid #21232b; display: flex; gap: 8px; align-items: center; background: #14151a; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; }
         .chat-input { flex: 1; background: #1c1d24; border: 1px solid #21232b; border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 15px; -webkit-user-select: text; user-select: text; }
@@ -268,6 +268,9 @@
                     <div class="input-label">鎖定短碼 (離開解鎖用，預設: 200011)</div>
                     <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼">
 
+                    <div class="input-label">專屬解凍密碼 (凍結時登入即可解凍)</div>
+                    <input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定後，凍結時輸入此密碼即可解開">
+
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
                     <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
                         <option value="10">10 分鐘 (預設)</option>
@@ -310,7 +313,10 @@
             <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:8px;">
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解鎖短碼 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:14px;">
+            <input type="text" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:8px;">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解凍密碼 (若不改請留空):</div>
+            <input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入新解凍密碼" style="margin-bottom:14px;">
 
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
@@ -464,12 +470,18 @@
                     isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
                 }
 
+                // 凍結狀態下的驗證邏輯（包含新的專屬解凍密碼）
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
                     const now = new Date();
                     const frozenUntil = user.frozen_until ? new Date(user.frozen_until) : new Date(0);
                     
-                    if (pwd === (user.password + nick) || pwd === (user.password + user.username) || (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)) {
+                    if (
+                        (user.unfreeze_password && pwd === user.unfreeze_password) || 
+                        pwd === (user.password + nick) || 
+                        pwd === (user.password + user.username) || 
+                        (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)
+                    ) {
                         await dbClient.from('users').update({ security_status: 'active', frozen_until: null }).eq('username', user.username);
                         user.security_status = 'active';
                     } else {
@@ -502,6 +514,7 @@
                 document.getElementById('editPassword').value = '';
                 document.getElementById('editFakePassword').value = '';
                 document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
+                document.getElementById('editUnfreezePassword').value = ''; // 安全考量不顯示舊密碼
                 
                 // 管理員可改自身帳號功能
                 const userInp = document.getElementById('editUsername');
@@ -548,17 +561,19 @@
             if (currentUser.username === 'user1') {
                 const newUn = document.getElementById('editUsername').value.trim();
                 const newNick = document.getElementById('editNickname').value.trim();
-                if (newUn && newUn !== currentUser.username) updates.username = newUn; // 注意: PK 變更需資料庫支援 cascade
+                if (newUn && newUn !== currentUser.username) updates.username = newUn; 
                 if (newNick) updates.nickname = newNick;
             }
 
             const newPwd = document.getElementById('editPassword').value.trim();
             const newFakePwd = document.getElementById('editFakePassword').value.trim();
             const newCode = document.getElementById('editUnlockCode').value.trim();
+            const newUnfreezePwd = document.getElementById('editUnfreezePassword').value.trim();
 
             if (newPwd) updates.password = newPwd;
             if (newFakePwd) updates.decoy_password = newFakePwd;
             if (newCode && newCode !== currentUser.unlock_code) updates.unlock_code = newCode;
+            if (newUnfreezePwd) updates.unfreeze_password = newUnfreezePwd;
 
             if (Object.keys(updates).length === 0) { alert('沒有變更任何設定。'); return; }
 
@@ -618,7 +633,7 @@
                     { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}` },
                     { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}` },
                     { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}` },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` } // 移除了(單線)
+                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` }
                 ];
             } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
                 channels = [{ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' }];
@@ -626,7 +641,7 @@
                     if (un !== currentUser.username) channels.push({ type: 'private', target: un, title: `💬 ${getNickname(allUsers.find(u=>u.username===un))}` });
                 });
             } else if (currentUser.username === 'user5') {
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user1'))}` }]; // 移除了(單線)
+                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user1'))}` }];
             }
 
             channels.forEach(ch => {
@@ -773,8 +788,9 @@
             const pw = document.getElementById('adminNewPassword').value.trim();
             const fp = document.getElementById('adminNewFakePassword').value.trim();
             const uc = document.getElementById('adminNewUnlockCode').value.trim();
+            const upw = document.getElementById('adminNewUnfreezePassword').value.trim();
 
-            if (!un && !nk && !pw && !fp && !uc) { alert("請至少輸入一項要修改的資料！"); return; }
+            if (!un && !nk && !pw && !fp && !uc && !upw) { alert("請至少輸入一項要修改的資料！"); return; }
             if (!confirm(`⚠️ 確定要更新 ${target} 的資料嗎？`)) return;
 
             let updates = {};
@@ -783,13 +799,14 @@
             if (pw) updates.password = pw;
             if (fp) updates.decoy_password = fp;
             if (uc) updates.unlock_code = uc;
+            if (upw) updates.unfreeze_password = upw;
 
             const { error } = await dbClient.from('users').update(updates).eq('username', target);
             if (error) { alert("更新失敗：" + error.message); }
             else {
                 alert(`✅ 已成功更新資料！`);
                 closeAdminModal();
-                ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode'].forEach(id => document.getElementById(id).value = '');
+                ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode', 'adminNewUnfreezePassword'].forEach(id => document.getElementById(id).value = '');
                 fetchAllUsers();
             }
         }
