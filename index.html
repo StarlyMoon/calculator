@@ -168,11 +168,11 @@
         <div class="modal-box" id="stage2Box" style="display: none;">
             <h3>自主學習系統登入</h3>
             <p>請輸入學號與密碼：</p>
-            <input type="text" class="modal-input" id="usernameInput" placeholder="學號 / 帳號">
-            <input type="password" class="modal-input" id="userPasswordInput" placeholder="個人密碼 / 假密碼">
+            <input type="text" class="modal-input" id="usernameInput" placeholder="帳號">
+            <input type="password" class="modal-input" id="userPasswordInput" placeholder="密碼">
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
-                <button type="button" class="modal-btn confirm" onclick="finalLogin()">進入系統</button>
+                <button type="button" class="modal-btn confirm" onclick="finalLogin()">登入</button>
             </div>
         </div>
     </div>
@@ -265,7 +265,7 @@
                     <div class="input-label">變更假密碼 (留空則不更改)</div>
                     <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼">
 
-                    <div class="input-label">鎖定短碼 (離開解鎖用，預設: 200011)</div>
+                    <div class="input-label">鎖定短碼 (離開解鎖用)</div>
                     <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼">
 
                     <div class="input-label">專屬解凍密碼 (凍結時登入即可解凍)</div>
