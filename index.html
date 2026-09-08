@@ -45,7 +45,7 @@
         .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
         .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
         .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
-        .modal-btn-group { display: flex; gap: 10px; }
+        .modal-btn-group { display: flex; gap: 10px; width: 100%; }
         .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px; flex-shrink: 0; }
         .modal-btn.confirm { background: #ff9f0a; color: #fff; }
         .modal-btn.cancel { background: #2e313c; color: #a5a9b8; }
@@ -89,7 +89,7 @@
         .msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; position: relative; }
         .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
         
-        /* 已讀頭像 (Read Receipts) - 加大版 */
+        /* 已讀頭像 (Read Receipts) */
         .read-receipts { display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px; padding-right: 4px; }
         .read-receipt-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 12px; border: 2px solid #0d0e12; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
@@ -115,7 +115,7 @@
         .lightbox-img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 
         /* 鎖定屏 */
-        .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
+        .lock-mask { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
     </style>
 </head>
 <body>
@@ -158,7 +158,7 @@
         <div class="modal-box" id="stage1Box">
             <h3>校園自主學習專案</h3>
             <p>進階代數功能僅限授課專案測試使用，請輸入課程驗證碼：</p>
-            <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼">
+            <input type="password" class="modal-input" id="courseCodeInput" placeholder="輸入課程驗證碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAuthModal()">取消</button>
                 <button type="button" class="modal-btn confirm" onclick="verifyCourseCode()">下一步</button>
@@ -168,8 +168,8 @@
         <div class="modal-box" id="stage2Box" style="display: none;">
             <h3>自主學習系統登入</h3>
             <p>請輸入學號與密碼：</p>
-            <input type="text" class="modal-input" id="usernameInput" placeholder="帳號">
-            <input type="password" class="modal-input" id="userPasswordInput" placeholder="密碼">
+            <input type="text" class="modal-input" id="usernameInput" placeholder="帳號" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <input type="password" class="modal-input" id="userPasswordInput" placeholder="密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="backToStage1()">上一步</button>
                 <button type="button" class="modal-btn confirm" onclick="finalLogin()">登入</button>
@@ -189,11 +189,11 @@
                 <h4>一元二次方程式求解器</h4>
                 <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
                     <button type="button" class="sign-btn" id="s_qa" onclick="toggleSignBtn('s_qa')">+</button>
-                    <input type="number" id="algA" class="algebra-input" value="1">x²
+                    <input type="number" id="algA" class="algebra-input" value="1" autocomplete="off">x²
                     <button type="button" class="sign-btn" id="s_qb" onclick="toggleSignBtn('s_qb')">-</button>
-                    <input type="number" id="algB" class="algebra-input" value="1">x
+                    <input type="number" id="algB" class="algebra-input" value="1" autocomplete="off">x
                     <button type="button" class="sign-btn" id="s_qc" onclick="toggleSignBtn('s_qc')">-</button>
-                    <input type="number" id="algC" class="algebra-input" value="2">= 0
+                    <input type="number" id="algC" class="algebra-input" value="2" autocomplete="off">= 0
                     <button type="button" onclick="solveAlgebra()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:4px; font-weight:600; cursor:pointer;">求解</button>
                 </div>
                 <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
@@ -232,7 +232,7 @@
             <div class="chat-input-area">
                 <button type="button" class="icon-btn" onclick="document.getElementById('chatImgUpload').click()" style="font-size:22px; padding:0 4px;">🖼️</button>
                 <input type="file" id="chatImgUpload" accept="image/*" style="display:none;" onchange="sendChatImage(event)">
-                <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息...">
+                <input type="text" class="chat-input" id="msgInput" placeholder="輸入訊息..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
                 <button type="button" class="send-btn" onclick="sendMessage()">➤</button>
             </div>
         </div>
@@ -254,22 +254,22 @@
 
                 <div class="profile-input-group">
                     <div class="input-label">登入帳號 (僅管理員可修改)</div>
-                    <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;">
+                    <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
                     
                     <div class="input-label">顯示名稱 (僅管理員可修改)</div>
-                    <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱">
+                    <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
                     
                     <div class="input-label">變更真實密碼 (留空則不更改)</div>
-                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新真實密碼">
+                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新真實密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">變更假密碼 (留空則不更改)</div>
-                    <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼">
+                    <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼 (不可與真實密碼相同)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">鎖定短碼 (離開解鎖用)</div>
-                    <input type="text" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼">
+                    <input type="password" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">專屬解凍密碼 (凍結時登入即可解凍)</div>
-                    <input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定後，凍結時輸入此密碼即可解開">
+                    <input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定後，凍結時輸入此密碼即可解開" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
                     <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
@@ -281,7 +281,7 @@
                         <option value="perm">永久</option>
                         <option value="custom">自訂分鐘數</option>
                     </select>
-                    <input type="number" class="modal-input" id="customFreezeInput" placeholder="請輸入自訂分鐘數" style="display:none; margin-top:-6px;">
+                    <input type="number" class="modal-input" id="customFreezeInput" placeholder="請輸入自訂分鐘數" style="display:none; margin-top:-6px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
                     <button type="button" class="modal-btn confirm" style="width:100%; margin-top:12px;" onclick="saveProfile()">儲存設定</button>
                 </div>
@@ -293,30 +293,30 @@
     <div class="modal-overlay" id="adminModal">
         <div class="modal-box">
             <h3>⚙️ 管理員 - 修改成員資料</h3>
-            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將影響成員登入！</p>
+            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將自動遷移訊息紀錄！</p>
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
             <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
-                <!-- 透過 JS 動態生成 (排除管理員自身) -->
+                <!-- 動態生成選項 -->
             </select>
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;">
+            <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新顯示名稱 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入新顯示名稱" style="margin-bottom:8px;">
+            <input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入新顯示名稱" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新真實密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新真實密碼" style="margin-bottom:8px;">
+            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新真實密碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新假密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼" style="margin-bottom:8px;">
+            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼 (不可與真實密碼相同)" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解鎖短碼 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:8px;">
+            <input type="password" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解凍密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入新解凍密碼" style="margin-bottom:14px;">
+            <input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入新解凍密碼" style="margin-bottom:14px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
@@ -349,11 +349,15 @@
         <img class="lightbox-img" id="lightboxImg" src="">
     </div>
 
-    <!-- 防追查鎖定屏 -->
+    <!-- 防追查鎖定屏 (樣式完全對齊登入視窗) -->
     <div class="lock-mask" id="lockMask">
-        <h3 style="margin-bottom:16px;">系統已鎖定</h3>
-        <input type="password" class="modal-input" id="unlockCodeInput" style="max-width:260px; width:100%; box-sizing:border-box;" placeholder="輸入暗號解鎖">
-        <button type="button" class="modal-btn confirm" style="max-width:260px; width:100%; flex-shrink:0; box-sizing:border-box;" onclick="unlockScreen()">解鎖</button>
+        <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
+            <h3 style="margin-bottom:16px; color:#fff;">系統已鎖定</h3>
+            <input type="password" class="modal-input" id="unlockCodeInput" placeholder="輸入暗號解鎖" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div class="modal-btn-group">
+                <button type="button" class="modal-btn confirm" onclick="unlockScreen()">解鎖</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -362,6 +366,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cGNhZHRodGR1YWZhbW10bHd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0Mzc1NzIsImV4cCI6MjEwNDAxMzU3Mn0.AYL9fbOfD7i4cIXgYQZs4JWHkQF7tm1X-K_uwQ0NGoI";
         const COURSE_CODE = "PLAYMATH"; 
 
+        const DEFAULT_NICKS_BY_NUM = { 1: '小菜車', 2: '熊冠', 3: '邪王真眼', 4: '布丁', 5: '咪喵' };
         const DEFAULT_NICKS = { 'user1': '小菜車', 'user2': '熊冠', 'user3': '邪王真眼', 'user4': '布丁', 'user5': '咪喵' };
 
         let dbClient = null;
@@ -380,6 +385,40 @@
                     dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 }
             } catch (err) { console.warn("Supabase 載入延遲", err); }
+        }
+
+        /* === 成員編號與身分識別機制 === */
+        function getUserNum(u) {
+            if (!u) return 0;
+            if (u.user_num && !isNaN(u.user_num)) return Number(u.user_num);
+            if (u.id !== undefined && !isNaN(u.id) && Number(u.id) >= 1 && Number(u.id) <= 5) return Number(u.id);
+            const m = String(u.username || '').match(/user([1-5])/i);
+            if (m) return Number(m[1]);
+            if (u.nickname === '小菜車') return 1;
+            if (u.nickname === '熊冠') return 2;
+            if (u.nickname === '邪王真眼') return 3;
+            if (u.nickname === '布丁') return 4;
+            if (u.nickname === '咪喵') return 5;
+            if (allUsers && allUsers.length > 0) {
+                const sorted = [...allUsers].sort((a, b) => (a.id || 0) - (b.id || 0));
+                const idx = sorted.findIndex(item => item.username === u.username);
+                if (idx !== -1 && idx < 5) return idx + 1;
+            }
+            return 0;
+        }
+
+        function getUserByNum(num) {
+            if (!allUsers) return null;
+            return allUsers.find(u => getUserNum(u) === num) || null;
+        }
+
+        function getNickname(u) {
+            if (!u) return '未知';
+            if (u.nickname && u.nickname.trim() !== '') return u.nickname;
+            const num = getUserNum(u);
+            if (DEFAULT_NICKS_BY_NUM[num]) return DEFAULT_NICKS_BY_NUM[num];
+            if (DEFAULT_NICKS[u.username]) return DEFAULT_NICKS[u.username];
+            return u.username || '未知';
         }
 
         /* === 代數與計算機 === */
@@ -429,7 +468,7 @@
             updateDisplay();
         }
 
-        /* === 登入與精準報錯機制 === */
+        /* === 登入與驗證機制 === */
         function openAuthModal() {
             if (isDecoyMode) { document.getElementById('algebraPage').style.display === 'flex' ? showCalculatorPage() : showAlgebraPage(); return; }
             document.getElementById('authModal').style.display = 'flex';
@@ -458,7 +497,6 @@
             try {
                 const { data: user, error } = await dbClient.from('users').select('*').eq('username', un).single();
                 
-                // RLS 或連線問題 精準報錯
                 if (error) {
                     if (error.code === 'PGRST116') alert("帳號不存在或輸入錯誤！");
                     else if (error.code === '401' || error.code === '403') alert(`資料庫權限遭拒(${error.code})，請確認是否已正確設定 Supabase RLS 政策允許 anon 讀取。`);
@@ -470,7 +508,7 @@
                     isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
                 }
 
-                // 凍結狀態下的驗證邏輯（包含新的專屬解凍密碼）
+                // 凍結狀態驗證
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
                     const now = new Date();
@@ -496,7 +534,8 @@
                 document.getElementById('calculatorApp').style.display = 'none';
                 document.getElementById('chatApp').style.display = 'block';
                 
-                initChatSystem();
+                // 【修復：確保好友名單載入後再切換畫面，避免顯示空白】
+                await initChatSystem();
                 switchView('viewChatList');
             } catch(e) { alert("系統異常：" + e.message); }
         }
@@ -514,12 +553,13 @@
                 document.getElementById('editPassword').value = '';
                 document.getElementById('editFakePassword').value = '';
                 document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
-                document.getElementById('editUnfreezePassword').value = ''; // 安全考量不顯示舊密碼
+                document.getElementById('editUnfreezePassword').value = '';
                 
-                // 管理員可改自身帳號功能
+                // 管理員權限判斷（編號 1）
+                const isUserAdmin = (getUserNum(currentUser) === 1);
                 const userInp = document.getElementById('editUsername');
                 const nickInp = document.getElementById('editNickname');
-                if (currentUser.username === 'user1') {
+                if (isUserAdmin) {
                     userInp.disabled = false; userInp.style.color = '#fff'; userInp.style.background = '#17181c';
                     nickInp.disabled = false; nickInp.style.color = '#fff'; nickInp.style.background = '#17181c';
                     document.getElementById('adminBtn').style.display = 'flex';
@@ -535,13 +575,11 @@
         function getAvatarHtml(u, sizeClass = '') {
             if (!u) return `<div class="avatar-img ${sizeClass}">👤</div>`;
             const isSelf = currentUser && u.username === currentUser.username;
-            const isOnline = !isSelf && (new Date() - new Date(u.last_seen)) < 25000;
+            const isOnline = !isSelf && u.last_seen && (new Date() - new Date(u.last_seen)) < 25000;
             const borderClass = isOnline ? 'online' : '';
             if (u.avatar_url) return `<img src="${u.avatar_url}" class="avatar-img ${borderClass} ${sizeClass}">`;
             return `<div class="avatar-img ${borderClass} ${sizeClass}">${u.avatar_emoji || '👤'}</div>`;
         }
-
-        function getNickname(u) { return u ? (u.nickname || DEFAULT_NICKS[u.username] || u.username) : '未知'; }
         
         function renderProfileAvatar() {
             document.getElementById('navProfileBtn').innerHTML = getAvatarHtml(currentUser, 'avatar-mini');
@@ -556,12 +594,13 @@
 
         async function saveProfile() {
             let updates = {};
+            const oldUn = currentUser.username;
             
             // 管理員專屬：修改帳號與暱稱
-            if (currentUser.username === 'user1') {
+            if (getUserNum(currentUser) === 1) {
                 const newUn = document.getElementById('editUsername').value.trim();
                 const newNick = document.getElementById('editNickname').value.trim();
-                if (newUn && newUn !== currentUser.username) updates.username = newUn; 
+                if (newUn && newUn !== oldUn) updates.username = newUn; 
                 if (newNick) updates.nickname = newNick;
             }
 
@@ -570,6 +609,12 @@
             const newCode = document.getElementById('editUnlockCode').value.trim();
             const newUnfreezePwd = document.getElementById('editUnfreezePassword').value.trim();
 
+            // 防呆檢查：假密碼不得與真密碼相同
+            if (newFakePwd && newFakePwd === (newPwd || currentUser.password)) {
+                alert("安全提示：假密碼不可與真實密碼相同！");
+                return;
+            }
+
             if (newPwd) updates.password = newPwd;
             if (newFakePwd) updates.decoy_password = newFakePwd;
             if (newCode && newCode !== currentUser.unlock_code) updates.unlock_code = newCode;
@@ -577,10 +622,15 @@
 
             if (Object.keys(updates).length === 0) { alert('沒有變更任何設定。'); return; }
 
-            const { error } = await dbClient.from('users').update(updates).eq('username', currentUser.username);
+            const { error } = await dbClient.from('users').update(updates).eq('username', oldUn);
             if (error) { alert('儲存失敗：' + error.message); return; }
             
-            Object.assign(currentUser, updates); // 覆蓋本地快取狀態
+            if (updates.username && updates.username !== oldUn) {
+                await dbClient.from('messages').update({ sender: updates.username }).eq('sender', oldUn);
+                await dbClient.from('messages').update({ target_id: updates.username }).eq('target_id', oldUn);
+            }
+
+            Object.assign(currentUser, updates);
             alert('設定已儲存！');
             await fetchAllUsers();
             renderProfileAvatar();
@@ -627,27 +677,64 @@
             channelList.innerHTML = '';
             let channels = [];
             
-            if (currentUser.username === 'user1') {
-                channels = [
-                    { type: 'group', target: 'group_1234', title: '👥 學術研究討論會' },
-                    { type: 'private', target: 'user2', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user2'))}` },
-                    { type: 'private', target: 'user3', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user3'))}` },
-                    { type: 'private', target: 'user4', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user4'))}` },
-                    { type: 'private', target: 'user5', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user5'))}` }
-                ];
-            } else if (['user2', 'user3', 'user4'].includes(currentUser.username)) {
-                channels = [{ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' }];
-                ['user1', 'user2', 'user3', 'user4'].forEach(un => {
-                    if (un !== currentUser.username) channels.push({ type: 'private', target: un, title: `💬 ${getNickname(allUsers.find(u=>u.username===un))}` });
+            const myNum = getUserNum(currentUser);
+
+            if (myNum === 1) {
+                // 管理員 (編號 1)
+                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
+                [2, 3, 4, 5].forEach(num => {
+                    const targetU = getUserByNum(num);
+                    if (targetU) {
+                        channels.push({
+                            type: 'private',
+                            target: targetU.username,
+                            title: `💬 ${getNickname(targetU)}`
+                        });
+                    }
                 });
-            } else if (currentUser.username === 'user5') {
-                channels = [{ type: 'private', target: 'user1', title: `💬 ${getNickname(allUsers.find(u=>u.username==='user1'))}` }];
+            } else if ([2, 3, 4].includes(myNum)) {
+                // 一般成員 (編號 2, 3, 4)
+                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
+                [1, 2, 3, 4].forEach(num => {
+                    if (num !== myNum) {
+                        const targetU = getUserByNum(num);
+                        if (targetU) {
+                            channels.push({
+                                type: 'private',
+                                target: targetU.username,
+                                title: `💬 ${getNickname(targetU)}`
+                            });
+                        }
+                    }
+                });
+            } else if (myNum === 5) {
+                // 特殊成員 (編號 5)
+                const targetU = getUserByNum(1);
+                if (targetU) {
+                    channels.push({
+                        type: 'private',
+                        target: targetU.username,
+                        title: `💬 ${getNickname(targetU)}`
+                    });
+                }
+            } else {
+                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
+                allUsers.forEach(u => {
+                    if (u.username !== currentUser.username) {
+                        channels.push({
+                            type: 'private',
+                            target: u.username,
+                            title: `💬 ${getNickname(u)}`
+                        });
+                    }
+                });
             }
 
             channels.forEach(ch => {
                 const li = document.createElement('li');
                 li.className = 'channel-item';
-                li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(allUsers.find(u=>u.username===ch.target)) : '<div class="avatar-img">👥</div>'}<div class="channel-info"><div class="channel-name">${ch.title}</div></div>`;
+                const targetObj = ch.type === 'private' ? allUsers.find(u => u.username === ch.target) : null;
+                li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(targetObj) : '<div class="avatar-img">👥</div>'}<div class="channel-info"><div class="channel-name">${ch.title}</div></div>`;
                 li.onclick = () => {
                     activeChannel = ch;
                     document.getElementById('currentChannelTitle').innerText = ch.title;
@@ -672,7 +759,6 @@
             const { data: msgs, error } = await query;
             if (error) { console.error(error); return; }
 
-            // 運算已讀狀態
             const chId = getChannelId(activeChannel);
             const latestReadMap = {};
             
@@ -706,7 +792,6 @@
                 wrap.className = `msg-wrapper ${isMe ? 'me':''}`;
                 wrap.innerHTML = isMe ? `<div class="msg-bubble">${bubbleContent}</div>` : `<div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div><div class="msg-bubble">${bubbleContent}</div>`;
                 
-                // 加入已讀頭像
                 if (latestReadMap[m.id]) {
                     const receiptsHtml = latestReadMap[m.id].map(u => {
                         if (u.avatar_url) return `<img src="${u.avatar_url}" class="read-receipt-avatar">`;
@@ -719,7 +804,7 @@
             });
             
             if (showLoading || msgs.length > 0) container.scrollTop = container.scrollHeight;
-            updateMyReadStatus(); // 每當載入訊息即更新自己的已讀時間
+            updateMyReadStatus();
         }
 
         async function sendMessage() {
@@ -768,12 +853,12 @@
         function openAdminModal() {
             const sel = document.getElementById('adminTargetUser');
             sel.innerHTML = '';
-            // 動態生成選單，顯示暱稱與帳號，並排除自己
             allUsers.forEach(u => {
-                if (u.username !== currentUser.username) {
+                if (getUserNum(u) !== getUserNum(currentUser)) {
                     const opt = document.createElement('option');
                     opt.value = u.username;
-                    opt.textContent = `${getNickname(u)} (${u.username})`;
+                    const num = getUserNum(u);
+                    opt.textContent = `${getNickname(u)} (${num})`;
                     sel.appendChild(opt);
                 }
             });
@@ -791,7 +876,15 @@
             const upw = document.getElementById('adminNewUnfreezePassword').value.trim();
 
             if (!un && !nk && !pw && !fp && !uc && !upw) { alert("請至少輸入一項要修改的資料！"); return; }
-            if (!confirm(`⚠️ 確定要更新 ${target} 的資料嗎？`)) return;
+            
+            // 防呆檢查：假密碼不得與真密碼相同
+            const targetUserObj = allUsers.find(u => u.username === target);
+            if (fp && fp === (pw || (targetUserObj ? targetUserObj.password : ''))) {
+                alert("安全提示：假密碼不可與真實密碼相同！");
+                return;
+            }
+
+            if (!confirm(`⚠️ 確定要更新此成員的資料嗎？`)) return;
 
             let updates = {};
             if (un) updates.username = un;
@@ -802,12 +895,17 @@
             if (upw) updates.unfreeze_password = upw;
 
             const { error } = await dbClient.from('users').update(updates).eq('username', target);
-            if (error) { alert("更新失敗：" + error.message); }
-            else {
+            if (error) { 
+                alert("更新失敗：" + error.message); 
+            } else {
+                if (un && un !== target) {
+                    await dbClient.from('messages').update({ sender: un }).eq('sender', target);
+                    await dbClient.from('messages').update({ target_id: un }).eq('target_id', target);
+                }
                 alert(`✅ 已成功更新資料！`);
                 closeAdminModal();
                 ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode', 'adminNewUnfreezePassword'].forEach(id => document.getElementById(id).value = '');
-                fetchAllUsers();
+                await fetchAllUsers();
             }
         }
 
