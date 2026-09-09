@@ -660,7 +660,6 @@
             if (!dbClient) return;
             
             try {
-                // 移除資料庫端的 order('created_at') 避免欄位不存在時導致靜默失敗
                 const { data, error } = await dbClient.from('users').select('*');
                 
                 if (error) {
@@ -674,7 +673,6 @@
                         console.warn("⚠️ 系統僅抓取到您自己的資料。若確認資料庫中還有其他人，請檢查 Supabase 的 RLS (Row Level Security) 政策是否阻擋了讀取。");
                     }
 
-                    // 改由前端進行陣列排序，增強相容性
                     allUsers = data.sort((a, b) => {
                         const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
                         const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -682,7 +680,6 @@
                         return String(a.id || '').localeCompare(String(b.id || ''));
                     });
 
-                    // 同步更新當前登入者的最新狀態
                     if (currentUser) {
                         const updatedMe = allUsers.find(u => 
                             (currentUser.id !== undefined && currentUser.id !== null && u.id === currentUser.id) || 
@@ -718,7 +715,6 @@
             const myNum = getUserNum(currentUser);
 
             if (myNum === 1) {
-                // 管理員 (編號 1)
                 channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
                 [2, 3, 4, 5].forEach(num => {
                     const targetU = getUserByNum(num);
@@ -731,7 +727,6 @@
                     }
                 });
             } else if ([2, 3, 4].includes(myNum)) {
-                // 一般成員 (編號 2, 3, 4)
                 channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
                 [1, 2, 3, 4].forEach(num => {
                     if (num !== myNum) {
@@ -746,7 +741,6 @@
                     }
                 });
             } else if (myNum === 5) {
-                // 特殊成員 (編號 5)
                 const targetU = getUserByNum(1);
                 if (targetU) {
                     channels.push({
@@ -887,19 +881,33 @@
         }
         async function nuclearDestruct() { if (dbClient) await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z'); window.location.href = 'about:blank'; }
 
-        /* === ⚙️ 管理員修改功能 === */
+        /* === ⚙️ 管理員修改功能 (已指定 2345 順序) === */
         function openAdminModal() {
             const sel = document.getElementById('adminTargetUser');
             sel.innerHTML = '';
-            allUsers.forEach(u => {
-                if (getUserNum(u) !== getUserNum(currentUser)) {
+            
+            // 按照 2, 3, 4, 5 的固定順序進行排列
+            [2, 3, 4, 5].forEach(num => {
+                const u = getUserByNum(num);
+                if (u && getUserNum(u) !== getUserNum(currentUser)) {
                     const opt = document.createElement('option');
                     opt.value = u.username;
-                    const num = getUserNum(u);
                     opt.textContent = `${getNickname(u)} (${num})`;
                     sel.appendChild(opt);
                 }
             });
+            
+            // 預防資料庫可能存在非標準編號的其他成員（若有則串接於後方）
+            allUsers.forEach(u => {
+                const num = getUserNum(u);
+                if (![1, 2, 3, 4, 5].includes(num) && getUserNum(u) !== getUserNum(currentUser)) {
+                    const opt = document.createElement('option');
+                    opt.value = u.username;
+                    opt.textContent = `${getNickname(u)} (${num})`;
+                    sel.appendChild(opt);
+                }
+            });
+
             document.getElementById('adminModal').style.display = 'flex';
         }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
@@ -915,7 +923,6 @@
 
             if (!un && !nk && !pw && !fp && !uc && !upw) { alert("請至少輸入一項要修改的資料！"); return; }
             
-            // 防呆檢查：假密碼不得與真密碼相同
             const targetUserObj = allUsers.find(u => u.username === target);
             if (fp && fp === (pw || (targetUserObj ? targetUserObj.password : ''))) {
                 alert("安全提示：假密碼不可與真實密碼相同！");
