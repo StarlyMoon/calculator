@@ -198,6 +198,28 @@
                 </div>
                 <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
             </div>
+            
+            <div class="algebra-card">
+                <h4>二元一次聯立方程式求解器</h4>
+                <div style="font-size:13px; color:#a5a9b8; margin-bottom:8px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                    <button type="button" class="sign-btn" id="s_e1a" onclick="toggleSignBtn('s_e1a')">+</button>
+                    <input type="number" id="eq1a" class="algebra-input" value="1" autocomplete="off">x
+                    <button type="button" class="sign-btn" id="s_e1b" onclick="toggleSignBtn('s_e1b')">+</button>
+                    <input type="number" id="eq1b" class="algebra-input" value="1" autocomplete="off">y =
+                    <button type="button" class="sign-btn" id="s_e1c" onclick="toggleSignBtn('s_e1c')">+</button>
+                    <input type="number" id="eq1c" class="algebra-input" value="5" autocomplete="off">
+                </div>
+                <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                    <button type="button" class="sign-btn" id="s_e2a" onclick="toggleSignBtn('s_e2a')">+</button>
+                    <input type="number" id="eq2a" class="algebra-input" value="2" autocomplete="off">x
+                    <button type="button" class="sign-btn" id="s_e2b" onclick="toggleSignBtn('s_e2b')">-</button>
+                    <input type="number" id="eq2b" class="algebra-input" value="1" autocomplete="off">y =
+                    <button type="button" class="sign-btn" id="s_e2c" onclick="toggleSignBtn('s_e2c')">+</button>
+                    <input type="number" id="eq2c" class="algebra-input" value="4" autocomplete="off">
+                    <button type="button" onclick="solveLinear()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; margin-left:4px; font-weight:600; cursor:pointer;">求解</button>
+                </div>
+                <div id="linearAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x = 3.00, y = 2.00</div>
+            </div>
         </div>
     </div>
 
@@ -439,6 +461,19 @@
             let d = b*b - 4*a*c;
             if (d < 0) document.getElementById('algebraAns').innerText = "無實數解";
             else document.getElementById('algebraAns').innerText = `解: x₁ = ${((-b + Math.sqrt(d)) / (2*a)).toFixed(2)}, x₂ = ${((-b - Math.sqrt(d)) / (2*a)).toFixed(2)}`;
+        }
+
+        function solveLinear() {
+            let a1 = getSignedValue('s_e1a', 'eq1a'), b1 = getSignedValue('s_e1b', 'eq1b'), c1 = getSignedValue('s_e1c', 'eq1c');
+            let a2 = getSignedValue('s_e2a', 'eq2a'), b2 = getSignedValue('s_e2b', 'eq2b'), c2 = getSignedValue('s_e2c', 'eq2c');
+            let det = a1 * b2 - a2 * b1;
+            if (det === 0) {
+                document.getElementById('linearAns').innerText = "無唯一解 (平行或重合)";
+                return;
+            }
+            let x = (c1 * b2 - c2 * b1) / det;
+            let y = (a1 * c2 - a2 * c1) / det;
+            document.getElementById('linearAns').innerText = `解: x = ${x.toFixed(2)}, y = ${y.toFixed(2)}`;
         }
 
         function updateDisplay() { document.getElementById('current').innerText = expression; document.getElementById('history').innerText = historyText; }
