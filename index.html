@@ -387,7 +387,7 @@
             } catch (err) { console.warn("Supabase 載入延遲", err); }
         }
 
-        /* === 成員編號與身分識別機制 (修復：改名後仍能透過 ID/建立時間精準辨識管理員) === */
+        /* === 成員編號與身分識別機制 === */
         function getUserNum(u) {
             if (!u) return 0;
             if (u.user_num && !isNaN(u.user_num)) return Number(u.user_num);
@@ -401,15 +401,9 @@
             if (u.nickname === '布丁') return 4;
             if (u.nickname === '咪喵') return 5;
 
-            // 動態排序降級比對：依據 created_at 或 ID 排序，確保修改帳號/暱稱後仍能準確歸位
+            // 動態降級比對：此時 allUsers 已在 fetchAllUsers 中統一排序完成
             if (allUsers && allUsers.length > 0) {
-                const sorted = [...allUsers].sort((a, b) => {
-                    if (a.created_at && b.created_at) {
-                        return new Date(a.created_at) - new Date(b.created_at);
-                    }
-                    return String(a.id || '').localeCompare(String(b.id || ''));
-                });
-                const idx = sorted.findIndex(item => 
+                const idx = allUsers.findIndex(item => 
                     (u.id !== undefined && u.id !== null && item.id === u.id) || 
                     (item.username && item.username === u.username)
                 );
@@ -664,16 +658,41 @@
 
         async function fetchAllUsers() {
             if (!dbClient) return;
-            const { data, error } = await dbClient.from('users').select('*').order('created_at', { ascending: true });
-            if (!error && data) {
-                allUsers = data;
-                if (currentUser) {
-                    const updatedMe = allUsers.find(u => 
-                        (currentUser.id !== undefined && currentUser.id !== null && u.id === currentUser.id) || 
-                        u.username === currentUser.username
-                    );
-                    if (updatedMe) currentUser = updatedMe;
+            
+            try {
+                // 移除資料庫端的 order('created_at') 避免欄位不存在時導致靜默失敗
+                const { data, error } = await dbClient.from('users').select('*');
+                
+                if (error) {
+                    console.error("載入成員清單失敗:", error);
+                    alert("載入成員清單失敗：" + error.message + "\n（請至 Supabase 確認 RLS 權限是否允許 anon 進行 Select）");
+                    return;
                 }
+                
+                if (data) {
+                    if (data.length <= 1 && currentUser) {
+                        console.warn("⚠️ 系統僅抓取到您自己的資料。若確認資料庫中還有其他人，請檢查 Supabase 的 RLS (Row Level Security) 政策是否阻擋了讀取。");
+                    }
+
+                    // 改由前端進行陣列排序，增強相容性
+                    allUsers = data.sort((a, b) => {
+                        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                        if (timeA > 0 && timeB > 0) return timeA - timeB;
+                        return String(a.id || '').localeCompare(String(b.id || ''));
+                    });
+
+                    // 同步更新當前登入者的最新狀態
+                    if (currentUser) {
+                        const updatedMe = allUsers.find(u => 
+                            (currentUser.id !== undefined && currentUser.id !== null && u.id === currentUser.id) || 
+                            u.username === currentUser.username
+                        );
+                        if (updatedMe) currentUser = updatedMe;
+                    }
+                }
+            } catch(e) {
+                console.error("系統異常:", e);
             }
         }
 
