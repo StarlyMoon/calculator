@@ -14,6 +14,36 @@
         html, body { width: 100%; height: 100%; height: 100dvh; background-color: #17181c; color: #fff; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; touch-action: manipulation; overscroll-behavior: none; }
         button, input, select { -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none; border: none; -webkit-tap-highlight-color: transparent; font-family: inherit; }
 
+        /* 恢復 checkbox 原生勾選視覺 */
+        input[type="checkbox"] {
+            -webkit-appearance: checkbox;
+            -moz-appearance: checkbox;
+            appearance: checkbox;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ff9f0a;
+        }
+        input[type="checkbox"]#adminIsBlocked {
+            accent-color: #ff3b30;
+        }
+
+        /* 滾動條樣式與 Chrome Autofill 黃色背景修正 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #353844; border-radius: 3px; }
+        ::-webkit-scrollbar-corner { background: transparent; }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0px 1000px #17181c inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         /* === 計算機頁面 === */
         .calculator { width: 100%; max-width: 420px; height: 100%; max-height: 100dvh; padding: calc(16px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; background: #17181c; }
         .top-icons { display: flex; justify-content: flex-end; align-items: center; height: 48px; width: 100%; position: relative; z-index: 30; }
@@ -41,7 +71,7 @@
 
         /* === 驗證彈窗 === */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
-        .modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+        .modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; position: relative; }
         .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
         .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
         .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
@@ -101,7 +131,18 @@
         .profile-container { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; }
         .profile-input-group { width: 100%; max-width: 320px; margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
         .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; }
-        .select-custom { width: 100%; padding: 12px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 15px; }
+        .select-custom {
+            width: 100%;
+            padding: 12px;
+            background: #17181c url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5a9b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
+            border: 1px solid #353844;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
 
         /* === 裁剪圖片彈窗 === */
         .crop-modal-overlay { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; }
@@ -278,19 +319,22 @@
                     <div class="input-label">登入帳號 (僅管理員可修改)</div>
                     <input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
                     
-                    <div class="input-label">顯示名稱 (僅管理員可修改)</div>
+                    <div class="input-label">顯示名稱 / 姓名 (僅管理員可修改)</div>
                     <input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
                     
-                    <div class="input-label">變更真實密碼 (留空則不更改)</div>
-                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入新真實密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+                    <div class="input-label">成員編號 (僅管理員可修改)</div>
+                    <input type="number" class="modal-input" id="editUserNum" disabled style="color:#616472; background:#14151a;" autocomplete="off">
+
+                    <div class="input-label">真實密碼</div>
+                    <input type="password" class="modal-input" id="editPassword" placeholder="輸入真實密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">變更假密碼 (留空則不更改)</div>
                     <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼 (不可與真實密碼相同)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">鎖定短碼 (離開解鎖用)</div>
-                    <input type="password" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+                    <input type="password" class="modal-input" id="editUnlockCode" placeholder="輸入短碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
-                    <div class="input-label">專屬解凍密碼 (凍結時登入即可解凍)</div>
+                    <div class="input-label">解凍密碼 (凍結時的密碼)</div>
                     <input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定後，凍結時輸入此密碼即可解開" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
                     <div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
@@ -314,35 +358,49 @@
     <!-- 管理員重設帳密與成員資料彈窗 -->
     <div class="modal-overlay" id="adminModal">
         <div class="modal-box">
-            <h3>⚙️ 管理員 - 修改成員資料</h3>
-            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;">⚠️ 提示：請謹慎操作，修改帳號將自動遷移訊息紀錄！</p>
+            <h3 id="adminModalTitle">⚙️ 管理員 - 修改成員資料</h3>
+            <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;" id="adminModalTip">⚠️ 提示：修改帳號將自動遷移訊息紀錄！</p>
             
             <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
             <select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
-                <!-- 動態生成選項 -->
+                <!-- 動態生成選項 (包含 ➕ 新增成員) -->
             </select>
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新帳號 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入新帳號" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">成員編號 (必填):</div>
+            <input type="number" class="modal-input" id="adminNewUserNum" placeholder="輸入成員編號 (例如 1, 2, 3...)" style="margin-bottom:8px;" autocomplete="off">
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新顯示名稱 (若不改請留空):</div>
-            <input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入新顯示名稱" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">帳號狀態 (封鎖):</div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#ff3b30; margin-bottom:12px; cursor:pointer; font-weight:600; border: 1.5px solid #ff3b30; border-radius: 10px; padding: 10px 12px; background: rgba(255, 59, 48, 0.08);">
+                <input type="checkbox" id="adminIsBlocked" style="width:18px; height:18px; accent-color:#ff3b30; cursor:pointer;">
+                封鎖此成員 (強制登出並禁止登入)
+            </label>
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新真實密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入新真實密碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">聊天室存取權限 (打勾代表可看見):</div>
+            <div id="adminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#17181c; border:1px solid #353844; border-radius:12px; padding:12px; margin-bottom:14px; max-height:150px; overflow-y:auto; text-align:left;">
+                <!-- 動態生成選項 -->
+            </div>
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新假密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入新假密碼 (不可與真實密碼相同)" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">登入帳號 (必填):</div>
+            <input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入登入帳號" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">顯示名稱 / 姓名 (必填):</div>
+            <input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入顯示名稱" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">真實密碼 (必填):</div>
+            <input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入真實密碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">假密碼 (可留空):</div>
+            <input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入假密碼 (不可與真實密碼相同)" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
             
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解鎖短碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewUnlockCode" placeholder="輸入新解鎖短碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">解鎖短碼 (預設 200011):</div>
+            <input type="password" class="modal-input" id="adminNewUnlockCode" placeholder="輸入解鎖短碼" style="margin-bottom:8px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
-            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">新解凍密碼 (若不改請留空):</div>
-            <input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入新解凍密碼" style="margin-bottom:14px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+            <div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">解凍密碼 (可留空):</div>
+            <input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入解凍密碼" style="margin-bottom:14px;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 
             <div class="modal-btn-group">
                 <button type="button" class="modal-btn cancel" onclick="closeAdminModal()">取消</button>
-                <button type="button" class="modal-btn confirm" onclick="submitAdminReset()">確認更新</button>
+                <button type="button" class="modal-btn confirm" id="adminSubmitBtn" onclick="submitAdminReset()">確認更新</button>
             </div>
         </div>
     </div>
@@ -371,7 +429,7 @@
         <img class="lightbox-img" id="lightboxImg" src="">
     </div>
 
-    <!-- 防追查鎖定屏 (樣式完全對齊登入視窗) -->
+    <!-- 防追查鎖定屏 -->
     <div class="lock-mask" id="lockMask">
         <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
             <h3 style="margin-bottom:16px; color:#fff;">系統已鎖定</h3>
@@ -412,7 +470,7 @@
         /* === 成員編號與身分識別機制 === */
         function getUserNum(u) {
             if (!u) return 0;
-            if (u.user_num && !isNaN(u.user_num)) return Number(u.user_num);
+            if (u.user_num !== undefined && u.user_num !== null && !isNaN(u.user_num)) return Number(u.user_num);
             if (u.is_admin === true || u.role === 'admin') return 1;
             if (u.id !== undefined && !isNaN(u.id) && Number(u.id) >= 1 && Number(u.id) <= 5) return Number(u.id);
             const m = String(u.username || '').match(/^user([1-5])$/i);
@@ -423,7 +481,6 @@
             if (u.nickname === '布丁') return 4;
             if (u.nickname === '咪喵') return 5;
 
-            // 動態降級比對：此時 allUsers 已在 fetchAllUsers 中統一排序完成
             if (allUsers && allUsers.length > 0) {
                 const idx = allUsers.findIndex(item => 
                     (u.id !== undefined && u.id !== null && item.id === u.id) || 
@@ -548,6 +605,12 @@
                     isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
                 }
 
+                // 封鎖狀態檢查
+                if (user.is_blocked) {
+                    alert("帳號已被管理員封鎖，無法登入！");
+                    return;
+                }
+
                 // 凍結狀態驗證
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
@@ -587,9 +650,10 @@
             if (viewId === 'viewChatList') {
                 renderChannels(); 
             } else if (viewId === 'viewProfile') {
-                document.getElementById('editUsername').value = currentUser.username;
+                document.getElementById('editUsername').value = currentUser.username || '';
                 document.getElementById('editNickname').value = getNickname(currentUser);
-                document.getElementById('editPassword').value = '';
+                document.getElementById('editUserNum').value = getUserNum(currentUser) || '';
+                document.getElementById('editPassword').value = currentUser.password || '';
                 document.getElementById('editFakePassword').value = '';
                 document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
                 document.getElementById('editUnfreezePassword').value = '';
@@ -598,13 +662,16 @@
                 const isUserAdmin = (getUserNum(currentUser) === 1);
                 const userInp = document.getElementById('editUsername');
                 const nickInp = document.getElementById('editNickname');
+                const numInp = document.getElementById('editUserNum');
                 if (isUserAdmin) {
                     userInp.disabled = false; userInp.style.color = '#fff'; userInp.style.background = '#17181c';
                     nickInp.disabled = false; nickInp.style.color = '#fff'; nickInp.style.background = '#17181c';
+                    numInp.disabled = false; numInp.style.color = '#fff'; numInp.style.background = '#17181c';
                     document.getElementById('adminBtn').style.display = 'flex';
                 } else {
                     userInp.disabled = true; userInp.style.color = '#616472'; userInp.style.background = '#14151a';
                     nickInp.disabled = true; nickInp.style.color = '#616472'; nickInp.style.background = '#14151a';
+                    numInp.disabled = true; numInp.style.color = '#616472'; numInp.style.background = '#14151a';
                     document.getElementById('adminBtn').style.display = 'none';
                 }
                 renderProfileAvatar();
@@ -632,29 +699,40 @@
         }
 
         async function saveProfile() {
-            let updates = {};
+            const isUserAdmin = (getUserNum(currentUser) === 1);
             const oldUn = currentUser.username;
-            
-            // 管理員專屬：修改帳號與暱稱
-            if (getUserNum(currentUser) === 1) {
-                const newUn = document.getElementById('editUsername').value.trim();
-                const newNick = document.getElementById('editNickname').value.trim();
-                if (newUn && newUn !== oldUn) updates.username = newUn; 
-                if (newNick) updates.nickname = newNick;
+
+            const newUn = document.getElementById('editUsername').value.trim();
+            const newNick = document.getElementById('editNickname').value.trim();
+            const newUserNum = document.getElementById('editUserNum').value.trim();
+            const newPwd = document.getElementById('editPassword').value.trim();
+
+            // 必填欄位驗證：帳號、密碼、姓名/顯示名稱、編號
+            if (!newUn) { alert("【帳號】為必填項目！"); return; }
+            if (!newNick) { alert("【顯示名稱 / 姓名】為必填項目！"); return; }
+            if (!newPwd) { alert("【真實密碼】為必填項目！"); return; }
+            if (!newUserNum || isNaN(newUserNum)) { alert("【成員編號】為必填項目！"); return; }
+
+            let updates = {};
+
+            if (isUserAdmin) {
+                if (newUn !== oldUn) updates.username = newUn;
+                if (newNick !== currentUser.nickname) updates.nickname = newNick;
+                const parsedNum = parseInt(newUserNum);
+                if (parsedNum !== getUserNum(currentUser)) updates.user_num = parsedNum;
             }
 
-            const newPwd = document.getElementById('editPassword').value.trim();
+            if (newPwd !== currentUser.password) updates.password = newPwd;
+
             const newFakePwd = document.getElementById('editFakePassword').value.trim();
             const newCode = document.getElementById('editUnlockCode').value.trim();
             const newUnfreezePwd = document.getElementById('editUnfreezePassword').value.trim();
 
-            // 防呆檢查：假密碼不得與真密碼相同
-            if (newFakePwd && newFakePwd === (newPwd || currentUser.password)) {
+            if (newFakePwd && newFakePwd === newPwd) {
                 alert("安全提示：假密碼不可與真實密碼相同！");
                 return;
             }
 
-            if (newPwd) updates.password = newPwd;
             if (newFakePwd) updates.decoy_password = newFakePwd;
             if (newCode && newCode !== currentUser.unlock_code) updates.unlock_code = newCode;
             if (newUnfreezePwd) updates.unfreeze_password = newUnfreezePwd;
@@ -663,14 +741,14 @@
 
             const { error } = await dbClient.from('users').update(updates).eq('username', oldUn);
             if (error) { alert('儲存失敗：' + error.message); return; }
-            
+
             if (updates.username && updates.username !== oldUn) {
                 await dbClient.from('messages').update({ sender: updates.username }).eq('sender', oldUn);
                 await dbClient.from('messages').update({ target_id: updates.username }).eq('target_id', oldUn);
             }
 
             Object.assign(currentUser, updates);
-            alert('設定已儲存！');
+            alert('設定已成功儲存！');
             await fetchAllUsers();
             renderProfileAvatar();
             switchView('viewChatList');
@@ -685,6 +763,14 @@
                 try {
                     await dbClient.from('users').update({ last_seen: new Date().toISOString() }).eq('username', currentUser.username);
                     await fetchAllUsers();
+                    
+                    // 若在線上期間被管理員封鎖，將被強制踢出
+                    if (currentUser && currentUser.is_blocked) {
+                        alert("您的帳號已被管理員封鎖！系統將強制登出。");
+                        window.location.reload();
+                        return;
+                    }
+
                     if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
                     if (document.getElementById('viewChatRoom').classList.contains('active')) loadMessages(false);
                 } catch(e){}
@@ -693,22 +779,15 @@
 
         async function fetchAllUsers() {
             if (!dbClient) return;
-            
             try {
                 const { data, error } = await dbClient.from('users').select('*');
-                
-                if (error) {
-                    console.error("載入成員清單失敗:", error);
-                    alert("載入成員清單失敗：" + error.message + "\n（請至 Supabase 確認 RLS 權限是否允許 anon 進行 Select）");
-                    return;
-                }
+                if (error) { console.error("載入成員清單失敗:", error); return; }
                 
                 if (data) {
-                    if (data.length <= 1 && currentUser) {
-                        console.warn("⚠️ 系統僅抓取到您自己的資料。若確認資料庫中還有其他人，請檢查 Supabase 的 RLS (Row Level Security) 政策是否阻擋了讀取。");
-                    }
-
                     allUsers = data.sort((a, b) => {
+                        const numA = getUserNum(a);
+                        const numB = getUserNum(b);
+                        if (numA > 0 && numB > 0) return numA - numB;
                         const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
                         const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
                         if (timeA > 0 && timeB > 0) return timeA - timeB;
@@ -723,9 +802,7 @@
                         if (updatedMe) currentUser = updatedMe;
                     }
                 }
-            } catch(e) {
-                console.error("系統異常:", e);
-            }
+            } catch(e) { console.error("系統異常:", e); }
         }
 
         function getChannelId(ch) {
@@ -745,56 +822,48 @@
         function renderChannels() {
             const channelList = document.getElementById('channelList');
             channelList.innerHTML = '';
-            let channels = [];
             
-            const myNum = getUserNum(currentUser);
-
-            if (myNum === 1) {
-                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
-                [2, 3, 4, 5].forEach(num => {
-                    const targetU = getUserByNum(num);
-                    if (targetU) {
-                        channels.push({
-                            type: 'private',
-                            target: targetU.username,
-                            title: `💬 ${getNickname(targetU)}`
-                        });
-                    }
-                });
-            } else if ([2, 3, 4].includes(myNum)) {
-                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
-                [1, 2, 3, 4].forEach(num => {
-                    if (num !== myNum) {
-                        const targetU = getUserByNum(num);
-                        if (targetU) {
-                            channels.push({
-                                type: 'private',
-                                target: targetU.username,
-                                title: `💬 ${getNickname(targetU)}`
-                            });
-                        }
-                    }
-                });
-            } else if (myNum === 5) {
-                const targetU = getUserByNum(1);
-                if (targetU) {
-                    channels.push({
+            // 先取得所有潛在的房間
+            let potentialChannels = [];
+            potentialChannels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
+            allUsers.forEach(u => {
+                if (u.username !== currentUser.username) {
+                    potentialChannels.push({
                         type: 'private',
-                        target: targetU.username,
-                        title: `💬 ${getNickname(targetU)}`
+                        target: u.username,
+                        title: `💬 ${getNickname(u)}`
                     });
                 }
+            });
+
+            let channels = [];
+            
+            // 如果管理員有自訂權限陣列，優先使用自訂權限過濾
+            if (Array.isArray(currentUser.accessible_channels)) {
+                channels = potentialChannels.filter(ch => currentUser.accessible_channels.includes(ch.target));
             } else {
-                channels.push({ type: 'group', target: 'group_1234', title: '👥 學術研究討論會' });
-                allUsers.forEach(u => {
-                    if (u.username !== currentUser.username) {
-                        channels.push({
-                            type: 'private',
-                            target: u.username,
-                            title: `💬 ${getNickname(u)}`
-                        });
-                    }
-                });
+                // 原有的預設邏輯 (向後相容)
+                const myNum = getUserNum(currentUser);
+                if (myNum === 1) {
+                    channels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
+                    [2, 3, 4, 5].forEach(num => {
+                        const targetU = getUserByNum(num);
+                        if (targetU) channels.push({ type: 'private', target: targetU.username, title: `💬 ${getNickname(targetU)}` });
+                    });
+                } else if ([2, 3, 4].includes(myNum)) {
+                    channels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
+                    [1, 2, 3, 4].forEach(num => {
+                        if (num !== myNum) {
+                            const targetU = getUserByNum(num);
+                            if (targetU) channels.push({ type: 'private', target: targetU.username, title: `💬 ${getNickname(targetU)}` });
+                        }
+                    });
+                } else if (myNum === 5) {
+                    const targetU = getUserByNum(1);
+                    if (targetU) channels.push({ type: 'private', target: targetU.username, title: `💬 ${getNickname(targetU)}` });
+                } else {
+                    channels = potentialChannels;
+                }
             }
 
             channels.forEach(ch => {
@@ -804,7 +873,7 @@
                 li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(targetObj) : '<div class="avatar-img">👥</div>'}<div class="channel-info"><div class="channel-name">${ch.title}</div></div>`;
                 li.onclick = () => {
                     activeChannel = ch;
-                    document.getElementById('currentChannelTitle').innerText = ch.title;
+                    document.getElementById('currentChannelTitle').innerText = ch.type === 'group' ? '👥 ' + ch.title : ch.title;
                     switchView('viewChatRoom');
                     updateMyReadStatus();
                     loadMessages(true);
@@ -916,76 +985,241 @@
         }
         async function nuclearDestruct() { if (dbClient) await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z'); window.location.href = 'about:blank'; }
 
-        /* === ⚙️ 管理員修改功能 (已指定 2345 順序) === */
+        /* === ⚙️ 管理員修改功能 (包含新增成員、編號設定與權限管理) === */
         function openAdminModal() {
             const sel = document.getElementById('adminTargetUser');
             sel.innerHTML = '';
             
-            // 按照 2, 3, 4, 5 的固定順序進行排列
-            [2, 3, 4, 5].forEach(num => {
-                const u = getUserByNum(num);
-                if (u && getUserNum(u) !== getUserNum(currentUser)) {
-                    const opt = document.createElement('option');
-                    opt.value = u.username;
-                    opt.textContent = `${getNickname(u)} (${num})`;
-                    sel.appendChild(opt);
-                }
-            });
-            
-            // 預防資料庫可能存在非標準編號的其他成員（若有則串接於後方）
+            // 1. 新增「➕ 新增成員」選項
+            const newOpt = document.createElement('option');
+            newOpt.value = '__NEW_USER__';
+            newOpt.textContent = '➕ 新增成員';
+            sel.appendChild(newOpt);
+
+            // 2. 載入所有現有成員
             allUsers.forEach(u => {
-                const num = getUserNum(u);
-                if (![1, 2, 3, 4, 5].includes(num) && getUserNum(u) !== getUserNum(currentUser)) {
+                if (getUserNum(u) !== getUserNum(currentUser)) {
                     const opt = document.createElement('option');
                     opt.value = u.username;
-                    opt.textContent = `${getNickname(u)} (${num})`;
+                    opt.textContent = `${getNickname(u)} (編號: ${getUserNum(u) || '無'}) - ${u.username}`;
                     sel.appendChild(opt);
                 }
             });
+
+            if (sel.options.length > 1) {
+                sel.selectedIndex = 1;
+            } else {
+                sel.selectedIndex = 0;
+            }
+
+            sel.onchange = loadAdminUserSettings;
+            loadAdminUserSettings();
 
             document.getElementById('adminModal').style.display = 'flex';
         }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
+        function loadAdminUserSettings() {
+            const targetUn = document.getElementById('adminTargetUser').value;
+            const isNew = (targetUn === '__NEW_USER__');
+
+            ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode', 'adminNewUnfreezePassword', 'adminNewUserNum'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            const titleEl = document.getElementById('adminModalTitle');
+            const tipEl = document.getElementById('adminModalTip');
+            const submitBtn = document.getElementById('adminSubmitBtn');
+
+            if (isNew) {
+                titleEl.innerText = '➕ 新增成員資料';
+                tipEl.innerText = '請填寫新成員必要資料（帳號、顯示名稱、真實密碼、編號為必填）。';
+                submitBtn.innerText = '確認新增';
+
+                // 自動試算建議編號
+                let maxNum = 0;
+                allUsers.forEach(u => {
+                    const n = getUserNum(u);
+                    if (n > maxNum) maxNum = n;
+                });
+                document.getElementById('adminNewUserNum').value = maxNum + 1;
+                document.getElementById('adminNewUnlockCode').value = '200011';
+                document.getElementById('adminIsBlocked').checked = false;
+
+                renderChannelAccessCheckboxes(null, true);
+            } else {
+                titleEl.innerText = '⚙️ 管理員 - 修改成員資料';
+                tipEl.innerText = '⚠️ 提示：修改帳號將自動遷移訊息紀錄！';
+                submitBtn.innerText = '確認更新';
+
+                const targetU = allUsers.find(u => u.username === targetUn);
+                if (!targetU) return;
+
+                document.getElementById('adminNewUserNum').value = getUserNum(targetU) || '';
+                document.getElementById('adminIsBlocked').checked = !!targetU.is_blocked;
+                document.getElementById('adminNewUsername').value = targetU.username;
+                document.getElementById('adminNewNickname').value = getNickname(targetU);
+                document.getElementById('adminNewUnlockCode').value = targetU.unlock_code || '200011';
+
+                renderChannelAccessCheckboxes(targetU, false);
+            }
+        }
+
+        function renderChannelAccessCheckboxes(targetU, isNewUser) {
+            const channelDiv = document.getElementById('adminChannelAccess');
+            channelDiv.innerHTML = '';
+
+            let allowed = [];
+            if (isNewUser) {
+                allowed = ['group_1234', ...allUsers.map(u => u.username)];
+            } else if (targetU) {
+                allowed = targetU.accessible_channels;
+                if (!Array.isArray(allowed)) {
+                    allowed = [];
+                    const num = getUserNum(targetU);
+                    if (num === 1) {
+                        allowed.push('group_1234');
+                        [2,3,4,5].forEach(n => { const u = getUserByNum(n); if(u) allowed.push(u.username); });
+                    } else if ([2,3,4].includes(num)) {
+                        allowed.push('group_1234');
+                        [1,2,3,4].forEach(n => { if(n !== num){ const u = getUserByNum(n); if(u) allowed.push(u.username); } });
+                    } else if (num === 5) {
+                        const u = getUserByNum(1); if(u) allowed.push(u.username);
+                    } else {
+                        allowed.push('group_1234');
+                        allUsers.forEach(u => { if(u.username !== targetU.username) allowed.push(u.username); });
+                    }
+                }
+            }
+
+            channelDiv.innerHTML += `
+                <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#fff; cursor:pointer;">
+                    <input type="checkbox" class="admin-ch-cb" value="group_1234" ${allowed.includes('group_1234') ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
+                    👥 學術研究討論會 (群組)
+                </label>
+            `;
+
+            allUsers.forEach(u => {
+                if (!isNewUser && targetU && u.username === targetU.username) return;
+                const isChecked = allowed.includes(u.username);
+                channelDiv.innerHTML += `
+                    <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#fff; cursor:pointer;">
+                        <input type="checkbox" class="admin-ch-cb" value="${u.username}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
+                        💬 ${getNickname(u)} (${u.username})
+                    </label>
+                `;
+            });
+        }
+
         async function submitAdminReset() {
             const target = document.getElementById('adminTargetUser').value;
+            const isNew = (target === '__NEW_USER__');
+
             const un = document.getElementById('adminNewUsername').value.trim();
             const nk = document.getElementById('adminNewNickname').value.trim();
             const pw = document.getElementById('adminNewPassword').value.trim();
             const fp = document.getElementById('adminNewFakePassword').value.trim();
             const uc = document.getElementById('adminNewUnlockCode').value.trim();
             const upw = document.getElementById('adminNewUnfreezePassword').value.trim();
+            const userNumVal = document.getElementById('adminNewUserNum').value.trim();
+            const isBlocked = document.getElementById('adminIsBlocked').checked;
 
-            if (!un && !nk && !pw && !fp && !uc && !upw) { alert("請至少輸入一項要修改的資料！"); return; }
-            
-            const targetUserObj = allUsers.find(u => u.username === target);
-            if (fp && fp === (pw || (targetUserObj ? targetUserObj.password : ''))) {
-                alert("安全提示：假密碼不可與真實密碼相同！");
-                return;
-            }
+            const cbNodes = document.querySelectorAll('.admin-ch-cb');
+            const accessibleChannels = [];
+            cbNodes.forEach(cb => {
+                if (cb.checked) accessibleChannels.push(cb.value);
+            });
 
-            if (!confirm(`⚠️ 確定要更新此成員的資料嗎？`)) return;
+            if (isNew) {
+                if (!un) { alert("請填寫【登入帳號】！"); return; }
+                if (!nk) { alert("請填寫【顯示名稱 / 姓名】！"); return; }
+                if (!pw) { alert("請填寫【真實密碼】！"); return; }
+                if (!userNumVal || isNaN(userNumVal)) { alert("請填寫正確的【成員編號】！"); return; }
 
-            let updates = {};
-            if (un) updates.username = un;
-            if (nk) updates.nickname = nk;
-            if (pw) updates.password = pw;
-            if (fp) updates.decoy_password = fp;
-            if (uc) updates.unlock_code = uc;
-            if (upw) updates.unfreeze_password = upw;
-
-            const { error } = await dbClient.from('users').update(updates).eq('username', target);
-            if (error) { 
-                alert("更新失敗：" + error.message); 
-            } else {
-                if (un && un !== target) {
-                    await dbClient.from('messages').update({ sender: un }).eq('sender', target);
-                    await dbClient.from('messages').update({ target_id: un }).eq('target_id', target);
+                if (fp && fp === pw) {
+                    alert("安全提示：假密碼不可與真實密碼相同！");
+                    return;
                 }
-                alert(`✅ 已成功更新資料！`);
-                closeAdminModal();
-                ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode', 'adminNewUnfreezePassword'].forEach(id => document.getElementById(id).value = '');
-                await fetchAllUsers();
+
+                if (allUsers.some(u => u.username.toLowerCase() === un.toLowerCase())) {
+                    alert(`帳號 "${un}" 已存在，請使用其他帳號！`);
+                    return;
+                }
+
+                const numInt = parseInt(userNumVal);
+                if (allUsers.some(u => getUserNum(u) === numInt)) {
+                    if (!confirm(`成員編號 ${numInt} 目前已有其他成員使用，確定要繼續嗎？`)) {
+                        return;
+                    }
+                }
+
+                if (!confirm(`確定要新增成員【${nk}】(${un}) 嗎？`)) return;
+
+                const newUserObj = {
+                    username: un,
+                    nickname: nk,
+                    password: pw,
+                    decoy_password: fp || null,
+                    unlock_code: uc || '200011',
+                    unfreeze_password: upw || null,
+                    user_num: numInt,
+                    is_blocked: isBlocked,
+                    accessible_channels: accessibleChannels,
+                    security_status: 'active'
+                };
+
+                const { error } = await dbClient.from('users').insert([newUserObj]);
+                if (error) {
+                    alert("新增成員失敗：" + error.message);
+                } else {
+                    alert(`✅ 成功新增成員【${nk}】！`);
+                    closeAdminModal();
+                    await fetchAllUsers();
+                    if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+                }
+
+            } else {
+                const targetUserObj = allUsers.find(u => u.username === target);
+                if (!targetUserObj) return;
+
+                if (!un) { alert("帳號不可為空！"); return; }
+                if (!nk) { alert("顯示名稱不可為空！"); return; }
+                if (!userNumVal || isNaN(userNumVal)) { alert("成員編號不可為空！"); return; }
+
+                const effectivePw = pw || targetUserObj.password;
+                if (fp && fp === effectivePw) {
+                    alert("安全提示：假密碼不可與真實密碼相同！");
+                    return;
+                }
+
+                if (!confirm(`⚠️ 確定要更新此成員 (${target}) 的資料嗎？`)) return;
+
+                let updates = {
+                    username: un,
+                    nickname: nk,
+                    user_num: parseInt(userNumVal),
+                    is_blocked: isBlocked,
+                    accessible_channels: accessibleChannels
+                };
+
+                if (pw) updates.password = pw;
+                if (fp !== undefined) updates.decoy_password = fp || null;
+                if (uc) updates.unlock_code = uc;
+                if (upw !== undefined) updates.unfreeze_password = upw || null;
+
+                const { error } = await dbClient.from('users').update(updates).eq('username', target);
+                if (error) { 
+                    alert("更新失敗：" + error.message); 
+                } else {
+                    if (un && un !== target) {
+                        await dbClient.from('messages').update({ sender: un }).eq('sender', target);
+                        await dbClient.from('messages').update({ target_id: un }).eq('target_id', target);
+                    }
+                    alert(`✅ 已成功更新該成員資料！`);
+                    closeAdminModal();
+                    await fetchAllUsers();
+                    if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+                }
             }
         }
 
