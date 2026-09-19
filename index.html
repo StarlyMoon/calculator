@@ -29,7 +29,8 @@
 
         /* 密碼輸入框容器與切換按鈕 */
         .pw-wrapper { position: relative; width: 100%; }
-        .pw-wrapper .modal-input { padding-right: 44px; margin-bottom: 0; }
+        /* 修改此處：左右皆為44px，讓文字能完美置中，並且避免與眼睛圖示重疊 */
+        .pw-wrapper .modal-input { padding: 14px 44px; margin-bottom: 0; text-align: center; }
         .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; color: #8a8d9b; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.2s; }
         .pw-toggle:hover { color: #fff; }
         .pw-toggle:active { transform: translateY(-50%) scale(0.9); }
@@ -259,6 +260,30 @@
                 </div>
                 <div id="algebraAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x₁ = 2.00, x₂ = -1.00</div>
             </div>
+            
+            <div class="algebra-card">
+                <h4>二元一次聯立方程式求解器</h4>
+                <div style="font-size:13px; color:#a5a9b8; margin-bottom:12px; display:flex; flex-direction:column; gap:8px;">
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                        <button type="button" class="sign-btn" id="s_e1a" onclick="toggleSignBtn('s_e1a')">+</button>
+                        <input type="number" id="eq1a" class="algebra-input" value="1" autocomplete="off">x
+                        <button type="button" class="sign-btn" id="s_e1b" onclick="toggleSignBtn('s_e1b')">+</button>
+                        <input type="number" id="eq1b" class="algebra-input" value="1" autocomplete="off">y
+                        <button type="button" class="sign-btn" id="s_e1c" onclick="toggleSignBtn('s_e1c')">-</button>
+                        <input type="number" id="eq1c" class="algebra-input" value="0" autocomplete="off">= 0
+                    </div>
+                    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:3px;">
+                        <button type="button" class="sign-btn" id="s_e2a" onclick="toggleSignBtn('s_e2a')">+</button>
+                        <input type="number" id="eq2a" class="algebra-input" value="1" autocomplete="off">x
+                        <button type="button" class="sign-btn" id="s_e2b" onclick="toggleSignBtn('s_e2b')">-</button>
+                        <input type="number" id="eq2b" class="algebra-input" value="1" autocomplete="off">y
+                        <button type="button" class="sign-btn" id="s_e2c" onclick="toggleSignBtn('s_e2c')">-</button>
+                        <input type="number" id="eq2c" class="algebra-input" value="2" autocomplete="off">= 0
+                    </div>
+                    <button type="button" onclick="solveLinear()" style="background:#ff9f0a; color:#fff; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; align-self:flex-start; margin-top:4px;">求解</button>
+                </div>
+                <div id="linearAns" style="font-family:monospace; font-weight:bold; color:#34c759; font-size:14px;">解: x = 1.00, y = -1.00</div>
+            </div>
         </div>
     </div>
 
@@ -328,9 +353,9 @@
                         </button>
                     </div>
 
-                    <div class="input-label">變更假密碼 (留空則不更改)</div>
+                    <div class="input-label">假密碼 (留空則不設定)</div>
                     <div class="pw-wrapper">
-                        <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入新假密碼 (不可與真實相同)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+                        <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入假密碼 (不可與真實相同)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
                         <button type="button" class="pw-toggle" onclick="togglePw('editFakePassword', this)">
                             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </button>
@@ -370,7 +395,8 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="adminModal">
+    <!-- 管理員彈窗：修改背景為全黑 -->
+    <div class="modal-overlay" id="adminModal" style="background: #000; backdrop-filter: none;">
         <div class="modal-box">
             <h3 id="adminModalTitle">⚙️ 管理員 - 修改成員資料</h3>
             <p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;" id="adminModalTip">⚠️ 提示：修改帳號將自動遷移訊息紀錄！</p>
@@ -509,10 +535,8 @@
         let cropperInstance = null;
         let isDecoyMode = false;
         
-        // 紀錄目前是否處於維修模式 (用於返回計算機後可以透過x直接回到維修畫面)
         let isCurrentlyInMaintenance = false;
 
-        // SVG 圖示常數 (Google風格)
         const iconEyeOpen = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
         const iconEyeClosed = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
 
@@ -635,16 +659,12 @@
 
         /* === 登入與驗證機制 === */
         function openAuthModal() {
-            // 若為假密碼模式，則切換計算機/代數畫面
             if (isDecoyMode) { document.getElementById('algebraPage').style.display === 'flex' ? showCalculatorPage() : showAlgebraPage(); return; }
-            
-            // 如果系統已經確認在維修模式下，直接回到維修畫面 (不需再次登入)
             if (isCurrentlyInMaintenance) {
                 document.getElementById('calculatorApp').style.display = 'none';
                 document.getElementById('maintenancePage').style.display = 'flex';
                 return;
             }
-            
             document.getElementById('authModal').style.display = 'flex';
             document.getElementById('stage1Box').style.display = 'block';
             document.getElementById('stage2Box').style.display = 'none';
@@ -680,16 +700,10 @@
                     return;
                 }
 
-                if (user.decoy_password && pwd === user.decoy_password) {
-                    isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
-                }
+                let isValidLogin = false;
+                let isDecoyLogin = false;
 
-                if (user.is_blocked) {
-                    alert("帳號已被管理員封鎖，無法登入！");
-                    return;
-                }
-
-                // 密碼或凍結狀態驗證
+                // 處理凍結狀態與密碼驗證
                 if (user.security_status === 'frozen') {
                     const nick = getNickname(user);
                     const now = new Date();
@@ -701,21 +715,36 @@
                         pwd === (user.password + user.username) || 
                         (user.frozen_until !== '3000-01-01T00:00:00Z' && now >= frozenUntil)
                     ) {
+                        // 解凍
                         await dbClient.from('users').update({ security_status: 'active', frozen_until: null }).eq('username', user.username);
                         user.security_status = 'active';
+                        isValidLogin = true;
+                    } else if (user.decoy_password && pwd === user.decoy_password) {
+                        isDecoyLogin = true;
                     } else {
                         alert("帳號處於凍結狀態，無法登入！"); return;
                     }
-                } else if (user.password !== pwd) { 
-                    alert("密碼不正確"); return; 
+                } else {
+                    if (user.password === pwd) { 
+                        isValidLogin = true;
+                    } else if (user.decoy_password && pwd === user.decoy_password) {
+                        isDecoyLogin = true;
+                    } else {
+                        alert("密碼不正確"); return; 
+                    }
+                }
+
+                if (user.is_blocked) {
+                    alert("帳號已被管理員封鎖，無法登入！");
+                    return;
                 }
 
                 // 檢查維護模式 (__SYSTEM_CONFIG__)
                 const { data: sysConfig } = await dbClient.from('users').select('*').eq('username', '__SYSTEM_CONFIG__').single();
+                const isMaint = (sysConfig && sysConfig.is_blocked && getUserNum(user) !== 1);
                 
-                // 如果維護模式開啟 (利用 is_blocked 欄位當作開關) 且當前登入者不是管理員 (編號不是 1)
-                if (sysConfig && sysConfig.is_blocked && getUserNum(user) !== 1) {
-                    isCurrentlyInMaintenance = true; // 記憶維修狀態
+                if (isMaint) {
+                    isCurrentlyInMaintenance = true;
                     const maintTimeStr = sysConfig.nickname || "○○○○/○○/○○\n○○:○○~○○:○○";
                     
                     document.getElementById('maintTimeDisplay').innerText = "UTC+8\n" + maintTimeStr;
@@ -725,6 +754,11 @@
                     return;
                 }
 
+                if (isDecoyLogin) {
+                    isDecoyMode = true; closeAuthModal(); showAlgebraPage(); return;
+                }
+
+                // 正常成功登入
                 currentUser = user;
                 closeAuthModal();
                 document.getElementById('calculatorApp').style.display = 'none';
@@ -747,11 +781,11 @@
                 document.getElementById('editNickname').value = getNickname(currentUser);
                 document.getElementById('editUserNum').value = getUserNum(currentUser) || '';
                 document.getElementById('editPassword').value = currentUser.password || '';
-                document.getElementById('editFakePassword').value = '';
+                document.getElementById('editFakePassword').value = currentUser.decoy_password || '';
                 document.getElementById('editUnlockCode').value = currentUser.unlock_code || '200011';
-                document.getElementById('editUnfreezePassword').value = '';
+                document.getElementById('editUnfreezePassword').value = currentUser.unfreeze_password || '';
                 
-                // 將所有密碼切換為隱藏狀態 (重置 Toggle)
+                // 將所有密碼切換為隱藏狀態
                 ['editPassword','editFakePassword','editUnlockCode','editUnfreezePassword'].forEach(id => {
                     const el = document.getElementById(id);
                     el.type = 'password';
@@ -759,7 +793,6 @@
                     if(btn) btn.innerHTML = iconEyeOpen;
                 });
 
-                // 管理員權限判斷（編號 1）
                 const isUserAdmin = (getUserNum(currentUser) === 1);
                 const userInp = document.getElementById('editUsername');
                 const nickInp = document.getElementById('editNickname');
@@ -876,9 +909,9 @@
                 return;
             }
 
-            if (newFakePwd) updates.decoy_password = newFakePwd;
+            updates.decoy_password = newFakePwd || null;
             if (newCode && newCode !== currentUser.unlock_code) updates.unlock_code = newCode;
-            if (newUnfreezePwd) updates.unfreeze_password = newUnfreezePwd;
+            updates.unfreeze_password = newUnfreezePwd || null;
 
             if (Object.keys(updates).length === 0) { alert('沒有變更任何設定。'); return; }
 
@@ -946,6 +979,25 @@
             } catch(e) { console.error("系統異常:", e); }
         }
 
+        function getDefaultChannels(u) {
+            if (Array.isArray(u.accessible_channels)) return [...u.accessible_channels];
+            let allowed = [];
+            const num = getUserNum(u);
+            if (num === 1) {
+                allowed.push('group_1234');
+                [2,3,4,5].forEach(n => { const targetU = getUserByNum(n); if(targetU) allowed.push(targetU.username); });
+            } else if ([2,3,4].includes(num)) {
+                allowed.push('group_1234');
+                [1,2,3,4].forEach(n => { if(n !== num){ const targetU = getUserByNum(n); if(targetU) allowed.push(targetU.username); } });
+            } else if (num === 5) {
+                const targetU = getUserByNum(1); if(targetU) allowed.push(targetU.username);
+            } else {
+                allowed.push('group_1234');
+                allUsers.forEach(other => { if(other.username !== u.username) allowed.push(other.username); });
+            }
+            return allowed;
+        }
+
         function getChannelId(ch) {
             if (!ch) return null;
             return ch.type === 'group' ? 'group_1234' : [currentUser.username, ch.target].sort().join('_');
@@ -965,45 +1017,20 @@
             channelList.innerHTML = '';
             
             let potentialChannels = [];
-            // 移除了 👥 符號
             potentialChannels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
             allUsers.forEach(u => {
                 if (u.username !== currentUser.username) {
                     potentialChannels.push({
                         type: 'private',
                         target: u.username,
-                        title: getNickname(u) // 移除了 💬 符號
+                        title: getNickname(u)
                     });
                 }
             });
 
             let channels = [];
-            
-            if (Array.isArray(currentUser.accessible_channels)) {
-                channels = potentialChannels.filter(ch => currentUser.accessible_channels.includes(ch.target));
-            } else {
-                const myNum = getUserNum(currentUser);
-                if (myNum === 1) {
-                    channels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
-                    [2, 3, 4, 5].forEach(num => {
-                        const targetU = getUserByNum(num);
-                        if (targetU) channels.push({ type: 'private', target: targetU.username, title: getNickname(targetU) });
-                    });
-                } else if ([2, 3, 4].includes(myNum)) {
-                    channels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
-                    [1, 2, 3, 4].forEach(num => {
-                        if (num !== myNum) {
-                            const targetU = getUserByNum(num);
-                            if (targetU) channels.push({ type: 'private', target: targetU.username, title: getNickname(targetU) });
-                        }
-                    });
-                } else if (myNum === 5) {
-                    const targetU = getUserByNum(1);
-                    if (targetU) channels.push({ type: 'private', target: targetU.username, title: getNickname(targetU) });
-                } else {
-                    channels = potentialChannels;
-                }
-            }
+            const allowed = getDefaultChannels(currentUser);
+            channels = potentialChannels.filter(ch => allowed.includes(ch.target));
 
             channels.forEach(ch => {
                 const li = document.createElement('li');
@@ -1097,9 +1124,7 @@
             
             const reader = new FileReader();
             reader.onload = function(e) {
-                // 如果是 GIF 圖片，跳過 canvas 壓縮，直接上傳 Base64 以保留動畫效果
                 if (file.type === 'image/gif') {
-                    // 安全限制：防止單筆資料庫欄位過大 (建議 2.5 MB 以下)
                     if (file.size > 2.5 * 1024 * 1024) {
                         alert("這張 GIF 檔案有點太大囉 (上限為 2.5MB)，請挑選小一點的檔案！");
                         event.target.value = '';
@@ -1107,7 +1132,6 @@
                     }
                     dbClient.from('messages').insert({ sender: currentUser.username, channel_type: activeChannel.type, target_id: activeChannel.target, content: e.target.result }).then(() => loadMessages(false));
                 } else {
-                    // 其他靜態圖片依舊透過 canvas 壓縮處理
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
@@ -1137,7 +1161,7 @@
         }
         async function nuclearDestruct() { if (dbClient) await dbClient.from('messages').delete().gte('created_at', '1970-01-01T00:00:00Z'); window.location.href = 'about:blank'; }
 
-        /* === ⚙️ 管理員修改功能 (包含新增成員、編號設定與權限管理) === */
+        /* === ⚙️ 管理員修改功能 === */
         function openAdminModal() {
             const sel = document.getElementById('adminTargetUser');
             sel.innerHTML = '';
@@ -1173,7 +1197,6 @@
             const targetUn = document.getElementById('adminTargetUser').value;
             const isNew = (targetUn === '__NEW_USER__');
 
-            // 清空輸入並重置密碼切換狀態
             ['adminNewUsername', 'adminNewNickname', 'adminNewPassword', 'adminNewFakePassword', 'adminNewUnlockCode', 'adminNewUnfreezePassword', 'adminNewUserNum'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) {
@@ -1215,7 +1238,19 @@
                 document.getElementById('adminIsBlocked').checked = !!targetU.is_blocked;
                 document.getElementById('adminNewUsername').value = targetU.username;
                 document.getElementById('adminNewNickname').value = getNickname(targetU);
+                
+                // 載入當前密碼並顯示眼睛
+                document.getElementById('adminNewPassword').value = targetU.password || '';
+                document.getElementById('adminNewFakePassword').value = targetU.decoy_password || '';
+                document.getElementById('adminNewUnfreezePassword').value = targetU.unfreeze_password || '';
                 document.getElementById('adminNewUnlockCode').value = targetU.unlock_code || '200011';
+
+                ['adminNewPassword','adminNewFakePassword','adminNewUnfreezePassword','adminNewUnlockCode'].forEach(id => {
+                    const el = document.getElementById(id);
+                    el.type = 'password';
+                    const btn = el.nextElementSibling;
+                    if(btn) btn.innerHTML = iconEyeOpen;
+                });
 
                 renderChannelAccessCheckboxes(targetU, false);
             }
@@ -1229,23 +1264,7 @@
             if (isNewUser) {
                 allowed = ['group_1234', ...allUsers.map(u => u.username)];
             } else if (targetU) {
-                allowed = targetU.accessible_channels;
-                if (!Array.isArray(allowed)) {
-                    allowed = [];
-                    const num = getUserNum(targetU);
-                    if (num === 1) {
-                        allowed.push('group_1234');
-                        [2,3,4,5].forEach(n => { const u = getUserByNum(n); if(u) allowed.push(u.username); });
-                    } else if ([2,3,4].includes(num)) {
-                        allowed.push('group_1234');
-                        [1,2,3,4].forEach(n => { if(n !== num){ const u = getUserByNum(n); if(u) allowed.push(u.username); } });
-                    } else if (num === 5) {
-                        const u = getUserByNum(1); if(u) allowed.push(u.username);
-                    } else {
-                        allowed.push('group_1234');
-                        allUsers.forEach(u => { if(u.username !== targetU.username) allowed.push(u.username); });
-                    }
-                }
+                allowed = getDefaultChannels(targetU);
             }
 
             channelDiv.innerHTML += `
@@ -1328,6 +1347,9 @@
                 if (error) {
                     alert("新增成員失敗：" + error.message);
                 } else {
+                    // 同步雙向可見性
+                    await syncVisibilitySymmetry(un, accessibleChannels);
+                    
                     alert(`✅ 成功新增成員【${nk}】！`);
                     closeAdminModal();
                     await fetchAllUsers();
@@ -1359,9 +1381,9 @@
                 };
 
                 if (pw) updates.password = pw;
-                if (fp !== undefined) updates.decoy_password = fp || null;
+                updates.decoy_password = fp || null;
                 if (uc) updates.unlock_code = uc;
-                if (upw !== undefined) updates.unfreeze_password = upw || null;
+                updates.unfreeze_password = upw || null;
 
                 const { error } = await dbClient.from('users').update(updates).eq('username', target);
                 if (error) { 
@@ -1371,10 +1393,41 @@
                         await dbClient.from('messages').update({ sender: un }).eq('sender', target);
                         await dbClient.from('messages').update({ target_id: un }).eq('target_id', target);
                     }
+                    
+                    // 同步雙向可見性
+                    await syncVisibilitySymmetry(un, accessibleChannels);
+
                     alert(`✅ 已成功更新該成員資料！`);
                     closeAdminModal();
                     await fetchAllUsers();
                     if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+                }
+            }
+        }
+
+        // 強制讓可見性為雙向連動 (Symmetric Relationship)
+        async function syncVisibilitySymmetry(targetUsername, accessibleChannels) {
+            for (let u of allUsers) {
+                if (u.username === targetUsername || u.username === '__SYSTEM_CONFIG__') continue;
+                
+                let uChannels = getDefaultChannels(u);
+                let changed = false;
+
+                if (accessibleChannels.includes(u.username)) {
+                    if (!uChannels.includes(targetUsername)) {
+                        uChannels.push(targetUsername);
+                        changed = true;
+                    }
+                } else {
+                    const idx = uChannels.indexOf(targetUsername);
+                    if (idx > -1) {
+                        uChannels.splice(idx, 1);
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    await dbClient.from('users').update({ accessible_channels: uChannels }).eq('username', u.username);
                 }
             }
         }
