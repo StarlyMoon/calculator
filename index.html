@@ -2033,11 +2033,7 @@ renderChannels();
 
 function openChannel(ch, targetObj) {
 activeChannel = ch;
-const titleWithSub = ch.type === 'private' && targetObj && getLastSeenText(targetObj.last_seen)
-? `${ch.title} <span style="font-size:12px; font-weight:normal; color:#8a8d9b; margin-left:6px;">(${getLastSeenText(targetObj.last_seen)})</span>`
-: ch.title;
-
-document.getElementById('currentChannelTitle').innerHTML = titleWithSub;
+document.getElementById('currentChannelTitle').innerHTML = ch.title;
 switchView('viewChatRoom');
 updateMyReadStatus();
 loadMessages(true);
