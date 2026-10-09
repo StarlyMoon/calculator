@@ -72,10 +72,10 @@ transition: background-color 5000s ease-in-out 0s;
 .top-icons { display: flex; justify-content: flex-end; align-items: center; height: 48px; width: 100%; position: relative; z-index: 30; }
 .secret-trigger { background: transparent; font-size: 26px; color: #8a8d9b; font-style: italic; font-family: Georgia, serif; cursor: pointer; padding: 12px 18px; min-width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 35; }
 .secret-trigger:active { opacity: 0.5; }
-.screen { flex: 1; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding: 12px 0; width: 100%; }
+.screen { flex: 1; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding: 12px 0; width: 100%; min-height: 0; }
 .history { font-size: 18px; color: #8a8d9b; min-height: 26px; text-align: right; width: 100%; word-break: break-all; }
 .current { font-size: 40px; font-weight: 300; text-align: right; color: #ffffff; width: 100%; line-height: 1.15; word-break: break-all; min-height: 60px; }
-.keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; }
+.keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; width: 100%; flex-shrink: 0; }
 .btn { width: 100%; aspect-ratio: 1; border-radius: 50%; background: #21232b; color: #ffffff; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background 0.12s ease, transform 0.08s ease; }
 .btn:active { transform: scale(0.92); background: #353844; }
 .btn.func { background: #2e313c; color: #a5a9b8; }
@@ -85,7 +85,7 @@ transition: background-color 5000s ease-in-out 0s;
 /* === 獨立代數計算頁面 === */
 .algebra-page { width: 100%; max-width: 420px; height: 100%; height: 100dvh; background: #17181c; display: none; flex-direction: column; position: relative; box-sizing: border-box; }
 .algebra-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; background: #14151a; flex-shrink: 0; }
-.algebra-content { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+.algebra-content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
 .algebra-card { background: #21232b; border: 1px solid #353844; border-radius: 16px; padding: 16px; }
 .algebra-card h4 { color: #ff9f0a; margin-bottom: 12px; font-size: 15px; font-weight: 600; }
 .algebra-input { width: 38px; background: #17181c; border: 1px solid #353844; color: #fff; text-align: center; border-radius: 6px; padding: 4px 2px; font-size: 13px; }
@@ -96,8 +96,8 @@ transition: background-color 5000s ease-in-out 0s;
 .mode-toggle-btn:active { background: #ff9f0a; color: #fff; transform: scale(0.95); }
 
 /* === 驗證與設定彈窗 === */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
-.modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
+.modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; }
 .modal-box h3 { font-size: 18px; margin-bottom: 12px; color: #fff; }
 .modal-box p { font-size: 13px; color: #a5a9b8; margin-bottom: 16px; line-height: 1.4; }
 .modal-input { width: 100%; padding: 14px; background: #17181c; border: 1px solid #353844; border-radius: 12px; color: #fff; font-size: 16px; text-align: center; margin-bottom: 14px; -webkit-user-select: text; user-select: text; }
@@ -115,7 +115,7 @@ transition: background-color 5000s ease-in-out 0s;
 
 /* === 祕密通訊系統 === */
 .chat-app { display: none; width: 100%; max-width: 420px; height: 100dvh; background: #0d0e12; position: relative; margin: 0 auto; }
-.app-view { position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12; overflow-y: auto; }
+.app-view { position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .app-view.active { display: flex; }
 .header-bar { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10; position: relative; }
 .header-title { font-size: 17px; font-weight: 600; }
@@ -139,17 +139,17 @@ transition: background-color 5000s ease-in-out 0s;
 .avatar-img.online { border: 2.5px solid #34c759; padding: 2px; box-shadow: 0 0 8px rgba(52, 199, 89, 0.4); }
 .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
 
-.channel-list { list-style: none; flex: 1; overflow-y: auto; padding: 12px 12px 100px 12px; }
+.channel-list { list-style: none; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 100px 12px; }
 .channel-item { display: flex; align-items: center; padding: 14px 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; position: relative; }
 .channel-item:active { background: #21232b; }
-.channel-info { margin-left: 12px; flex: 1; }
+.channel-info { margin-left: 12px; flex: 1; min-width: 0; }
 .channel-name { font-size: 16px; font-weight: 600; color: #fff; }
 
 .unread-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-left: auto; }
 .unread-dot.green { background-color: #34c759; box-shadow: 0 0 8px rgba(52, 199, 89, 0.8); }
 .unread-dot.red { background-color: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.8); }
 
-.chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.chat-messages { flex: 1; min-height: 0; padding: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; }
 .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; cursor: pointer; }
 .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
 .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
@@ -229,7 +229,7 @@ transition: transform 0.1s ease, opacity 0.2s ease;
 .read-receipt-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 12px; border: 2px solid #0d0e12; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
 .reply-preview-bar { background: #1f212a; border-top: 1px solid #2e313c; padding: 8px 14px; display: none; align-items: center; justify-content: space-between; font-size: 13px; color: #ff9f0a; }
-.mention-suggestions-box { position: absolute; bottom: 70px; left: 12px; right: 12px; background: #21232b; border: 1px solid #353844; border-radius: 14px; max-height: 160px; overflow-y: auto; display: none; z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,0.8); }
+.mention-suggestions-box { position: absolute; bottom: 70px; left: 12px; right: 12px; background: #21232b; border: 1px solid #353844; border-radius: 14px; max-height: 160px; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,0.8); }
 .mention-item { padding: 10px 16px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #fff; cursor: pointer; border-bottom: 1px solid #2e313c; }
 .mention-item:last-child { border-bottom: none; }
 .mention-item:active { background: #353844; }
@@ -239,7 +239,7 @@ transition: transform 0.1s ease, opacity 0.2s ease;
 .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
 .send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.profile-container { flex: 1; overflow-y: auto; padding: 24px 20px 60px 20px; display: flex; flex-direction: column; align-items: center; }
+.profile-container { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 24px 20px 60px 20px; display: flex; flex-direction: column; align-items: center; }
 .profile-input-group { width: 100%; max-width: 320px; margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
 .input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; text-align: left; }
 .select-custom {
@@ -313,13 +313,13 @@ font-size: 26px;
 
 .crop-modal-overlay { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; }
 .crop-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b; }
-.crop-body { flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+.crop-body { flex: 1; min-height: 0; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 .crop-footer { height: calc(80px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: #14151a; display: flex; justify-content: center; align-items: center; gap: 24px; border-top: 1px solid #21232b; }
 .cropper-view-box, .cropper-face { border-radius: 50% !important; }
 
 .lightbox-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; overflow: hidden; touch-action: none; }
 .lightbox-controls { position: absolute; top: 20px; right: 20px; display: flex; gap: 12px; z-index: 510; }
-.lightbox-btn { background: rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+.lightbox-btn { background: rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .lightbox-img-wrapper { max-width: 95vw; max-height: 85vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 .lightbox-img { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 8px; transition: transform 0.1s ease-out; transform-origin: center center; cursor: grab; }
 
@@ -327,12 +327,12 @@ font-size: 26px;
 
 .maintenance-page { position: fixed; inset: 0; background: #0d0e12; display: none; flex-direction: column; z-index: 1000; width: 100%; max-width: 420px; margin: 0 auto; }
 .maint-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; background: #14151a; flex-shrink: 0; }
-.maint-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 32px; text-align: center; color: #fff; }
+.maint-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 32px; text-align: center; color: #fff; }
 .maint-icon { font-size: 64px; margin-bottom: 24px; color: #ff9f0a; animation: pulse 2s infinite ease-in-out; }
 
 /* === 對訊息動作選單彈窗 === */
-.msg-action-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: none; z-index: 200; }
-.action-sheet-box { background: #14151a; border-radius: 18px 18px 0 0; width: 100%; max-width: 420px; padding: 12px 8px calc(12px + env(safe-area-inset-bottom, 0px)) 8px; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; justify-content: space-around; align-items: center; gap: 4px; z-index: 250; border-top: 1px solid #353844; box-shadow: 0 -8px 24px rgba(0,0,0,0.7); overflow-x: auto; }
+.msg-action-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); -webkit-backdrop-filter: none !important; backdrop-filter: none !important; display: none; z-index: 200; }
+.action-sheet-box { background: #14151a; border-radius: 18px 18px 0 0; width: 100%; max-width: 420px; padding: 12px 8px calc(12px + env(safe-area-inset-bottom, 0px)) 8px; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; justify-content: space-around; align-items: center; gap: 4px; z-index: 250; border-top: 1px solid #353844; box-shadow: 0 -8px 24px rgba(0,0,0,0.7); overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .action-sheet-btn { flex: 1; min-width: 52px; padding: 8px 4px; background: transparent; border-radius: 8px; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s; }
 .action-sheet-btn:active { background: #21232b; }
 .action-sheet-btn .btn-icon { font-size: 20px; line-height: 1; }
@@ -610,7 +610,7 @@ font-size: 26px;
 <!-- 顯示聊天室（僅管理員顯示） -->
 <div id="myAdminChannelAccessBox" style="display:none; flex-direction:column; gap:8px;">
 <div class="input-label">顯示聊天室 (打勾代表可看見):</div>
-<div id="myAdminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:160px; overflow-y:auto; text-align:left;">
+<div id="myAdminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:160px; overflow-y:auto; -webkit-overflow-scrolling: touch; text-align:left;">
 </div>
 </div>
 
@@ -709,7 +709,7 @@ font-size: 26px;
 
 <!-- 8. 聊天室存取權限 -->
 <div class="input-label">聊天室存取權限 (打勾代表可看見):</div>
-<div id="adminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:150px; overflow-y:auto; text-align:left;"></div>
+<div id="adminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:150px; overflow-y:auto; -webkit-overflow-scrolling: touch; text-align:left;"></div>
 
 <!-- 9. 顯示雪花與核彈按鈕 -->
 <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#007aff; cursor:pointer; font-weight:600; border: 1.5px solid #007aff; border-radius: 10px; padding: 10px 12px; background: rgba(0, 122, 255, 0.08);">
@@ -832,7 +832,7 @@ font-size: 26px;
 <div class="modal-box" style="text-align:left;">
 <h3 id="reportDetailTitle" style="color:#ff9f0a; margin-bottom:8px;">✉️ 信件內容</h3>
 <p id="reportDetailTime" style="color:#8a8d9b; font-size:12px; margin-bottom:12px;"></p>
-<div id="reportDetailBody" style="background:#17181c; border:1px solid #353844; border-radius:12px; padding:14px; font-size:14px; color:#fff; white-space:pre-wrap; word-break:break-word; max-height:220px; overflow-y:auto; margin-bottom:16px;"></div>
+<div id="reportDetailBody" style="background:#17181c; border:1px solid #353844; border-radius:12px; padding:14px; font-size:14px; color:#fff; white-space:pre-wrap; word-break:break-word; max-height:220px; overflow-y:auto; -webkit-overflow-scrolling: touch; margin-bottom:16px;"></div>
 <button type="button" class="modal-btn confirm" style="width:100%;" onclick="document.getElementById('reportDetailModal').style.display='none'">關閉</button>
 </div>
 </div>
