@@ -9,9 +9,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+-webkit-user-select: none;
+user-select: none;
+-webkit-touch-callout: none;
+-webkit-tap-highlight-color: transparent !important;
+outline: none !important;
+}
+
+*:focus, *:active {
+outline: none !important;
+-webkit-tap-highlight-color: transparent !important;
+}
+
 html, body { width: 100%; height: 100%; height: 100dvh; background-color: #17181c; color: #fff; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; touch-action: manipulation; overscroll-behavior: none; }
-button, input, select, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none; border: none; -webkit-tap-highlight-color: transparent; font-family: inherit; }
+button, input, select, textarea { -webkit-appearance: none; -moz-appearance: none; appearance: none; outline: none !important; border: none; -webkit-tap-highlight-color: transparent !important; font-family: inherit; }
 
 @media print {
 body { display: none !important; }
@@ -28,6 +43,10 @@ accent-color: #ff9f0a;
 }
 input[type="checkbox"]#adminIsBlocked {
 accent-color: #ff3b30;
+}
+input[type="checkbox"]#adminShowActionBtns,
+input[type="checkbox"]#myAdminShowActionBtns {
+accent-color: #007aff;
 }
 
 .pw-wrapper { position: relative; width: 100%; margin-bottom: 14px; }
@@ -73,6 +92,9 @@ transition: background-color 5000s ease-in-out 0s;
 .sign-btn { background: #353844; color: #ff9f0a; font-weight: bold; border-radius: 6px; padding: 4px 8px; font-size: 13px; cursor: pointer; min-width: 24px; }
 .sign-btn:active { background: #ff9f0a; color: #fff; }
 
+.mode-toggle-btn { background: #353844; color: #ff9f0a; font-weight: bold; border-radius: 8px; padding: 6px 14px; font-size: 14px; cursor: pointer; border: none; transition: background 0.15s, transform 0.1s; }
+.mode-toggle-btn:active { background: #ff9f0a; color: #fff; transform: scale(0.95); }
+
 /* === 驗證與設定彈窗 === */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; z-index: 100; }
 .modal-box { background: #21232b; border: 1px solid #353844; border-radius: 20px; padding: 24px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; position: relative; }
@@ -88,19 +110,19 @@ transition: background-color 5000s ease-in-out 0s;
 .spinner-sm { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Toast 通知 (螢幕下方) */
+/* Toast 通知 */
 .toast-msg { position: fixed; bottom: calc(30px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: #2e313c; color: #fff; border: 1px solid #ff9f0a; padding: 12px 24px; border-radius: 24px; font-size: 14px; z-index: 2000; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.7); text-align: center; font-weight: 500; }
 
-/* === 祕密通訊系統 (SPA架構) === */
+/* === 祕密通訊系統 === */
 .chat-app { display: none; width: 100%; max-width: 420px; height: 100dvh; background: #0d0e12; position: relative; margin: 0 auto; }
-.app-view { position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12; }
+.app-view { position: absolute; inset: 0; display: none; flex-direction: column; width: 100%; height: 100%; background: #0d0e12; overflow-y: auto; }
 .app-view.active { display: flex; }
 .header-bar { height: calc(55px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 16px 0 16px; border-bottom: 1px solid #21232b; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: #14151a; z-index: 10; position: relative; }
 .header-title { font-size: 17px; font-weight: 600; }
 
-.header-title-centered { position: absolute; left: 50%; transform: translateX(-50%); font-size: 17px; font-weight: 600; pointer-events: none; }
+.header-title-centered { position: absolute; left: 50%; transform: translateX(-50%); font-size: 17px; font-weight: 600; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; text-align: center; }
 
-.icon-btn { background: transparent; color: #ff9f0a; font-size: 16px; cursor: pointer; padding: 8px; font-weight:500; }
+.icon-btn { background: transparent; color: #ff9f0a; font-size: 16px; cursor: pointer; padding: 8px; font-weight: 500; }
 
 .btn-nuclear, .btn-freeze, .btn-admin, .btn-mail { border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; flex-shrink: 0; transition: transform 0.1s ease; width: 38px; height: 38px; font-size: 18px; }
 .btn-nuclear { background: #ff3b30; color: #fff; }
@@ -118,25 +140,94 @@ transition: background-color 5000s ease-in-out 0s;
 .avatar-mini { width: 36px; height: 36px; font-size: 16px; }
 
 .channel-list { list-style: none; flex: 1; overflow-y: auto; padding: 12px 12px 100px 12px; }
-.channel-item { display: flex; align-items: center; padding: 14px 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
+.channel-item { display: flex; align-items: center; padding: 14px 12px; background: #1c1d24; border-radius: 14px; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; position: relative; }
 .channel-item:active { background: #21232b; }
 .channel-info { margin-left: 12px; flex: 1; }
 .channel-name { font-size: 16px; font-weight: 600; color: #fff; }
+
+.unread-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-left: auto; }
+.unread-dot.green { background-color: #34c759; box-shadow: 0 0 8px rgba(52, 199, 89, 0.8); }
+.unread-dot.red { background-color: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.8); }
 
 .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 .msg-wrapper { display: flex; flex-direction: column; max-width: 85%; align-self: flex-start; cursor: pointer; }
 .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
 .msg-meta { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; margin-left: 4px; display: flex; align-items: center; gap: 6px; }
-.msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; position: relative; }
+.msg-bubble { padding: 12px 16px; border-radius: 18px; background: #1c1d24; font-size: 15px; line-height: 1.4; word-break: break-word; -webkit-user-select: text; user-select: text; border-top-left-radius: 4px; position: relative; transition: transform 0.1s ease; }
 .msg-wrapper.me .msg-bubble { background: #007aff; border-top-left-radius: 18px; border-top-right-radius: 4px; }
-.msg-recalled { font-style: italic; color: #8a8d9b; background: #17181c !important; border: 1px dashed #353844; }
 
-.reply-quote-box { background: rgba(0,0,0,0.25); border-left: 3px solid #ff9f0a; padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; color: #d0d3de; }
+.chat-link { color: #ffffff !important; text-decoration: underline !important; font-weight: 500; word-break: break-all; }
+
+/* 收回的訊息：無藍色框、灰色字、無法點擊 */
+.msg-bubble.recalled-bubble,
+.msg-wrapper.me .msg-bubble.recalled-bubble {
+background: transparent !important;
+background-color: transparent !important;
+border: none !important;
+box-shadow: none !important;
+padding: 2px 0 !important;
+color: #8a8d9b !important;
+pointer-events: none !important;
+}
+.msg-recalled { font-style: italic; color: #8a8d9b !important; font-size: 13px; background: transparent !important; border: none !important; padding: 0 !important; outline: none !important; pointer-events: none !important; }
+.msg-wrapper:has(.recalled-bubble) {
+pointer-events: none !important;
+cursor: default !important;
+}
+
+.reply-header-tag { font-size: 11px; color: #8a8d9b; margin-bottom: 3px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+
+.reply-quote-box {
+background: #2a2d37;
+border-left: none !important;
+padding: 8px 12px;
+border-radius: 8px;
+margin-bottom: 6px;
+font-size: 12px;
+color: #d0d3de;
+cursor: pointer;
+transition: background 0.15s ease;
+}
+.reply-quote-box:active { background: #3a3e4c; }
+
+@keyframes shakeMsg {
+0% { transform: translateX(0); }
+20% { transform: translateX(-6px); }
+40% { transform: translateX(6px); }
+60% { transform: translateX(-4px); }
+80% { transform: translateX(4px); }
+100% { transform: translateX(0); }
+}
+.shake-animation {
+animation: shakeMsg 0.4s ease-in-out;
+}
+
+.scroll-bottom-btn {
+position: absolute;
+left: 50%;
+transform: translateX(-50%);
+bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: #21232b;
+color: #ff9f0a;
+border: 1px solid #353844;
+font-size: 18px;
+font-weight: bold;
+cursor: pointer;
+display: none;
+align-items: center;
+justify-content: center;
+box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+z-index: 60;
+transition: transform 0.1s ease, opacity 0.2s ease;
+}
+.scroll-bottom-btn:active { transform: translateX(-50%) scale(0.92); }
 
 .read-receipts { display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px; padding-right: 4px; }
 .read-receipt-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; background: #2e313c; display: flex; justify-content: center; align-items: center; font-size: 12px; border: 2px solid #0d0e12; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
-/* @ 標註選單與回覆預覽條 */
 .reply-preview-bar { background: #1f212a; border-top: 1px solid #2e313c; padding: 8px 14px; display: none; align-items: center; justify-content: space-between; font-size: 13px; color: #ff9f0a; }
 .mention-suggestions-box { position: absolute; bottom: 70px; left: 12px; right: 12px; background: #21232b; border: 1px solid #353844; border-radius: 14px; max-height: 160px; overflow-y: auto; display: none; z-index: 50; box-shadow: 0 8px 24px rgba(0,0,0,0.8); }
 .mention-item { padding: 10px 16px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #fff; cursor: pointer; border-bottom: 1px solid #2e313c; }
@@ -148,9 +239,9 @@ transition: background-color 5000s ease-in-out 0s;
 .send-btn { background: #ff9f0a; border-radius: 50%; width: 44px; height: 44px; flex-shrink: 0; color: #fff; cursor: pointer; font-size: 18px; display: flex; justify-content: center; align-items: center; }
 .send-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.profile-container { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; }
+.profile-container { flex: 1; overflow-y: auto; padding: 24px 20px 60px 20px; display: flex; flex-direction: column; align-items: center; }
 .profile-input-group { width: 100%; max-width: 320px; margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
-.input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; }
+.input-label { font-size: 13px; color: #8a8d9b; margin-bottom: -6px; margin-left: 4px; text-align: left; }
 .select-custom {
 width: 100%;
 padding: 12px;
@@ -162,6 +253,11 @@ font-size: 15px;
 -webkit-appearance: none;
 -moz-appearance: none;
 appearance: none;
+}
+.select-custom option {
+background: #17181c;
+color: #fff;
+padding: 10px;
 }
 
 /* === 物理慣性滾輪選單樣式 === */
@@ -215,7 +311,6 @@ font-weight: 700;
 font-size: 26px;
 }
 
-/* === 裁剪與 具備縮放功能之 Lightbox === */
 .crop-modal-overlay { position: fixed; inset: 0; background: #000; z-index: 300; display: none; flex-direction: column; }
 .crop-header { height: calc(55px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); background: #14151a; display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px; border-bottom: 1px solid #21232b; }
 .crop-body { flex: 1; position: relative; background: #0a0a0c; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -228,7 +323,6 @@ font-size: 26px;
 .lightbox-img-wrapper { max-width: 95vw; max-height: 85vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 .lightbox-img { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 8px; transition: transform 0.1s ease-out; transform-origin: center center; cursor: grab; }
 
-/* 鎖定屏與維護頁面 */
 .lock-mask { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; }
 
 .maintenance-page { position: fixed; inset: 0; background: #0d0e12; display: none; flex-direction: column; z-index: 1000; width: 100%; max-width: 420px; margin: 0 auto; }
@@ -236,10 +330,12 @@ font-size: 26px;
 .maint-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 32px; text-align: center; color: #fff; }
 .maint-icon { font-size: 64px; margin-bottom: 24px; color: #ff9f0a; animation: pulse 2s infinite ease-in-out; }
 
-/* 訊息功能選單 Action Sheet */
-.action-sheet-box { background: #21232b; border-radius: 20px 20px 0 0; width: 100%; max-width: 420px; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)) 16px; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 250; border-top: 1px solid #353844; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
-.action-sheet-btn { width: 100%; padding: 14px; background: #17181c; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.action-sheet-btn:active { background: #353844; }
+/* === 對訊息動作選單彈窗 === */
+.msg-action-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: none; z-index: 200; }
+.action-sheet-box { background: #14151a; border-radius: 18px 18px 0 0; width: 100%; max-width: 420px; padding: 12px 8px calc(12px + env(safe-area-inset-bottom, 0px)) 8px; position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; justify-content: space-around; align-items: center; gap: 4px; z-index: 250; border-top: 1px solid #353844; box-shadow: 0 -8px 24px rgba(0,0,0,0.7); overflow-x: auto; }
+.action-sheet-btn { flex: 1; min-width: 52px; padding: 8px 4px; background: transparent; border-radius: 8px; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s; }
+.action-sheet-btn:active { background: #21232b; }
+.action-sheet-btn .btn-icon { font-size: 20px; line-height: 1; }
 .action-sheet-btn.danger { color: #ff3b30; }
 
 @keyframes pulse {
@@ -298,7 +394,7 @@ font-size: 26px;
 
 <div class="modal-box" id="stage2Box" style="display: none;">
 <h3>自主學習系統登入</h3>
-<p>請輸入學號與密碼：</p>
+<p>請輸入帳號與密碼：</p>
 <input type="text" class="modal-input" id="usernameInput" placeholder="帳號" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 <div class="pw-wrapper" style="margin-bottom:14px;">
 <input type="password" class="modal-input" id="userPasswordInput" placeholder="密碼" style="margin-bottom:0;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
@@ -369,7 +465,7 @@ font-size: 26px;
 <div id="navProfileBtn" onclick="switchView('viewProfile')" style="cursor:pointer;"></div>
 </div>
 <ul class="channel-list" id="channelList"></ul>
-<div class="bottom-action-bar">
+<div class="bottom-action-bar" id="bottomActionBar">
 <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
 <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
 </div>
@@ -378,22 +474,22 @@ font-size: 26px;
 <div class="app-view" id="viewChatRoom">
 <div class="header-bar">
 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
-<span class="header-title" id="currentChannelTitle">頻道名稱</span>
-<div class="header-btn-group">
+<span class="header-title-centered" id="currentChannelTitle">頻道名稱</span>
+<div class="header-btn-group" id="chatRoomHeaderBtns">
 <button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
 <button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
 </div>
 </div>
-<div class="chat-messages" id="chatMessages"></div>
+<div class="chat-messages" id="chatMessages" onscroll="handleChatScroll()"></div>
 
-<!-- 回覆預覽列 -->
+<button type="button" id="scrollToBottomBtn" class="scroll-bottom-btn" onclick="scrollToBottom()" title="滑到最下面">↓</button>
+
 <div class="reply-preview-bar" id="replyPreviewBar">
 <span id="replyPreviewText">回覆訊息...</span>
 <button type="button" onclick="cancelReply()" style="background:transparent; color:#8a8d9b; font-size:16px; cursor:pointer;">✕</button>
 </div>
 
 <div class="chat-input-area">
-<!-- 群組 @標註下拉選單 -->
 <div class="mention-suggestions-box" id="mentionSuggestions"></div>
 
 <button type="button" class="icon-btn" onclick="triggerChatImgUpload()" style="font-size:22px; padding:0 4px;">🖼️</button>
@@ -403,15 +499,14 @@ font-size: 26px;
 </div>
 </div>
 
+<!-- 主設定頁面 -->
 <div class="app-view" id="viewProfile">
 <div class="header-bar">
 <button type="button" class="icon-btn" onclick="switchView('viewChatList')">❮ 返回</button>
 <span class="header-title-centered">設定</span>
 <div class="header-btn-group">
 <button type="button" id="maintSettingBtn" class="btn-admin" style="display:none; background:#ff9f0a; color:#fff;" onclick="openMaintenanceModal()" title="伺服器維護設定">🛠️</button>
-<button type="button" id="adminBtn" class="btn-admin" style="display:none;" onclick="openAdminModal()" title="管理成員資料">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-</button>
+<button type="button" id="adminMemberBtn" class="btn-admin" style="display:none; background:#353844; color:#a5a9b8;" onclick="switchView('viewAdminMember')" title="成員權限與資料管理">⚙️</button>
 <button type="button" id="mailBtn" class="btn-mail" onclick="handleMailBtnClick()" title="信箱與回報">✉️</button>
 </div>
 </div>
@@ -425,16 +520,22 @@ font-size: 26px;
 <div style="color:#ff9f0a; font-size:12px; margin-top:12px;">點擊照片更換頭貼</div>
 
 <div class="profile-input-group">
-<div class="input-label">登入帳號 (必填，僅管理員可修改)</div>
-<input type="text" class="modal-input" id="editUsername" disabled style="color:#616472; background:#14151a;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+<!-- 1. 暱稱* -->
+<div class="input-label">暱稱*</div>
+<input type="text" class="modal-input" id="editNickname" placeholder="輸入暱稱" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
-<div class="input-label">顯示名稱 / 姓名 (必填，僅管理員可修改)</div>
-<input type="text" class="modal-input" id="editNickname" placeholder="輸入顯示名稱" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+<!-- 2. 編號*（僅管理員顯示與編輯，作為身份辨識核心） -->
+<div id="editUserNumBox" style="display:none; flex-direction:column; gap:6px;">
+<div class="input-label">編號*</div>
+<input type="number" class="modal-input" id="editUserNum" autocomplete="off">
+</div>
 
-<div class="input-label">成員編號 (必填，僅管理員可修改)</div>
-<input type="number" class="modal-input" id="editUserNum" disabled style="color:#616472; background:#14151a;" autocomplete="off">
+<!-- 3. 帳號* (允許所有人編輯) -->
+<div class="input-label">帳號*</div>
+<input type="text" class="modal-input" id="editUsername" placeholder="輸入帳號" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 
-<div class="input-label">真實密碼 (必填)</div>
+<!-- 4. 密碼* -->
+<div class="input-label">密碼*</div>
 <div class="pw-wrapper">
 <input type="password" class="modal-input" id="editPassword" placeholder="輸入真實密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 <button type="button" class="pw-toggle" onclick="togglePw('editPassword', this)">
@@ -442,7 +543,8 @@ font-size: 26px;
 </button>
 </div>
 
-<div class="input-label">假密碼 (留空則不設定)</div>
+<!-- 5. 假密碼 -->
+<div class="input-label">假密碼</div>
 <div class="pw-wrapper">
 <input type="password" class="modal-input" id="editFakePassword" placeholder="輸入假密碼 (不可與真實相同)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 <button type="button" class="pw-toggle" onclick="togglePw('editFakePassword', this)">
@@ -450,7 +552,17 @@ font-size: 26px;
 </button>
 </div>
 
-<div class="input-label">鎖定短碼 (離開解鎖用)</div>
+<!-- 6. 解凍密碼 -->
+<div class="input-label">解凍密碼</div>
+<div class="pw-wrapper">
+<input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定解凍密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<button type="button" class="pw-toggle" onclick="togglePw('editUnfreezePassword', this)">
+<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+
+<!-- 7. 短碼 -->
+<div class="input-label">短碼</div>
 <div class="pw-wrapper">
 <input type="password" class="modal-input" id="editUnlockCode" placeholder="輸入數字短碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 <button type="button" class="pw-toggle" onclick="togglePw('editUnlockCode', this)">
@@ -458,15 +570,60 @@ font-size: 26px;
 </button>
 </div>
 
-<div class="input-label">專屬解凍密碼 (凍結時登入即可解凍)</div>
-<div class="pw-wrapper">
-<input type="password" class="modal-input" id="editUnfreezePassword" placeholder="設定後，凍結時輸入此密碼即可解開" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-<button type="button" class="pw-toggle" onclick="togglePw('editUnfreezePassword', this)">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<!-- 8. 其他設定按鈕 -->
+<button type="button" class="modal-btn cancel" style="margin-top:6px; background:#21232b; border:1px solid #353844; color:#ff9f0a; justify-content:space-between; padding:14px 18px;" onclick="switchView('viewOtherSettings')">
+<span>其他設定</span><span>❯</span>
 </button>
+
+<!-- 儲存設定按鈕 -->
+<button type="button" class="modal-btn confirm" style="width:100%; margin-top:10px;" onclick="saveProfile()">儲存設定</button>
 </div>
 
-<div class="input-label">凍結時間選擇 (按下 ❄️ 後生效)</div>
+</div>
+</div>
+
+<!-- 其他設定頁面（全頁） -->
+<div class="app-view" id="viewOtherSettings">
+<div class="header-bar">
+<button type="button" class="icon-btn" onclick="switchView('viewProfile')">❮ 返回</button>
+<span class="header-title-centered">其他設定</span>
+<div class="header-btn-group">
+<button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
+<button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
+</div>
+</div>
+<div class="profile-container">
+<div class="profile-input-group" style="margin-top:10px;">
+
+<!-- 跳至回覆訊息 -->
+<div style="display:flex; justify-content:space-between; align-items:center; background:#1c1d24; border:1px solid #21232b; padding:12px 16px; border-radius:12px;">
+<span style="font-size:14px; color:#fff;">跳至回覆訊息</span>
+<button type="button" class="mode-toggle-btn" id="btnToggleReplyMode" onclick="toggleReplyMode()">跳轉</button>
+</div>
+
+<!-- 跳至底部 -->
+<div style="display:flex; justify-content:space-between; align-items:center; background:#1c1d24; border:1px solid #21232b; padding:12px 16px; border-radius:12px;">
+<span style="font-size:14px; color:#fff;">跳至底部</span>
+<button type="button" class="mode-toggle-btn" id="btnToggleBottomMode" onclick="toggleBottomMode()">滑動</button>
+</div>
+
+<!-- 顯示聊天室（僅管理員顯示） -->
+<div id="myAdminChannelAccessBox" style="display:none; flex-direction:column; gap:8px;">
+<div class="input-label">顯示聊天室 (打勾代表可看見):</div>
+<div id="myAdminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:160px; overflow-y:auto; text-align:left;">
+</div>
+</div>
+
+<!-- (框框) 顯示雪花與核彈按鈕 -->
+<div id="myAdminActionBtnsBox" style="margin-top:4px;">
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#007aff; cursor:pointer; font-weight:600; border: 1.5px solid #007aff; border-radius: 10px; padding: 10px 12px; background: rgba(0, 122, 255, 0.08);">
+<input type="checkbox" id="myAdminShowActionBtns" style="width:16px; height:16px; accent-color:#007aff; cursor:pointer;">
+顯示雪花 ❄️ 與核彈 ☢️ 按鈕
+</label>
+</div>
+
+<!-- 凍結時間選擇 -->
+<div class="input-label" style="margin-top:6px;">凍結時間選擇 (按下 ❄️ 後生效)</div>
 <select class="select-custom" id="freezeDurationSelect" onchange="toggleCustomFreezeInput()">
 <option value="10">10 分鐘 (預設)</option>
 <option value="20">20 分鐘</option>
@@ -476,14 +633,106 @@ font-size: 26px;
 <option value="perm">永久</option>
 <option value="custom">自訂分鐘數</option>
 </select>
-<input type="number" class="modal-input" id="customFreezeInput" placeholder="請輸入自訂分鐘數" style="display:none; margin-top:-6px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+<input type="number" class="modal-input" id="customFreezeInput" placeholder="請輸入自訂分鐘數" style="display:none; margin-top:-6px;" autocomplete="off">
 
-<button type="button" class="modal-btn confirm" style="width:100%; margin-top:12px;" onclick="saveProfile()">儲存設定</button>
+<button type="button" class="modal-btn confirm" style="width:100%; margin-top:16px;" onclick="saveProfile()">儲存設定</button>
+
 </div>
 </div>
 </div>
 
-<!-- 管理員收件箱頁面 -->
+<!-- 管理員修改成員設定頁面 -->
+<div class="app-view" id="viewAdminMember">
+<div class="header-bar">
+<button type="button" class="icon-btn" onclick="switchView('viewProfile')">❮ 返回</button>
+<span class="header-title-centered">成員權限與資料管理</span>
+<div class="header-btn-group">
+<button type="button" class="btn-freeze" onclick="freezeAccount()" title="凍結帳號">❄️</button>
+<button type="button" class="btn-nuclear" onclick="nuclearDestruct()" title="全域銷毀">☢️</button>
+</div>
+</div>
+<div class="profile-container">
+<div class="profile-input-group" style="margin-top:10px;">
+
+<div class="input-label">選擇成員:</div>
+<select class="select-custom" id="adminTargetUser" style="margin-bottom:4px;"></select>
+
+<p style="text-align:left; color:#ff9f0a; font-size:11px; margin-bottom:8px;" id="adminModalTip">⚠️ 提示：修改帳號將自動遷移訊息紀錄！</p>
+
+<!-- 1. 暱稱* -->
+<div class="input-label">暱稱*</div>
+<input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入暱稱" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+
+<!-- 2. 編號* -->
+<div class="input-label">編號*</div>
+<input type="number" class="modal-input" id="adminNewUserNum" placeholder="輸入成員編號" autocomplete="off">
+
+<!-- 3. 帳號* -->
+<div class="input-label">帳號*</div>
+<input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入登入帳號" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+
+<!-- 4. 密碼* -->
+<div class="input-label">密碼*</div>
+<div class="pw-wrapper">
+<input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入真實密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<button type="button" class="pw-toggle" onclick="togglePw('adminNewPassword', this)">
+<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+
+<!-- 5. 假密碼 -->
+<div class="input-label">假密碼</div>
+<div class="pw-wrapper">
+<input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入假密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<button type="button" class="pw-toggle" onclick="togglePw('adminNewFakePassword', this)">
+<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+
+<!-- 6. 解凍密碼 -->
+<div class="input-label">解凍密碼</div>
+<div class="pw-wrapper">
+<input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入解凍密碼" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<button type="button" class="pw-toggle" onclick="togglePw('adminNewUnfreezePassword', this)">
+<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+
+<!-- 7. 短碼 -->
+<div class="input-label">短碼</div>
+<div class="pw-wrapper">
+<input type="password" class="modal-input" id="adminNewUnlockCode" placeholder="輸入短碼 (預設 200011)" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<button type="button" class="pw-toggle" onclick="togglePw('adminNewUnlockCode', this)">
+<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+
+<!-- 8. 聊天室存取權限 -->
+<div class="input-label">聊天室存取權限 (打勾代表可看見):</div>
+<div id="adminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#14151a; border:1px solid #353844; border-radius:12px; padding:10px; max-height:150px; overflow-y:auto; text-align:left;"></div>
+
+<!-- 9. 顯示雪花與核彈按鈕 -->
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#007aff; cursor:pointer; font-weight:600; border: 1.5px solid #007aff; border-radius: 10px; padding: 10px 12px; background: rgba(0, 122, 255, 0.08);">
+<input type="checkbox" id="adminShowActionBtns" style="width:16px; height:16px; accent-color:#007aff; cursor:pointer;">
+顯示雪花 ❄️ 與核彈 ☢️ 按鈕
+</label>
+
+<!-- 封鎖成員 -->
+<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#ff3b30; cursor:pointer; font-weight:600; border: 1.5px solid #ff3b30; border-radius: 10px; padding: 10px 12px; background: rgba(255, 59, 48, 0.08);">
+<input type="checkbox" id="adminIsBlocked" style="width:16px; height:16px; accent-color:#ff3b30; cursor:pointer;">
+封鎖此成員 (強制登出並禁止登入)
+</label>
+
+<!-- 按鈕組 -->
+<div class="modal-btn-group" style="margin-top:10px;">
+<button type="button" class="modal-btn danger" id="adminDeleteBtn" onclick="promptDeleteUser()">刪除成員</button>
+<button type="button" class="modal-btn confirm" id="adminSubmitBtn" onclick="submitAdminReset()">儲存設定</button>
+</div>
+
+</div>
+</div>
+</div>
+
 <div class="app-view" id="viewInbox">
 <div class="header-bar">
 <button type="button" class="icon-btn" onclick="switchView('viewProfile')">❮ 返回</button>
@@ -501,7 +750,6 @@ font-size: 26px;
 
 </div>
 
-<!-- 伺服器維護設定彈窗 -->
 <div class="modal-overlay" id="maintSettingModal">
 <div class="modal-box" style="background:#17181c; border:1px solid #353844; max-width:360px;">
 <h3>🛠️ 伺服器維護設定</h3>
@@ -543,20 +791,18 @@ font-size: 26px;
 </div>
 </div>
 
-<!-- 訊息選項彈窗 Action Sheet -->
-<div class="modal-overlay" id="msgActionModal" onclick="closeMsgActionModal(event)">
+<!-- 對訊息動作之選單彈窗 -->
+<div class="msg-action-overlay" id="msgActionModal" onclick="closeMsgActionModal(event)">
 <div class="action-sheet-box" id="actionSheetBox">
-<button type="button" class="action-sheet-btn" onclick="executeMsgReply()">💬 回覆此訊息</button>
-<button type="button" class="action-sheet-btn" onclick="executeMsgCopy()">📋 複製</button>
-<button type="button" class="action-sheet-btn" id="actionEditBtn" onclick="openEditMsgModal()">✏️ 更改訊息</button>
-<button type="button" class="action-sheet-btn" id="actionDownloadBtn" onclick="executeMsgDownload()">📥 下載圖片/GIF</button>
-<button type="button" class="action-sheet-btn" id="actionRecallBtn" onclick="executeMsgRecall()">↩️ 收回</button>
-<button type="button" class="action-sheet-btn danger" onclick="executeMsgDeleteForMe()">🗑️ 刪除 (僅自己看不到)</button>
-<button type="button" class="action-sheet-btn cancel" style="background:#2e313c; color:#a5a9b8; margin-top:4px;" onclick="closeMsgActionModal()">取消</button>
+<button type="button" class="action-sheet-btn" onclick="executeMsgReply()"><span class="btn-icon">↩️</span><span>回覆</span></button>
+<button type="button" class="action-sheet-btn" onclick="executeMsgCopy()"><span class="btn-icon">📋</span><span>複製</span></button>
+<button type="button" class="action-sheet-btn" id="actionEditBtn" onclick="openEditMsgModal()"><span class="btn-icon">✏️</span><span>編輯</span></button>
+<button type="button" class="action-sheet-btn" id="actionDownloadBtn" onclick="executeMsgDownload()"><span class="btn-icon">📥</span><span>下載</span></button>
+<button type="button" class="action-sheet-btn" id="actionRecallBtn" onclick="executeMsgRecall()"><span class="btn-icon">💬</span><span>收回</span></button>
+<button type="button" class="action-sheet-btn danger" onclick="executeMsgDeleteForMe()"><span class="btn-icon">🗑️</span><span>刪除</span></button>
 </div>
 </div>
 
-<!-- 修改訊息內容彈窗 -->
 <div class="modal-overlay" id="editMsgModal">
 <div class="modal-box">
 <h3>✏️ 更改訊息內文</h3>
@@ -568,7 +814,26 @@ font-size: 26px;
 </div>
 </div>
 
-<!-- 一般成員回報信件彈窗 -->
+<div class="modal-overlay" id="renameGroupModal" style="z-index:1100;">
+<div class="modal-box">
+<h3>✏️ 修改群組名稱</h3>
+<input type="text" class="modal-input" id="newGroupNameInput" placeholder="輸入新群組名稱" style="margin-top:12px;" autocomplete="off">
+<div class="modal-btn-group">
+<button type="button" class="modal-btn cancel" onclick="document.getElementById('renameGroupModal').style.display='none'">取消</button>
+<button type="button" class="modal-btn confirm" onclick="submitRenameGroup()">確定</button>
+</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="reportDetailModal" style="z-index:1100;">
+<div class="modal-box" style="text-align:left;">
+<h3 id="reportDetailTitle" style="color:#ff9f0a; margin-bottom:8px;">✉️ 信件內容</h3>
+<p id="reportDetailTime" style="color:#8a8d9b; font-size:12px; margin-bottom:12px;"></p>
+<div id="reportDetailBody" style="background:#17181c; border:1px solid #353844; border-radius:12px; padding:14px; font-size:14px; color:#fff; white-space:pre-wrap; word-break:break-word; max-height:220px; overflow-y:auto; margin-bottom:16px;"></div>
+<button type="button" class="modal-btn confirm" style="width:100%;" onclick="document.getElementById('reportDetailModal').style.display='none'">關閉</button>
+</div>
+</div>
+
 <div class="modal-overlay" id="userReportModal">
 <div class="modal-box">
 <h3>✉️ 回報錯誤 / 意見反應</h3>
@@ -582,7 +847,6 @@ font-size: 26px;
 </div>
 </div>
 
-<!-- 清空收件箱確認彈窗 -->
 <div class="modal-overlay" id="confirmClearInboxModal">
 <div class="modal-box">
 <h3>🗑️ 清空信箱確認</h3>
@@ -594,87 +858,13 @@ font-size: 26px;
 </div>
 </div>
 
-<!-- 刪除成員確認彈窗 -->
-<div class="modal-overlay" id="confirmDeleteUserModal">
+<div class="modal-overlay" id="confirmDeleteUserModal" style="z-index: 1200;">
 <div class="modal-box">
 <h3>⚠️ 刪除成員確認</h3>
 <p id="deleteUserConfirmText">確定要永久刪除此成員嗎？</p>
 <div class="modal-btn-group">
 <button type="button" class="modal-btn cancel" onclick="document.getElementById('confirmDeleteUserModal').style.display = 'none';">取消</button>
 <button type="button" class="modal-btn danger" onclick="executeDeleteUser()">確定刪除</button>
-</div>
-</div>
-</div>
-
-<!-- 管理員彈窗 -->
-<div class="modal-overlay" id="adminModal" style="background: #000; backdrop-filter: none;">
-<div class="modal-box">
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; width:100%;">
-<button type="button" class="icon-btn" onclick="closeAdminModal()" style="padding:0; font-size:15px; font-weight:600;">❮ 返回</button>
-<h3 id="adminModalTitle" style="font-size:16px; margin:0;">⚙️ 修改成員資料</h3>
-<div style="width:48px;"></div>
-</div>
-
-<p style="text-align:left; color:#ff9f0a; font-size:12px; margin-bottom:8px;" id="adminModalTip">⚠️ 提示：修改帳號將自動遷移訊息紀錄！</p>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">選擇成員:</div>
-<select class="select-custom" id="adminTargetUser" style="margin-bottom:12px;">
-</select>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">成員編號 (必填):</div>
-<input type="number" class="modal-input" id="adminNewUserNum" placeholder="輸入成員編號" style="margin-bottom:8px;" autocomplete="off">
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">帳號狀態 (封鎖):</div>
-<label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#ff3b30; margin-bottom:12px; cursor:pointer; font-weight:600; border: 1.5px solid #ff3b30; border-radius: 10px; padding: 10px 12px; background: rgba(255, 59, 48, 0.08);">
-<input type="checkbox" id="adminIsBlocked" style="width:18px; height:18px; accent-color:#ff3b30; cursor:pointer;">
-封鎖此成員 (強制登出並禁止登入)
-</label>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">聊天室存取權限 (打勾代表可看見):</div>
-<div id="adminChannelAccess" style="display:flex; flex-direction:column; gap:8px; background:#17181c; border:1px solid #353844; border-radius:12px; padding:12px; margin-bottom:14px; max-height:150px; overflow-y:auto; text-align:left;">
-</div>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">登入帳號 (必填):</div>
-<input type="text" class="modal-input" id="adminNewUsername" placeholder="輸入登入帳號" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">顯示名稱 / 姓名 (必填):</div>
-<input type="text" class="modal-input" id="adminNewNickname" placeholder="輸入顯示名稱" style="margin-bottom:8px;" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">真實密碼 (必填):</div>
-<div class="pw-wrapper" style="margin-bottom:8px;">
-<input type="password" class="modal-input" id="adminNewPassword" placeholder="輸入真實密碼" style="margin-bottom:0;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-<button type="button" class="pw-toggle" onclick="togglePw('adminNewPassword', this)">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-</button>
-</div>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">假密碼 (可留空):</div>
-<div class="pw-wrapper" style="margin-bottom:8px;">
-<input type="password" class="modal-input" id="adminNewFakePassword" placeholder="輸入假密碼" style="margin-bottom:0;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-<button type="button" class="pw-toggle" onclick="togglePw('adminNewFakePassword', this)">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-</button>
-</div>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">解鎖短碼 (預設 200011):</div>
-<div class="pw-wrapper" style="margin-bottom:8px;">
-<input type="password" class="modal-input" id="adminNewUnlockCode" placeholder="輸入解鎖短碼" style="margin-bottom:0;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-<button type="button" class="pw-toggle" onclick="togglePw('adminNewUnlockCode', this)">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-</button>
-</div>
-
-<div style="text-align:left; font-size:12px; color:#8a8d9b; margin-bottom:4px;">解凍密碼 (可留空):</div>
-<div class="pw-wrapper" style="margin-bottom:14px;">
-<input type="password" class="modal-input" id="adminNewUnfreezePassword" placeholder="輸入解凍密碼" style="margin-bottom:0;" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
-<button type="button" class="pw-toggle" onclick="togglePw('adminNewUnfreezePassword', this)">
-<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-</button>
-</div>
-
-<div class="modal-btn-group">
-<button type="button" class="modal-btn danger" id="adminDeleteBtn" onclick="promptDeleteUser()">刪除此成員</button>
-<button type="button" class="modal-btn confirm" id="adminSubmitBtn" onclick="submitAdminReset()">確認更新</button>
 </div>
 </div>
 </div>
@@ -713,7 +903,6 @@ font-size: 26px;
 </div>
 </div>
 
-<!-- 具備縮放與拖移功能之 Lightbox -->
 <div class="lightbox-modal" id="lightboxModal">
 <div class="lightbox-controls">
 <button type="button" class="lightbox-btn" onclick="zoomLightboxImage(0.25)">➕</button>
@@ -730,7 +919,7 @@ font-size: 26px;
 <div class="modal-box" style="background: transparent; border: none; box-shadow: none; display: flex; flex-direction: column; align-items: center;">
 <h3 style="margin-bottom:20px; color:#fff;">系統已鎖定</h3>
 <div class="pw-wrapper" style="margin-bottom: 20px; width: 100%;">
-<input type="password" class="modal-input" id="unlockCodeInput" placeholder="輸入暗號解鎖" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
+<input type="password" class="modal-input" id="unlockCodeInput" placeholder="輸入短碼解鎖" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true">
 <button type="button" class="pw-toggle" onclick="togglePw('unlockCodeInput', this)">
 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 </button>
@@ -756,10 +945,13 @@ let isNewCalc = false;
 let cropperInstance = null;
 let isDecoyMode = false;
 let isCurrentlyInMaintenance = false;
+let groupTitleCache = '學術研究討論會';
 
-// 訊息選單與回覆全域變數
 let selectedMsg = null;
 let replyingToMsg = null;
+
+let replyJumpMode = localStorage.getItem('replyJumpMode') || 'instant';
+let bottomJumpMode = localStorage.getItem('bottomJumpMode') || 'smooth';
 
 const iconEyeOpen = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
 const iconEyeClosed = `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
@@ -793,7 +985,7 @@ dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 function getUserNum(u) {
 if (!u) return 0;
 if (u.user_num !== undefined && u.user_num !== null && !isNaN(u.user_num)) return Number(u.user_num);
-if (u.is_admin === true || u.role === 'admin') return 1;
+if (u.is_admin === true) return 1;
 if (u.id !== undefined && !isNaN(u.id) && Number(u.id) >= 1 && Number(u.id) <= 5) return Number(u.id);
 const m = String(u.username || '').match(/^user([1-5])$/i);
 if (m) return Number(m[1]);
@@ -819,6 +1011,38 @@ if (u.nickname && u.nickname.trim() !== '') return u.nickname;
 const num = getUserNum(u);
 if (num > 0) return `成員${num}`;
 return u.username || '未知';
+}
+
+function canUserShowActionBtns(u) {
+if (!u) return true;
+if (!Array.isArray(u.accessible_channels)) return true;
+return u.accessible_channels.includes('ENABLE_ACTION_BTNS');
+}
+
+function applyActionButtonsVisibility() {
+const show = canUserShowActionBtns(currentUser);
+const btnFreezes = document.querySelectorAll('.btn-freeze');
+const btnNuclears = document.querySelectorAll('.btn-nuclear');
+const bottomBar = document.getElementById('bottomActionBar');
+
+btnFreezes.forEach(b => b.style.display = show ? 'flex' : 'none');
+btnNuclears.forEach(b => b.style.display = show ? 'flex' : 'none');
+if (bottomBar) bottomBar.style.display = show ? 'flex' : 'none';
+}
+
+function getLastSeenText(lastSeenStr) {
+if (!lastSeenStr) return '';
+const diffMs = Date.now() - new Date(lastSeenStr).getTime();
+if (isNaN(diffMs) || diffMs < 0) return '';
+const diffMin = Math.floor(diffMs / 60000);
+if (diffMin < 60) {
+return `${Math.max(1, diffMin)}分鐘前`;
+}
+const diffHours = Math.floor(diffMin / 60);
+if (diffHours < 24) {
+return `${diffHours}小時前`;
+}
+return '';
 }
 
 function showAlgebraPage() { document.getElementById('calculatorApp').style.display = 'none'; document.getElementById('algebraPage').style.display = 'flex'; }
@@ -866,9 +1090,9 @@ function appendPercent() { try { let val = parseFloat(expression); if (!isNaN(va
 function appendDecimal() { if (isNewCalc) { expression = '0.'; isNewCalc = false; } else if (!expression.includes('.')) expression += '.'; updateDisplay(); }
 function toggleParentheses() {
 if (isNewCalc) { expression = '('; isNewCalc = false; }
-else { 
-const op = (expression.match(/\(/g)||[]).length, cl = (expression.match(/\)/g)||[]).length; 
-expression += (op > cl && !['＋','－','×','÷','('].includes(expression.slice(-1))) ? ')' : '('; 
+else {
+const op = (expression.match(/\(/g)||[]).length, cl = (expression.match(/\)/g)||[]).length;
+expression += (op > cl && !['＋','－','×','÷','('].includes(expression.slice(-1))) ? ')' : '(';
 }
 updateDisplay();
 }
@@ -897,8 +1121,8 @@ document.getElementById('courseCodeInput').value = '';
 document.getElementById('usernameInput').value = '';
 document.getElementById('userPasswordInput').value = '';
 }
-function closeAuthModal() { 
-document.getElementById('authModal').style.display = 'none'; 
+function closeAuthModal() {
+document.getElementById('authModal').style.display = 'none';
 }
 function backToStage1() { document.getElementById('stage2Box').style.display = 'none'; document.getElementById('stage1Box').style.display = 'block'; }
 
@@ -919,7 +1143,6 @@ loginBtn.innerHTML = `<span class="spinner-sm"></span> 登入中...`;
 const un = document.getElementById('usernameInput').value.trim();
 const pwd = document.getElementById('userPasswordInput').value.trim();
 
-// 核心功能修復：電腦版就算輸入真實密碼，也一律強制只能進入代數計算頁面！
 const isDesktop = !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2));
 if (isDesktop) {
 isDecoyMode = true;
@@ -929,16 +1152,16 @@ loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
 return;
 }
 
-if (isDecoyMode) { 
-showToast("驗證失敗，請重置網頁。"); 
+if (isDecoyMode) {
+showToast("驗證失敗，請重置網頁。");
 loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
-return; 
+return;
 }
 if (!dbClient) initSupabase();
-if (!dbClient) { 
-showToast("無法連線至資料庫，請檢查網路連線。"); 
+if (!dbClient) {
+showToast("無法連線至資料庫，請檢查網路連線。");
 loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
-return; 
+return;
 }
 
 try {
@@ -971,7 +1194,7 @@ isValidLogin = true;
 } else if (user.decoy_password && pwd === user.decoy_password) {
 isDecoyLogin = true;
 } else {
-showToast("帳號處於凍結狀態，無法登入！"); 
+showToast("帳號處於凍結狀態，無法登入！");
 loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
 return;
 }
@@ -981,7 +1204,7 @@ isValidLogin = true;
 } else if (user.decoy_password && pwd === user.decoy_password) {
 isDecoyLogin = true;
 } else {
-showToast("密碼不正確"); 
+showToast("密碼不正確");
 loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
 return;
 }
@@ -996,13 +1219,18 @@ return;
 const { data: sysConfig } = await dbClient.from('users').select('*').eq('username', 'SYSTEM_CONFIG').single();
 let isMaintActive = false;
 
-if (sysConfig && sysConfig.is_blocked && getUserNum(user) !== 1) {
+if (sysConfig) {
+if (sysConfig.unlock_code && sysConfig.unlock_code.trim() !== '') {
+groupTitleCache = sysConfig.unlock_code;
+}
+if (sysConfig.is_blocked && getUserNum(user) !== 1) {
 if (sysConfig.nickname === 'INDEFINITE') {
 isMaintActive = true;
 } else if (sysConfig.nickname) {
 const maintEnd = new Date(sysConfig.nickname).getTime();
 if (!isNaN(maintEnd) && new Date().getTime() < maintEnd) {
 isMaintActive = true;
+}
 }
 }
 }
@@ -1020,7 +1248,7 @@ return;
 }
 
 if (isDecoyLogin) {
-isDecoyMode = true; closeAuthModal(); showAlgebraPage(); 
+isDecoyMode = true; closeAuthModal(); showAlgebraPage();
 loginBtn.disabled = false; loginBtn.innerHTML = originalBtnText;
 return;
 }
@@ -1039,9 +1267,51 @@ loginBtn.innerHTML = originalBtnText;
 }
 }
 
+function renderMyAdminChannelAccess() {
+const div = document.getElementById('myAdminChannelAccess');
+if (!div || !currentUser) return;
+div.innerHTML = '';
+let allowed = getDefaultChannels(currentUser);
+
+div.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#fff; cursor:pointer;">
+<input type="checkbox" class="my-admin-ch-cb" value="group_1234" ${allowed.includes('group_1234') ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
+${groupTitleCache} (群組) </label>`;
+
+allUsers.forEach(u => {
+if (u.username === currentUser.username || u.username === 'SYSTEM_CONFIG' || getUserNum(u) === 999) return;
+const isChecked = allowed.includes(u.username);
+div.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#fff; cursor:pointer;">
+<input type="checkbox" class="my-admin-ch-cb" value="${u.username}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
+[${getUserNum(u)}] ${getNickname(u)} (${u.username})
+</label>`;
+});
+}
+
+function toggleReplyMode() {
+replyJumpMode = (replyJumpMode === 'instant') ? 'smooth' : 'instant';
+localStorage.setItem('replyJumpMode', replyJumpMode);
+updateModeButtons();
+}
+
+function toggleBottomMode() {
+bottomJumpMode = (bottomJumpMode === 'smooth') ? 'instant' : 'smooth';
+localStorage.setItem('bottomJumpMode', bottomJumpMode);
+updateModeButtons();
+}
+
+function updateModeButtons() {
+const btnReply = document.getElementById('btnToggleReplyMode');
+const btnBottom = document.getElementById('btnToggleBottomMode');
+if (btnReply) btnReply.innerText = (replyJumpMode === 'instant') ? '跳轉' : '滑動';
+if (btnBottom) btnBottom.innerText = (bottomJumpMode === 'instant') ? '跳轉' : '滑動';
+}
+
 function switchView(viewId) {
 document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
 document.getElementById(viewId).classList.add('active');
+
+applyActionButtonsVisibility();
+updateModeButtons();
 
 if (viewId === 'viewChatList') {
 renderChannels();
@@ -1056,39 +1326,47 @@ document.getElementById('editUnfreezePassword').value = currentUser.unfreeze_pas
 
 ['editPassword','editFakePassword','editUnlockCode','editUnfreezePassword'].forEach(id => {
 const el = document.getElementById(id);
+if (el) {
 el.type = 'password';
 const btn = el.nextElementSibling;
-if(btn) btn.innerHTML = iconEyeOpen;
+if (btn) btn.innerHTML = iconEyeOpen;
+}
 });
 
 const isUserAdmin = (getUserNum(currentUser) === 1);
-const userInp = document.getElementById('editUsername');
-const nickInp = document.getElementById('editNickname');
-const numInp = document.getElementById('editUserNum');
+const userNumBox = document.getElementById('editUserNumBox');
 const mailBtn = document.getElementById('mailBtn');
+const adminMemberBtn = document.getElementById('adminMemberBtn');
 
 if (isUserAdmin) {
-userInp.disabled = false; userInp.style.color = '#fff'; userInp.style.background = '#17181c';
-nickInp.disabled = false; nickInp.style.color = '#fff'; nickInp.style.background = '#17181c';
-numInp.disabled = false; numInp.style.color = '#fff'; numInp.style.background = '#17181c';
-document.getElementById('adminBtn').style.display = 'flex';
+if (userNumBox) userNumBox.style.display = 'flex';
 document.getElementById('maintSettingBtn').style.display = 'flex';
+if (adminMemberBtn) adminMemberBtn.style.display = 'flex';
 if (mailBtn) mailBtn.innerText = '📬';
 } else {
-userInp.disabled = true; userInp.style.color = '#616472'; userInp.style.background = '#14151a';
-nickInp.disabled = true; nickInp.style.color = '#616472'; nickInp.style.background = '#14151a';
-numInp.disabled = true; numInp.style.color = '#616472'; numInp.style.background = '#14151a';
-document.getElementById('adminBtn').style.display = 'none';
+if (userNumBox) userNumBox.style.display = 'none';
 document.getElementById('maintSettingBtn').style.display = 'none';
+if (adminMemberBtn) adminMemberBtn.style.display = 'none';
 if (mailBtn) mailBtn.innerText = '✉️';
 }
 renderProfileAvatar();
+} else if (viewId === 'viewOtherSettings') {
+const isUserAdmin = (getUserNum(currentUser) === 1);
+const myAdminBox = document.getElementById('myAdminChannelAccessBox');
+if (isUserAdmin) {
+if (myAdminBox) myAdminBox.style.display = 'flex';
+renderMyAdminChannelAccess();
+document.getElementById('myAdminShowActionBtns').checked = canUserShowActionBtns(currentUser);
+} else {
+if (myAdminBox) myAdminBox.style.display = 'none';
+}
+} else if (viewId === 'viewAdminMember') {
+initAdminMemberBox();
 } else if (viewId === 'viewInbox') {
 loadInboxReports();
 }
 }
 
-/* === 🛠️ 物理慣性滾輪選單邏輯 === */
 const currentYear = new Date().getFullYear();
 
 function buildWheelColumn(colId, itemsList, isLoopable = false) {
@@ -1254,7 +1532,6 @@ pickerView.style.display = 'block';
 
 initPhysicsPickers();
 
-// 核心對齊需求：精確預設為「當下時刻 + 10 分鐘」的年、月、日、小時、分鐘、秒鐘！
 const targetTime = new Date(Date.now() + 10 * 60000);
 setTimeout(() => {
 setWheelSelectedValue('wheelYear', targetTime.getFullYear());
@@ -1318,7 +1595,6 @@ document.getElementById('maintenancePage').style.display = 'none';
 document.getElementById('calculatorApp').style.display = 'flex';
 }
 
-/* === ✉️/📬 信箱與回報系統 === */
 function handleMailBtnClick() {
 const isUserAdmin = (getUserNum(currentUser) === 1);
 if (isUserAdmin) {
@@ -1376,20 +1652,27 @@ return;
 container.innerHTML = '';
 data.forEach(msg => {
 const senderObj = allUsers.find(u => u.username === msg.sender);
+const senderName = getNickname(senderObj);
 const timeStr = new Date(msg.created_at).toLocaleString();
 
 const div = document.createElement('div');
 div.className = 'channel-item';
-div.style.flexDirection = 'column';
-div.style.alignItems = 'flex-start';
-div.style.gap = '6px';
-div.innerHTML = `
-<div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-<span style="color:#ff9f0a; font-weight:600; font-size:14px;">👤 ${getNickname(senderObj)} (${msg.sender})</span>
-<span style="color:#8a8d9b; font-size:11px;">${timeStr}</span>
+div.style.display = 'flex';
+div.style.alignItems = 'center';
+div.style.gap = '12px';
+div.innerHTML = `${getAvatarHtml(senderObj, 'avatar-mini')}
+<div class="channel-info" style="margin-left:0;">
+<div class="channel-name" style="font-size:15px;">［${senderName}］</div>
 </div>
-<div style="color:#fff; font-size:14px; line-height:1.4; word-break:break-word; white-space:pre-wrap;">${msg.content}</div>
-`;
+<span style="color:#8a8d9b; font-size:12px;">點擊查看 ›</span>`;
+
+div.onclick = () => {
+document.getElementById('reportDetailTitle').innerText = `✉️ 來自［${senderName}］的回報`;
+document.getElementById('reportDetailTime').innerText = `發送時間：${timeStr}`;
+document.getElementById('reportDetailBody').innerText = msg.content;
+document.getElementById('reportDetailModal').style.display = 'flex';
+};
+
 container.appendChild(div);
 });
 }
@@ -1436,17 +1719,33 @@ const newUserNum = document.getElementById('editUserNum').value.trim();
 const newPwd = document.getElementById('editPassword').value.trim();
 
 if (!newUn) { showToast("【帳號】為必填項目！"); return; }
-if (!newNick) { showToast("【顯示名稱 / 姓名】為必填項目！"); return; }
-if (!newPwd) { showToast("【真實密碼】為必填項目！"); return; }
-if (!newUserNum || isNaN(newUserNum)) { showToast("【成員編號】為必填項目！"); return; }
+if (!newNick) { showToast("【暱稱】為必填項目！"); return; }
+if (!newPwd) { showToast("【密碼】為必填項目！"); return; }
+
+if (newUn !== oldUn && allUsers.some(u => u.username.toLowerCase() === newUn.toLowerCase())) {
+showToast(`帳號 "${newUn}" 已存在，請使用其他帳號！`);
+return;
+}
 
 let updates = {};
 
-if (isUserAdmin) {
 if (newUn !== oldUn) updates.username = newUn;
 if (newNick !== currentUser.nickname) updates.nickname = newNick;
+
+if (isUserAdmin) {
+if (!newUserNum || isNaN(newUserNum)) { showToast("【編號】為必填項目！"); return; }
 const parsedNum = parseInt(newUserNum);
 if (parsedNum !== getUserNum(currentUser)) updates.user_num = parsedNum;
+
+const myCbNodes = document.querySelectorAll('.my-admin-ch-cb');
+const myAccessibleChannels = [];
+myCbNodes.forEach(cb => {
+if (cb.checked) myAccessibleChannels.push(cb.value);
+});
+if (document.getElementById('myAdminShowActionBtns').checked) {
+myAccessibleChannels.push('ENABLE_ACTION_BTNS');
+}
+updates.accessible_channels = myAccessibleChannels;
 }
 
 if (newPwd !== currentUser.password) updates.password = newPwd;
@@ -1478,6 +1777,7 @@ Object.assign(currentUser, updates);
 showToast('設定已成功儲存！');
 await fetchAllUsers();
 renderProfileAvatar();
+applyActionButtonsVisibility();
 switchView('viewChatList');
 }
 
@@ -1508,7 +1808,7 @@ try {
 const { data, error } = await dbClient.from('users').select('*');
 if (error) return;
 if (data) {
-allUsers = data.filter(u => u.username !== 'SYSTEM_CONFIG' && u.username !== '__SYSTEM_CONFIG__' && getUserNum(u) !== 999).sort((a, b) => {
+allUsers = data.filter(u => u.username !== 'SYSTEM_CONFIG' && getUserNum(u) !== 999).sort((a, b) => {
 const numA = getUserNum(a);
 const numB = getUserNum(b);
 if (numA > 0 && numB > 0) return numA - numB;
@@ -1517,6 +1817,11 @@ const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
 if (timeA > 0 && timeB > 0) return timeA - timeB;
 return String(a.id || '').localeCompare(String(b.id || ''));
 });
+
+const sysConf = data.find(u => u.username === 'SYSTEM_CONFIG');
+if (sysConf && sysConf.unlock_code) {
+groupTitleCache = sysConf.unlock_code;
+}
 
 if (currentUser) {
 const updatedMe = allUsers.find(u =>
@@ -1530,7 +1835,9 @@ if (updatedMe) currentUser = updatedMe;
 }
 
 function getDefaultChannels(u) {
-if (Array.isArray(u.accessible_channels)) return [...u.accessible_channels];
+if (Array.isArray(u.accessible_channels)) {
+return u.accessible_channels.filter(c => c !== 'ENABLE_ACTION_BTNS');
+}
 let allowed = [];
 const num = getUserNum(u);
 if (num === 1) {
@@ -1562,12 +1869,20 @@ currentUser.last_read = lr;
 dbClient.from('users').update({ last_read: lr }).eq('username', currentUser.username).then();
 }
 
-function renderChannels() {
+async function renderChannels() {
 const channelList = document.getElementById('channelList');
+if (!channelList) return;
+
+let allMsgs = [];
+if (dbClient) {
+const { data } = await dbClient.from('messages').select('*').order('created_at', { ascending: false }).limit(200);
+if (data) allMsgs = data;
+}
+
 channelList.innerHTML = '';
 
 let potentialChannels = [];
-potentialChannels.push({ type: 'group', target: 'group_1234', title: '學術研究討論會' });
+potentialChannels.push({ type: 'group', target: 'group_1234', title: groupTitleCache });
 allUsers.forEach(u => {
 if (u.username !== currentUser.username) {
 potentialChannels.push({
@@ -1586,23 +1901,177 @@ channels.forEach(ch => {
 const li = document.createElement('li');
 li.className = 'channel-item';
 const targetObj = ch.type === 'private' ? allUsers.find(u => u.username === ch.target) : null;
-li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(targetObj) : '<div class="avatar-img">👥</div>'}<div class="channel-info"><div class="channel-name">${ch.title}</div></div>`;
-li.onclick = () => {
+const chId = getChannelId(ch);
+const lastReadTime = currentUser.last_read?.[chId] ? new Date(currentUser.last_read[chId]).getTime() : 0;
+
+let hasUnread = false;
+let hasMention = false;
+
+const chMsgs = allMsgs.filter(m => {
+if (m.deleted_by && Array.isArray(m.deleted_by) && m.deleted_by.includes(currentUser.username)) return false;
+if (ch.type === 'group') return m.target_id === 'group_1234';
+return (m.sender === currentUser.username && m.target_id === ch.target) || (m.sender === ch.target && m.target_id === currentUser.username);
+});
+
+chMsgs.forEach(m => {
+if (m.sender !== currentUser.username && new Date(m.created_at).getTime() > lastReadTime) {
+hasUnread = true;
+const myNick = getNickname(currentUser);
+if (m.content && (m.content.includes(`@${myNick}`) || m.content.includes(`@${currentUser.username}`))) {
+hasMention = true;
+}
+}
+});
+
+let lastSeenSub = '';
+if (ch.type === 'private' && targetObj) {
+const lsText = getLastSeenText(targetObj.last_seen);
+if (lsText) {
+lastSeenSub = `<div style="font-size:12px; color:#8a8d9b; margin-top:2px;">${lsText}</div>`;
+}
+}
+
+let dotHtml = '';
+if (hasMention) {
+dotHtml = `<div class="unread-dot red" title="你已被標註"></div>`;
+} else if (hasUnread) {
+dotHtml = `<div class="unread-dot green" title="有新訊息"></div>`;
+}
+
+li.innerHTML = `${ch.type === 'private' ? getAvatarHtml(targetObj) : '<div class="avatar-img">👥</div>'}
+<div class="channel-info">
+<div class="channel-name">${ch.title}</div>
+${lastSeenSub}
+</div>
+${dotHtml}`;
+
+let pressTimer = null;
+let isLongPress = false;
+
+const startPress = () => {
+isLongPress = false;
+if (ch.type === 'group' && getUserNum(currentUser) === 1) {
+pressTimer = setTimeout(() => {
+isLongPress = true;
+openRenameGroupModal();
+}, 600);
+}
+};
+
+const cancelPress = () => {
+if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+};
+
+let isTouch = false;
+li.addEventListener('touchstart', (e) => {
+isTouch = true;
+startPress();
+}, { passive: true });
+
+li.addEventListener('touchend', () => {
+cancelPress();
+if (!isLongPress) openChannel(ch, targetObj);
+});
+li.addEventListener('touchmove', cancelPress, { passive: true });
+
+li.addEventListener('mousedown', () => {
+if (isTouch) { isTouch = false; return; }
+startPress();
+});
+li.addEventListener('mouseup', () => {
+if (isTouch) { isTouch = false; return; }
+cancelPress();
+if (!isLongPress) openChannel(ch, targetObj);
+});
+li.addEventListener('mouseleave', cancelPress);
+li.addEventListener('contextmenu', (e) => {
+if (ch.type === 'group' && getUserNum(currentUser) === 1) {
+e.preventDefault();
+openRenameGroupModal();
+}
+});
+
+channelList.appendChild(li);
+});
+}
+
+function openRenameGroupModal() {
+document.getElementById('newGroupNameInput').value = groupTitleCache;
+document.getElementById('renameGroupModal').style.display = 'flex';
+}
+
+async function submitRenameGroup() {
+const newName = document.getElementById('newGroupNameInput').value.trim();
+if (!newName) {
+showToast("群組名稱不能為空！");
+return;
+}
+if (!dbClient) return;
+
+const { data } = await dbClient.from('users').select('*').eq('username', 'SYSTEM_CONFIG').single();
+if (data) {
+await dbClient.from('users').update({ unlock_code: newName }).eq('username', 'SYSTEM_CONFIG');
+} else {
+await dbClient.from('users').insert([{
+username: 'SYSTEM_CONFIG',
+unlock_code: newName,
+password: 'none',
+user_num: 999,
+is_blocked: false,
+security_status: 'active'
+}]);
+}
+
+groupTitleCache = newName;
+document.getElementById('renameGroupModal').style.display = 'none';
+showToast("✅ 群組名稱已更新！");
+renderChannels();
+}
+
+function openChannel(ch, targetObj) {
 activeChannel = ch;
-document.getElementById('currentChannelTitle').innerText = ch.title;
+const titleWithSub = ch.type === 'private' && targetObj && getLastSeenText(targetObj.last_seen)
+? `${ch.title} <span style="font-size:12px; font-weight:normal; color:#8a8d9b; margin-left:6px;">(${getLastSeenText(targetObj.last_seen)})</span>`
+: ch.title;
+
+document.getElementById('currentChannelTitle').innerHTML = titleWithSub;
 switchView('viewChatRoom');
 updateMyReadStatus();
 loadMessages(true);
-};
-channelList.appendChild(li);
-});
+}
+
+function isUrlString(str) {
+if (!str || typeof str !== 'string') return false;
+const trimmed = str.trim();
+if (trimmed.startsWith('data:image/') || trimmed === 'MSG_RECALLED') return false;
+const urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)([\w-.,@?^=%&:/~+#]*[\w-@?^=%&/~+#])?$/i;
+return urlPattern.test(trimmed);
+}
+
+function handleChatScroll() {
+const container = document.getElementById('chatMessages');
+const btn = document.getElementById('scrollToBottomBtn');
+if (!container || !btn) return;
+const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+if (distanceToBottom > 220) {
+btn.style.display = 'flex';
+} else {
+btn.style.display = 'none';
+}
+}
+
+function scrollToBottom() {
+const container = document.getElementById('chatMessages');
+if (container) {
+container.scrollTo({ top: container.scrollHeight, behavior: bottomJumpMode });
+}
 }
 
 async function loadMessages(showLoading = false) {
 if (!dbClient || !activeChannel) return;
 const container = document.getElementById('chatMessages');
 
-const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight <= 80;
+const isAtBottom = (container.scrollHeight - container.scrollTop - container.clientHeight) <= 40;
 
 if (showLoading) container.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#8a8d9b; gap:12px;"><div style="width:30px; height:30px; border:3px solid rgba(255,255,255,0.1); border-top:3px solid #ff9f0a; border-radius:50%; animation:spin 0.8s linear infinite;"></div><span>載入中...</span></div>`;
 
@@ -1641,7 +2110,6 @@ latestReadMap[lastSeenMsgId].push(u);
 
 container.innerHTML = '';
 msgs.forEach(m => {
-// 過濾僅自己刪除的訊息
 if (m.deleted_by && Array.isArray(m.deleted_by) && m.deleted_by.includes(currentUser.username)) {
 return;
 }
@@ -1649,32 +2117,61 @@ return;
 const isMe = m.sender === currentUser.username;
 const senderObj = allUsers.find(u => u.username === m.sender);
 const isImg = m.content && m.content.startsWith('data:image/');
-const isRecalled = m.content === '__MSG_RECALLED__';
+const isRecalled = m.content === 'MSG_RECALLED';
+const isUrl = isUrlString(m.content);
 
 let bubbleContent = '';
+let bubbleClass = isRecalled ? 'msg-bubble recalled-bubble' : 'msg-bubble';
 
 if (isRecalled) {
 bubbleContent = `<div class="msg-recalled">此訊息已收回</div>`;
 } else if (isImg) {
 bubbleContent = `<img src="${m.content}" id="img_node_${m.id}" style="max-width:100%; max-height:260px; border-radius:10px; display:block;">`;
+} else if (isUrl) {
+let displayUrl = m.content.trim();
+let fullUrl = /^https?:\/\//i.test(displayUrl) ? displayUrl : 'https://' + displayUrl;
+bubbleContent = `<a href="${fullUrl}" target="_blank" class="chat-link">${displayUrl}</a>`;
 } else {
 bubbleContent = m.content;
 }
 
-// 引用回覆顯示
+let replyHeaderHtml = '';
 let replyQuoteHtml = '';
 if (!isRecalled && m.reply_to_text) {
-replyQuoteHtml = `<div class="reply-quote-box">💬 ${m.reply_to_sender || '成員'}: ${m.reply_to_text}</div>`;
+const targetName = m.reply_to_sender || '成員';
+const myNick = getNickname(currentUser);
+const isReplyTargetMe = (targetName === myNick || m.reply_to_username === currentUser.username);
+
+let headerText = '';
+if (isMe) {
+headerText = `↩ 你回覆了 ${targetName}`;
+} else {
+const senderName = getNickname(senderObj);
+headerText = isReplyTargetMe ? `↩ ${senderName}已回覆你` : `↩ ${senderName}已回覆 ${targetName}`;
+}
+
+const escapedReplyText = (m.reply_to_text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+const replyToId = m.reply_to_id || '';
+
+replyHeaderHtml = `<div class="reply-header-tag">${headerText}</div>`;
+replyQuoteHtml = `<div class="reply-quote-box" onclick="scrollToMessage('${replyToId}', '${escapedReplyText}', event)">💬 ${targetName}: ${m.reply_to_text}</div>`;
 }
 
 const wrap = document.createElement('div');
 wrap.className = `msg-wrapper ${isMe ? 'me' : ''}`;
-wrap.innerHTML = isMe ? `${replyQuoteHtml}<div class="msg-bubble">${bubbleContent}</div>` : `<div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')} <span style="margin-left:4px;">${getNickname(senderObj)}</span></div>${replyQuoteHtml}<div class="msg-bubble">${bubbleContent}</div>`;
+wrap.id = `msg_box_${m.id}`;
+wrap.dataset.msgId = m.id;
+wrap.dataset.text = m.content || '';
 
-// 綁定訊息選單事件（文字點擊，圖片/GIF長按）
+wrap.innerHTML = isMe
+? `${replyHeaderHtml}${replyQuoteHtml}<div class="${bubbleClass}">${bubbleContent}</div>`
+: `<div class="msg-meta">${getAvatarHtml(senderObj, 'avatar-mini')}<span style="margin-left:4px;">${getNickname(senderObj)}</span></div>${replyHeaderHtml}${replyQuoteHtml}<div class="${bubbleClass}">${bubbleContent}</div>`;
+
 if (!isRecalled) {
 if (isImg) {
 setupImageInteraction(wrap, m);
+} else if (isUrl) {
+setupUrlInteraction(wrap, m.content, m);
 } else {
 wrap.onclick = () => openMsgActionModal(m);
 }
@@ -1694,13 +2191,49 @@ container.appendChild(wrap);
 if (showLoading || isAtBottom) {
 container.scrollTop = container.scrollHeight;
 }
+handleChatScroll();
 updateMyReadStatus();
 }
 
-/* === 🖼️ 圖片/GIF 長按選單與點擊 Lightbox === */
-function setupImageInteraction(wrapEl, msgObj) {
+function scrollToMessage(replyToId, replyToText, event) {
+if (event) event.stopPropagation();
+
+let targetEl = null;
+
+if (replyToId) {
+targetEl = document.getElementById('msg_box_' + replyToId);
+}
+
+if (!targetEl && replyToText) {
+const wrappers = Array.from(document.querySelectorAll('.msg-wrapper'));
+targetEl = wrappers.reverse().find(el => {
+return el.dataset.text === replyToText || (el.innerText && el.innerText.includes(replyToText));
+});
+}
+
+if (targetEl) {
+targetEl.scrollIntoView({ behavior: replyJumpMode, block: 'center' });
+
+const bubble = targetEl.querySelector('.msg-bubble');
+if (bubble) {
+bubble.classList.remove('shake-animation');
+void bubble.offsetWidth;
+bubble.classList.add('shake-animation');
+setTimeout(() => {
+bubble.classList.remove('shake-animation');
+}, 500);
+}
+} else {
+showToast("找不到原始訊息（可能已刪除）");
+}
+}
+
+function setupUrlInteraction(wrapEl, urlStr, msgObj) {
 let pressTimer = null;
 let isLongPress = false;
+let isTouch = false;
+
+const linkEl = wrapEl.querySelector('.chat-link');
 
 const startPress = () => {
 isLongPress = false;
@@ -1714,15 +2247,90 @@ const cancelPress = () => {
 if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
 };
 
-wrapEl.addEventListener('touchstart', startPress, { passive: true });
+if (linkEl) {
+linkEl.addEventListener('click', (e) => {
+e.preventDefault();
+e.stopPropagation();
+});
+}
+
+wrapEl.addEventListener('touchstart', () => {
+isTouch = true;
+startPress();
+}, { passive: true });
+
+wrapEl.addEventListener('touchend', (e) => {
+cancelPress();
+if (!isLongPress) {
+if (e.target.tagName === 'A') {
+let targetUrl = urlStr.trim();
+if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
+window.open(targetUrl, '_blank');
+} else {
+openMsgActionModal(msgObj);
+}
+}
+});
+wrapEl.addEventListener('touchmove', cancelPress, { passive: true });
+
+wrapEl.addEventListener('mousedown', (e) => {
+if (isTouch) { isTouch = false; return; }
+startPress();
+});
+wrapEl.addEventListener('mouseup', (e) => {
+if (isTouch) { isTouch = false; return; }
+cancelPress();
+if (!isLongPress) {
+if (e.target.tagName === 'A') {
+let targetUrl = urlStr.trim();
+if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
+window.open(targetUrl, '_blank');
+} else {
+openMsgActionModal(msgObj);
+}
+}
+});
+wrapEl.addEventListener('mouseleave', cancelPress);
+wrapEl.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+openMsgActionModal(msgObj);
+});
+}
+
+function setupImageInteraction(wrapEl, msgObj) {
+let pressTimer = null;
+let isLongPress = false;
+let isTouch = false;
+
+const startPress = () => {
+isLongPress = false;
+pressTimer = setTimeout(() => {
+isLongPress = true;
+openMsgActionModal(msgObj);
+}, 500);
+};
+
+const cancelPress = () => {
+if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+};
+
+wrapEl.addEventListener('touchstart', () => {
+isTouch = true;
+startPress();
+}, { passive: true });
+
 wrapEl.addEventListener('touchend', () => {
 cancelPress();
 if (!isLongPress) openLightbox(msgObj.content);
 });
 wrapEl.addEventListener('touchmove', cancelPress, { passive: true });
 
-wrapEl.addEventListener('mousedown', startPress);
+wrapEl.addEventListener('mousedown', () => {
+if (isTouch) { isTouch = false; return; }
+startPress();
+});
 wrapEl.addEventListener('mouseup', () => {
+if (isTouch) { isTouch = false; return; }
 cancelPress();
 if (!isLongPress) openLightbox(msgObj.content);
 });
@@ -1733,7 +2341,6 @@ openMsgActionModal(msgObj);
 });
 }
 
-/* === 💬 訊息選單功能 (Action Sheet) === */
 function openMsgActionModal(msg) {
 selectedMsg = msg;
 const isMe = msg.sender === currentUser.username;
@@ -1743,7 +2350,7 @@ document.getElementById('actionEditBtn').style.display = (isMe && !isImg) ? 'fle
 document.getElementById('actionDownloadBtn').style.display = isImg ? 'flex' : 'none';
 document.getElementById('actionRecallBtn').style.display = isMe ? 'flex' : 'none';
 
-document.getElementById('msgActionModal').style.display = 'flex';
+document.getElementById('msgActionModal').style.display = 'block';
 }
 
 function closeMsgActionModal(e) {
@@ -1823,7 +2430,7 @@ showToast("📥 圖片已開始下載！");
 async function executeMsgRecall() {
 closeMsgActionModal();
 if (!selectedMsg || !dbClient) return;
-const { error } = await dbClient.from('messages').update({ content: '__MSG_RECALLED__' }).eq('id', selectedMsg.id);
+const { error } = await dbClient.from('messages').update({ content: 'MSG_RECALLED' }).eq('id', selectedMsg.id);
 if (error) {
 showToast("收回失敗：" + error.message);
 } else {
@@ -1850,7 +2457,6 @@ loadMessages(false);
 }
 }
 
-/* === 👥 群組 @標註成員邏輯 === */
 function handleMsgInput(e) {
 const input = e.target;
 const val = input.value;
@@ -1870,9 +2476,9 @@ suggestionsBox.innerHTML = '';
 members.forEach(u => {
 const div = document.createElement('div');
 div.className = 'mention-item';
-div.innerHTML = `${getAvatarHtml(u, 'avatar-mini')} <span>${getNickname(u)} (@${u.username})</span>`;
+div.innerHTML = `${getAvatarHtml(u, 'avatar-mini')} <span>[${getUserNum(u)}] ${getNickname(u)} (${u.username})</span>`;
 div.onclick = () => {
-input.value = val.substring(0, atIndex) + `@${getNickname(u)} `;
+input.value = val.substring(0, atIndex) + `@${getNickname(u)}`;
 suggestionsBox.style.display = 'none';
 input.focus();
 };
@@ -1885,7 +2491,6 @@ return;
 suggestionsBox.style.display = 'none';
 }
 
-/* === 🚀 防止重複傳送 (轉圈圈 & 鎖定) === */
 async function sendMessage() {
 const input = document.getElementById('msgInput');
 const sendBtn = document.getElementById('sendBtn');
@@ -1907,7 +2512,9 @@ content: txt
 if (replyingToMsg) {
 const senderObj = allUsers.find(u => u.username === replyingToMsg.sender);
 payload.reply_to_sender = getNickname(senderObj);
+payload.reply_to_username = replyingToMsg.sender;
 payload.reply_to_text = replyingToMsg.content.startsWith('data:image/') ? '[圖片/GIF]' : replyingToMsg.content;
+payload.reply_to_id = replyingToMsg.id;
 cancelReply();
 }
 
@@ -1953,7 +2560,9 @@ content: contentStr
 if (replyingToMsg) {
 const senderObj = allUsers.find(u => u.username === replyingToMsg.sender);
 payload.reply_to_sender = getNickname(senderObj);
+payload.reply_to_username = replyingToMsg.sender;
 payload.reply_to_text = replyingToMsg.content.startsWith('data:image/') ? '[圖片/GIF]' : replyingToMsg.content;
+payload.reply_to_id = replyingToMsg.id;
 cancelReply();
 }
 
@@ -1988,7 +2597,6 @@ reader.readAsDataURL(file);
 event.target.value = '';
 }
 
-// 核心跳轉需求修改：雪花與核彈按鈕跳轉至麥當勞台灣官網，取消 about:blank
 async function freezeAccount() {
 if (!currentUser || !dbClient) { window.location.replace('https://www.mcdonalds.com/tw/zh-tw.html'); return; }
 const sel = document.getElementById('freezeDurationSelect').value;
@@ -2004,7 +2612,7 @@ if (dbClient) await dbClient.from('messages').delete().gte('created_at', '1970-0
 window.location.replace('https://www.mcdonalds.com/tw/zh-tw.html');
 }
 
-function openAdminModal() {
+function initAdminMemberBox() {
 const sel = document.getElementById('adminTargetUser');
 sel.innerHTML = '';
 
@@ -2014,10 +2622,11 @@ newOpt.textContent = '➕ 新增成員';
 sel.appendChild(newOpt);
 
 allUsers.forEach(u => {
-if (u.username !== 'SYSTEM_CONFIG' && u.username !== '__SYSTEM_CONFIG__' && getUserNum(u) !== 999 && getUserNum(u) !== getUserNum(currentUser)) {
+const num = getUserNum(u);
+if (u.username !== 'SYSTEM_CONFIG' && num !== 999 && num !== 1) {
 const opt = document.createElement('option');
 opt.value = u.username;
-opt.textContent = `${getNickname(u)} (編號: ${getUserNum(u)} / 帳號: ${u.username})`;
+opt.textContent = `[${num}] ${getNickname(u)}`;
 sel.appendChild(opt);
 }
 });
@@ -2030,12 +2639,6 @@ sel.selectedIndex = 0;
 
 sel.onchange = loadAdminUserSettings;
 loadAdminUserSettings();
-
-document.getElementById('adminModal').style.display = 'flex';
-}
-
-function closeAdminModal() { 
-document.getElementById('adminModal').style.display = 'none'; 
 }
 
 function loadAdminUserSettings() {
@@ -2052,14 +2655,12 @@ if(btn && btn.classList.contains('pw-toggle')) btn.innerHTML = iconEyeOpen;
 }
 });
 
-const titleEl = document.getElementById('adminModalTitle');
 const tipEl = document.getElementById('adminModalTip');
 const submitBtn = document.getElementById('adminSubmitBtn');
 const deleteBtn = document.getElementById('adminDeleteBtn');
 
 if (isNew) {
-titleEl.innerText = '➕ 新增成員資料';
-tipEl.innerText = '請填寫新成員必要資料（帳號、顯示名稱、真實密碼、編號為必填）。';
+tipEl.innerText = '請填寫新成員必要資料（暱稱、編號、帳號、密碼為必填）。';
 submitBtn.innerText = '確認新增';
 deleteBtn.style.display = 'none';
 
@@ -2071,12 +2672,12 @@ if (n > maxNum && n !== 999) maxNum = n;
 document.getElementById('adminNewUserNum').value = maxNum + 1;
 document.getElementById('adminNewUnlockCode').value = '200011';
 document.getElementById('adminIsBlocked').checked = false;
+document.getElementById('adminShowActionBtns').checked = true;
 
 renderChannelAccessCheckboxes(null, true);
 } else {
-titleEl.innerText = '⚙️ 修改成員資料';
 tipEl.innerText = '⚠ 提示：修改帳號將自動遷移訊息紀錄！';
-submitBtn.innerText = '確認更新';
+submitBtn.innerText = '儲存設定';
 deleteBtn.style.display = 'flex';
 
 const targetU = allUsers.find(u => u.username === targetUn);
@@ -2084,6 +2685,7 @@ if (!targetU) return;
 
 document.getElementById('adminNewUserNum').value = getUserNum(targetU) || '';
 document.getElementById('adminIsBlocked').checked = !!targetU.is_blocked;
+document.getElementById('adminShowActionBtns').checked = canUserShowActionBtns(targetU);
 document.getElementById('adminNewUsername').value = targetU.username;
 document.getElementById('adminNewNickname').value = getNickname(targetU);
 
@@ -2094,9 +2696,11 @@ document.getElementById('adminNewUnlockCode').value = targetU.unlock_code || '20
 
 ['adminNewPassword','adminNewFakePassword','adminNewUnfreezePassword','adminNewUnlockCode'].forEach(id => {
 const el = document.getElementById(id);
+if (el) {
 el.type = 'password';
 const btn = el.nextElementSibling;
-if(btn) btn.innerHTML = iconEyeOpen;
+if (btn) btn.innerHTML = iconEyeOpen;
+}
 });
 
 renderChannelAccessCheckboxes(targetU, false);
@@ -2105,7 +2709,7 @@ renderChannelAccessCheckboxes(targetU, false);
 
 function promptDeleteUser() {
 const targetUn = document.getElementById('adminTargetUser').value;
-if (targetUn === 'NEW_USER') return;
+if (targetUn === 'NEW_USER' || targetUn === currentUser.username) return;
 const targetU = allUsers.find(u => u.username === targetUn);
 if (!targetU) return;
 
@@ -2115,8 +2719,9 @@ document.getElementById('confirmDeleteUserModal').style.display = 'flex';
 
 async function executeDeleteUser() {
 const targetUn = document.getElementById('adminTargetUser').value;
-if (!dbClient || targetUn === 'NEW_USER') return;
+if (!dbClient || targetUn === 'NEW_USER' || targetUn === currentUser.username) return;
 
+try {
 const { error } = await dbClient.from('users').delete().eq('username', targetUn);
 if (error) {
 showToast("刪除失敗：" + error.message);
@@ -2124,9 +2729,11 @@ showToast("刪除失敗：" + error.message);
 await dbClient.from('messages').delete().eq('sender', targetUn);
 showToast("✅ 已成功刪除此成員！");
 document.getElementById('confirmDeleteUserModal').style.display = 'none';
-closeAdminModal();
 await fetchAllUsers();
-if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+switchView('viewProfile');
+}
+} catch(err) {
+showToast("刪除時發生錯誤：" + err.message);
 }
 }
 
@@ -2141,18 +2748,18 @@ allowed = ['group_1234', ...allUsers.map(u => u.username)];
 allowed = getDefaultChannels(targetU);
 }
 
-channelDiv.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#fff; cursor:pointer;">
+channelDiv.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#fff; cursor:pointer;">
 <input type="checkbox" class="admin-ch-cb" value="group_1234" ${allowed.includes('group_1234') ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
-學術研究討論會 (群組)
+${groupTitleCache} (群組)
 </label>`;
 
 allUsers.forEach(u => {
 if (!isNewUser && targetU && u.username === targetU.username) return;
-if (u.username === 'SYSTEM_CONFIG' || u.username === '__SYSTEM_CONFIG__' || getUserNum(u) === 999) return;
+if (u.username === 'SYSTEM_CONFIG' || getUserNum(u) === 999) return;
 const isChecked = allowed.includes(u.username);
-channelDiv.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:14px; color:#fff; cursor:pointer;">
+channelDiv.innerHTML += `<label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#fff; cursor:pointer;">
 <input type="checkbox" class="admin-ch-cb" value="${u.username}" ${isChecked ? 'checked' : ''} style="width:16px; height:16px; accent-color:#ff9f0a; cursor:pointer;">
-${getNickname(u)} (${u.username})
+[${getUserNum(u)}] ${getNickname(u)} (${u.username})
 </label>`;
 });
 }
@@ -2169,6 +2776,7 @@ const uc = document.getElementById('adminNewUnlockCode').value.trim();
 const upw = document.getElementById('adminNewUnfreezePassword').value.trim();
 const userNumVal = document.getElementById('adminNewUserNum').value.trim();
 const isBlocked = document.getElementById('adminIsBlocked').checked;
+const showActionBtns = document.getElementById('adminShowActionBtns').checked;
 
 const cbNodes = document.querySelectorAll('.admin-ch-cb');
 const accessibleChannels = [];
@@ -2176,17 +2784,21 @@ cbNodes.forEach(cb => {
 if (cb.checked) accessibleChannels.push(cb.value);
 });
 
-if (isNew) {
-if (!un) { showToast("請填寫【登入帳號】！"); return; }
-if (!nk) { showToast("請填寫【顯示名稱 / 姓名】！"); return; }
-if (!pw) { showToast("請填寫【真實密碼】！"); return; }
-if (!userNumVal || isNaN(userNumVal)) { showToast("請填寫正確的【成員編號】！"); return; }
+if (showActionBtns) {
+accessibleChannels.push('ENABLE_ACTION_BTNS');
+}
+
+if (!nk) { showToast("請填寫【暱稱】！"); return; }
+if (!userNumVal || isNaN(userNumVal)) { showToast("請填寫【編號】！"); return; }
+if (!un) { showToast("請填寫【帳號】！"); return; }
+if (!pw) { showToast("請填寫【密碼】！"); return; }
 
 if (fp && fp === pw) {
 showToast("安全提示：假密碼不可與真實密碼相同！");
 return;
 }
 
+if (isNew) {
 if (allUsers.some(u => u.username.toLowerCase() === un.toLowerCase())) {
 showToast(`帳號 "${un}" 已存在，請使用其他帳號！`);
 return;
@@ -2212,24 +2824,13 @@ showToast("新增成員失敗：" + error.message);
 } else {
 await syncVisibilitySymmetry(un, accessibleChannels);
 showToast(`✅ 成功新增成員【${nk}】！`);
-closeAdminModal();
 await fetchAllUsers();
-if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+switchView('viewProfile');
 }
 
 } else {
 const targetUserObj = allUsers.find(u => u.username === target);
 if (!targetUserObj) return;
-
-if (!un) { showToast("帳號不可為空！"); return; }
-if (!nk) { showToast("顯示名稱不可為空！"); return; }
-if (!userNumVal || isNaN(userNumVal)) { showToast("成員編號不可為空！"); return; }
-
-const effectivePw = pw || targetUserObj.password;
-if (fp && fp === effectivePw) {
-showToast("安全提示：假密碼不可與真實密碼相同！");
-return;
-}
 
 let updates = {
 username: un,
@@ -2254,17 +2855,28 @@ await dbClient.from('messages').update({ target_id: un }).eq('target_id', target
 }
 
 await syncVisibilitySymmetry(un, accessibleChannels);
+
+if (target === currentUser.username) {
+currentUser.accessible_channels = accessibleChannels;
+if (pw) currentUser.password = pw;
+if (fp) currentUser.decoy_password = fp;
+if (uc) currentUser.unlock_code = uc;
+if (upw) currentUser.unfreeze_password = upw;
+currentUser.nickname = nk;
+currentUser.user_num = parseInt(userNumVal);
+applyActionButtonsVisibility();
+}
+
 showToast("✅ 已成功更新該成員資料！");
-closeAdminModal();
 await fetchAllUsers();
-if (document.getElementById('viewChatList').classList.contains('active')) renderChannels();
+switchView('viewProfile');
 }
 }
 }
 
 async function syncVisibilitySymmetry(targetUsername, accessibleChannels) {
 for (let u of allUsers) {
-if (u.username === targetUsername || u.username === 'SYSTEM_CONFIG' || u.username === '__SYSTEM_CONFIG__') continue;
+if (u.username === targetUsername || u.username === 'SYSTEM_CONFIG') continue;
 
 let uChannels = getDefaultChannels(u);
 let changed = false;
@@ -2283,6 +2895,9 @@ changed = true;
 }
 
 if (changed) {
+if (canUserShowActionBtns(u)) {
+uChannels.push('ENABLE_ACTION_BTNS');
+}
 await dbClient.from('users').update({ accessible_channels: uChannels }).eq('username', u.username);
 }
 }
@@ -2293,7 +2908,7 @@ document.getElementById('avatarInput').click();
 }
 
 function handleAvatarSelected(event) {
-const file = event.target.files[0]; 
+const file = event.target.files[0];
 if (!file) return;
 const reader = new FileReader();
 reader.onload = function(e) {
@@ -2305,9 +2920,9 @@ cropperInstance = new Cropper(imgEl, { aspectRatio: 1, viewMode: 1, background: 
 reader.readAsDataURL(file); event.target.value = '';
 }
 function rotateCropImage() { if (cropperInstance) cropperInstance.rotate(90); }
-function closeCropModal() { 
-document.getElementById('cropModal').style.display = 'none'; 
-if (cropperInstance) cropperInstance.destroy(); 
+function closeCropModal() {
+document.getElementById('cropModal').style.display = 'none';
+if (cropperInstance) cropperInstance.destroy();
 }
 function confirmCrop() {
 if (!cropperInstance) return;
@@ -2317,7 +2932,6 @@ currentUser.avatar_url = base64Img; closeCropModal(); renderProfileAvatar(); fet
 });
 }
 
-/* === 🔍 Lightbox 圖片/GIF 縮放拖移功能 === */
 let lightboxScale = 1;
 function openLightbox(src) {
 const img = document.getElementById('lightboxImg');
@@ -2352,7 +2966,7 @@ else zoomLightboxImage(-0.2);
 }, { passive: false });
 
 function secureScreen() {
-const elsToHide = ['calculatorApp', 'algebraPage', 'chatApp', 'authModal', 'adminModal', 'cropModal', 'lightboxModal', 'maintenancePage', 'maintSettingModal', 'userReportModal', 'confirmClearInboxModal', 'confirmDeleteUserModal', 'msgActionModal', 'editMsgModal'];
+const elsToHide = ['calculatorApp', 'algebraPage', 'chatApp', 'authModal', 'cropModal', 'lightboxModal', 'maintenancePage', 'maintSettingModal', 'userReportModal', 'confirmClearInboxModal', 'confirmDeleteUserModal', 'msgActionModal', 'editMsgModal', 'renameGroupModal', 'reportDetailModal'];
 elsToHide.forEach(id => {
 const el = document.getElementById(id);
 if(el) el.style.visibility = 'hidden';
@@ -2366,7 +2980,7 @@ document.getElementById('lockMask').style.display = 'flex';
 
 function restoreScreen() {
 if (document.getElementById('lockMask').style.display !== 'flex') {
-const elsToRestore = ['calculatorApp', 'algebraPage', 'chatApp', 'authModal', 'adminModal', 'cropModal', 'lightboxModal', 'maintenancePage', 'maintSettingModal', 'userReportModal', 'confirmClearInboxModal', 'confirmDeleteUserModal', 'msgActionModal', 'editMsgModal'];
+const elsToRestore = ['calculatorApp', 'algebraPage', 'chatApp', 'authModal', 'cropModal', 'lightboxModal', 'maintenancePage', 'maintSettingModal', 'userReportModal', 'confirmClearInboxModal', 'confirmDeleteUserModal', 'msgActionModal', 'editMsgModal', 'renameGroupModal', 'reportDetailModal'];
 elsToRestore.forEach(id => {
 const el = document.getElementById(id);
 if(el) el.style.visibility = 'visible';
