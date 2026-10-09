@@ -756,7 +756,10 @@ font-size: 26px;
 
 <div id="maintActiveView" style="display:none; margin: 20px 0;">
 <p id="maintActiveText" style="color:#ff9f0a; font-size:15px; font-weight:600; line-height:1.6; white-space:pre-wrap;"></p>
-<button type="button" class="modal-btn" style="background:#ff3b30; color:#fff; width:100%; margin-top:20px;" onclick="disableMaintenanceMode()">結束維護</button>
+<div class="modal-btn-group" style="margin-top:20px;">
+<button type="button" class="modal-btn cancel" onclick="closeMaintSettingModal()">取消</button>
+<button type="button" class="modal-btn danger" onclick="disableMaintenanceMode()">結束維護</button>
+</div>
 </div>
 
 <div id="maintPickerView">
