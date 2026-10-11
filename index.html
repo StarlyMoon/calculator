@@ -1359,10 +1359,10 @@ const myAdminBox = document.getElementById('myAdminChannelAccessBox');
 if (isUserAdmin) {
 if (myAdminBox) myAdminBox.style.display = 'flex';
 renderMyAdminChannelAccess();
-document.getElementById('myAdminShowActionBtns').checked = canUserShowActionBtns(currentUser);
 } else {
 if (myAdminBox) myAdminBox.style.display = 'none';
 }
+document.getElementById('myAdminShowActionBtns').checked = canUserShowActionBtns(currentUser);
 } else if (viewId === 'viewAdminMember') {
 initAdminMemberBox();
 } else if (viewId === 'viewInbox') {
@@ -1735,21 +1735,31 @@ let updates = {};
 if (newUn !== oldUn) updates.username = newUn;
 if (newNick !== currentUser.nickname) updates.nickname = newNick;
 
+let myAccessibleChannels = [];
 if (isUserAdmin) {
 if (!newUserNum || isNaN(newUserNum)) { showToast("【編號】為必填項目！"); return; }
 const parsedNum = parseInt(newUserNum);
 if (parsedNum !== getUserNum(currentUser)) updates.user_num = parsedNum;
 
 const myCbNodes = document.querySelectorAll('.my-admin-ch-cb');
-const myAccessibleChannels = [];
 myCbNodes.forEach(cb => {
 if (cb.checked) myAccessibleChannels.push(cb.value);
 });
+} else {
+let currentAllowed = Array.isArray(currentUser.accessible_channels)
+? currentUser.accessible_channels.filter(c => c !== 'ENABLE_ACTION_BTNS')
+: getDefaultChannels(currentUser);
+myAccessibleChannels = [...currentAllowed];
+}
+
 if (document.getElementById('myAdminShowActionBtns').checked) {
+if (!myAccessibleChannels.includes('ENABLE_ACTION_BTNS')) {
 myAccessibleChannels.push('ENABLE_ACTION_BTNS');
 }
-updates.accessible_channels = myAccessibleChannels;
+} else {
+myAccessibleChannels = myAccessibleChannels.filter(c => c !== 'ENABLE_ACTION_BTNS');
 }
+updates.accessible_channels = myAccessibleChannels;
 
 if (newPwd !== currentUser.password) updates.password = newPwd;
 
